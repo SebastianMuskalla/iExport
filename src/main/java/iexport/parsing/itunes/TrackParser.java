@@ -2,8 +2,8 @@ package iexport.parsing.itunes;
 
 import com.dd.plist.NSDictionary;
 import iexport.domain.Track;
-import iexport.domain.factories.ITunesLibraryFactory;
-import iexport.domain.factories.TrackBuilder;
+import iexport.domain.builder.LibraryBuilder;
+import iexport.domain.builder.TrackBuilder;
 import iexport.helper.logging.LogLevel;
 import iexport.helper.logging.Logger;
 import iexport.parsing.itunes.keys.TrackKeys;
@@ -38,16 +38,16 @@ import iexport.parsing.itunes.keys.TrackKeys;
 		</dict>
  */
 
-final class ITunesTrackParser
+final class TrackParser
 {
 
-    private final ITunesLibraryFactory iTunesLibraryFactory;
+    private final LibraryBuilder iTunesLibraryFactory;
     private final NSDictionary trackDictionary;
     private final TrackBuilder trackBuilder;
 
-    public ITunesTrackParser (ITunesLibraryFactory iTunesLibraryFactory, String trackIdString, NSDictionary trackDictionary)
+    public TrackParser (LibraryBuilder iTunesLibraryFactory, String trackIdString, NSDictionary trackDictionary)
             throws
-            LibraryParsingException
+            IExportParsingException
     {
         this.iTunesLibraryFactory = iTunesLibraryFactory;
         this.trackDictionary = trackDictionary;
@@ -59,7 +59,7 @@ final class ITunesTrackParser
         }
         catch (Exception e)
         {
-            throw new LibraryParsingException("Track ID " + trackIdString + " not convertible to int", e);
+            throw new IExportParsingException("Track ID " + trackIdString + " not convertible to int", e);
         }
         trackBuilder = new TrackBuilder(trackId);
     }
@@ -83,6 +83,6 @@ final class ITunesTrackParser
             }
         }
 
-        return null;
+        return trackBuilder.create();
     }
 }

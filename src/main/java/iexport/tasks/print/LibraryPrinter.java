@@ -1,35 +1,51 @@
-//package iexport.tasks.print;
-//
-//import app.precompiled.Settings;
-//import model.itunes.ItunesLibrary;
-//import model.itunes.Playlist;
-//import service.itunes.LibraryTagParser;
-//import service.logging.Log;
-//import service.logging.SoutLog;
-//
-//import java.io.File;
-//
-///**
-// * @author Sebastian Muskalla
-// */
-//public class LibraryPrinter
-//{
-//    public void run ()
-//    {
-//        File f = new File(Settings.getCommonSettings().path_to_lib);
-//
-//        Log log = new SoutLog();
-//        LibraryTagParser lib_parser = new LibraryTagParser(Settings.getCommonSettings(), log);
-//
-//        ItunesLibrary lib = lib_parser.parseLibrary(Settings.getCommonSettings().path_to_lib, false);
-//
-//        System.out.println(lib.getPlaylists().size() + " playlists");
-//        System.out.println("--- List of playlists ---");
-//        System.out.println(lib.structureToString());
-//
-//        for (Playlist p : lib.getPlaylists())
-//        {
-//            System.out.println(p.getName());
-//        }
-//    }
-//}
+package iexport.tasks.print;
+
+import iexport.domain.Library;
+import iexport.domain.Playlist;
+
+import java.io.PrintStream;
+
+/**
+ * @author Sebastian Muskalla
+ */
+public class LibraryPrinter
+{
+    private final Library library;
+
+    private final PrintStream out = System.out;
+
+    public LibraryPrinter (Library library)
+    {
+        this.library = library;
+    }
+
+
+    public void run ()
+    {
+        out.println(library.toString());
+        for (Playlist p : library.getPlaylistsAtTopLevel())
+        {
+            printPlaylist(p);
+        }
+    }
+
+    private void printPlaylist (Playlist p)
+    {
+        printPlaylist(p, 0);
+    }
+
+    private void printPlaylist (Playlist p, int indentLevel)
+    {
+        assert indentLevel >= 0;
+        String indent = "";
+        for (int i = 0; i < indentLevel; i++)
+        {
+            indent += "    ";
+        }
+        out.println(indent + p);
+        for (Playlist subplaylist : p.getChildren())
+        {
+            printPlaylist(subplaylist, indentLevel + 1);
+        }
+    }
+}

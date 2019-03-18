@@ -1,9 +1,9 @@
 package iexport.parsing.itunes.keys;
 
-import iexport.domain.factories.TrackBuilder;
+import iexport.domain.builder.TrackBuilder;
 import iexport.helper.logging.LogLevel;
 import iexport.helper.logging.Logger;
-import iexport.parsing.itunes.LibraryParsingException;
+import iexport.parsing.itunes.IExportParsingException;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -32,7 +32,7 @@ public class TrackKeys
                         {
                             trackFactory.verifyTrackId((Integer) value);
                         }
-                        catch (LibraryParsingException e)
+                        catch (IExportParsingException e)
                         {
                             throw new RuntimeException(e);
                         }
@@ -787,6 +787,21 @@ public class TrackKeys
                     else
                     {
                         Logger.log(LogLevel.DEV_WARNING, "Grouping " + value.toString() + " of unexpected type " + value.getClass().toString());
+                    }
+                }
+        );
+
+        handlers.put("Disliked",
+                (TrackBuilder trackFactory, Object value)
+                        ->
+                {
+                    if (value.getClass().equals(Boolean.class))
+                    {
+                        trackFactory.setDisliked((Boolean) value);
+                    }
+                    else
+                    {
+                        Logger.log(LogLevel.DEV_WARNING, "Boolean " + value.toString() + " of unexpected type " + value.getClass().toString());
                     }
                 }
         );

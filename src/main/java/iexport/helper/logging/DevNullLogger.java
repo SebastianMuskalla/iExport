@@ -1,8 +1,6 @@
 package iexport.helper.logging;
 
-/**
- * @author Sebastian Muskalla
- */
+
 public class DevNullLogger implements Log
 {
     @Override

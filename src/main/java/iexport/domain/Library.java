@@ -1,9 +1,106 @@
 package iexport.domain;
 
-public class ITunesLibrary
+import javax.annotation.CheckForNull;
+import java.util.Date;
+import java.util.List;
+
+public class Library
 {
 
-//    private final HashMap<String, Track> tracks = new HashMap<String, Track>();
+    private final List<Track> tracks;
+    private final List<Playlist> playlists;
+    private final List<Playlist> playlistsAtTopLevel;
+
+    @CheckForNull
+    private String applicationVersion;
+    @CheckForNull
+    private String persistentId;
+    @CheckForNull
+    private Date date;
+
+    @CheckForNull
+    private String musicFolder;
+
+    private int numberOfPlayslists;
+    private int numberOfTracks;
+
+
+    public Library (List<Track> tracks, List<Playlist> playlists, List<Playlist> playlistsAtTopLevel, @CheckForNull String applicationVersion, @CheckForNull String persistentId, @CheckForNull Date date, String musicFolder)
+    {
+        this.tracks = tracks;
+        this.playlists = playlists;
+        this.playlistsAtTopLevel = playlistsAtTopLevel;
+        this.applicationVersion = applicationVersion;
+        this.persistentId = persistentId;
+        this.date = date;
+        this.musicFolder = musicFolder;
+        this.numberOfPlayslists = playlists.size();
+        this.numberOfTracks = tracks.size();
+    }
+
+    public List<Track> getTracks ()
+    {
+        return tracks;
+    }
+
+    public List<Playlist> getPlaylists ()
+    {
+        return playlists;
+    }
+
+    public List<Playlist> getPlaylistsAtTopLevel ()
+    {
+        return playlistsAtTopLevel;
+    }
+
+    @CheckForNull
+    public String getApplicationVersion ()
+    {
+        return applicationVersion;
+    }
+
+    @CheckForNull
+    public String getPersistentId ()
+    {
+        return persistentId;
+    }
+
+    @CheckForNull
+    public Date getDate ()
+    {
+        return date;
+    }
+
+    @CheckForNull
+    public String getMusicFolder ()
+    {
+        return musicFolder;
+    }
+
+    public int getNumberOfPlayslists ()
+    {
+        return numberOfPlayslists;
+    }
+
+    public int getNumberOfTracks ()
+    {
+        return numberOfTracks;
+    }
+
+    @Override
+    public String toString ()
+    {
+        return "Library{" +
+                "applicationVersion='" + applicationVersion + '\'' +
+                ", persistentId='" + persistentId + '\'' +
+                ", date=" + date +
+                ", musicFolder='" + musicFolder + '\'' +
+                ", numberOfPlayslists=" + numberOfPlayslists +
+                ", numberOfTracks=" + numberOfTracks +
+                '}';
+    }
+}
+
 //    private final HashMap<String, Playlist> all_playlists = new HashMap<>();
 //    private TreeSet<Playlist> toplevel_playlists = new TreeSet<>(new PlaylistComparatorLeavesFirst()); // TODO
 //
@@ -127,4 +224,4 @@ public class ITunesLibrary
 //        }
 //        return sb.toString();
 //    }
-}
+

@@ -10,7 +10,7 @@ apply plugin: 'application'
 
 project.group = 'de.solais'
 project.version = '0.1.0'
-project.mainClassName = 'iexport.main'
+project.mainClassName = 'iexport.IExport'
 project.sourceCompatibility = JavaVersion.VERSION_1_10
 project.targetCompatibility = JavaVersion.VERSION_1_10
 
@@ -34,9 +34,11 @@ dependencies {
 
     // https://mvnrepository.com/artifact/com.googlecode.plist/dd-plist
     compile group: 'com.googlecode.plist', name: 'dd-plist', version: '1.3'
-
-
+    
     compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
+
+    // https://mvnrepository.com/artifact/org.snakeyaml/snakeyaml-engine
+    compile group: 'org.snakeyaml', name: 'snakeyaml-engine', version: '1.0'
 
 }
 

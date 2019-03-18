@@ -1,12 +1,11 @@
 package iexport.helper.logging;
 
-/**
- * @author Sebastian
- */
+
 public enum LogLevel
 {
-    IMPORTANT,
+    DEBUG,
+    INFO,
+    WARNING,
     DEV_WARNING,
-    VERBOSE,
-    DEBUG
+    ERROR;
 }
