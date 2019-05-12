@@ -7,41 +7,17 @@ import iexport.tasks.common.Task;
 import iexport.tasks.common.TaskSettings;
 import iexport.util.FolderDeleter;
 
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-
-//package iexport.tasks.playlistgen;
-//
-//import model.itunes.ItunesLibrary;
-//import model.itunes.Playlist;
-//import model.itunes.Track;
-//import model.settings.CommonSettings;
-//import model.settings.PlaylistGenerationSettings;
-//import old.Settings;
-//import service.itunes.LibraryTagParser;
-//import service.util.FileSystem;
-//import service.util.LocationStringParser;
-//import service.util.PathToFile;
-//
-//import java.io.File;
-//import java.io.FileNotFoundException;
-//import java.io.IOException;
-//import java.io.PrintWriter;
-//import java.util.ArrayList;
-//import java.util.Collection;
-//import java.util.TreeSet;
-//
-///**
-// * @author Sebastian Muskalla
-// */
 
 
 public class PlaylistGenTask extends Task
@@ -50,13 +26,18 @@ public class PlaylistGenTask extends Task
 
     private final PlaylistGenSettings playlistGenSettings;
 
-    private final File outputFolder;
+    private final Path outputFolder;
 
     public PlaylistGenTask (Library library, TaskSettings taskSettings)
     {
-        super(SHORTHAND, library, taskSettings);
+        super(library, taskSettings);
         playlistGenSettings = new PlaylistGenSettings(taskSettings);
-        outputFolder = new File(playlistGenSettings.getOutputFolder());
+        outputFolder = Paths.get(playlistGenSettings.getOutputFolder());
+    }
+
+    @Override
+    public String getShorthand() {
+        return SHORTHAND;
     }
 
     @Override
@@ -70,15 +51,21 @@ public class PlaylistGenTask extends Task
 
     private void prepareFolder ()
     {
-        if (outputFolder.exists())
+        try
         {
-            FolderDeleter folderDeleter = new FolderDeleter();
-            if (!folderDeleter.recursiveDelete(outputFolder))
+            if (Files.exists(outputFolder))
             {
-                throw new RuntimeException("Couldnt delete " + outputFolder);
+                FolderDeleter folderDeleter = new FolderDeleter();
+
+                folderDeleter.recursiveDelete(outputFolder);
+
             }
+            Files.createDirectories(outputFolder);
         }
-        outputFolder.mkdirs();
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
 
@@ -147,7 +134,7 @@ public class PlaylistGenTask extends Task
         playlistDestinationFilenameString.append(".m3u");
 
         String playlistDestinationFileString = playlistDestinationFolderString.toString() + File.separator + playlistDestinationFilenameString.toString();
-
+        Path playlistDestinationFile = Paths.get(playlistDestinationFileString);
 
         for (Track track : tracks)
         {
@@ -162,63 +149,61 @@ public class PlaylistGenTask extends Task
                 throw new RuntimeException(e);
             }
 
-            // discord the "authority" part of the uri
-            File trackFile = new File(trackUri.getPath());
+            if (!trackUri.getAuthority().equals("localhost"))
+            {
+                throw new RuntimeException("Remote file");
+            }
 
-            if (!trackFile.exists())
+
+            //Path trackFile = Paths.get("F:\\Audio\\Music\\M\\Michael Jackson - Billie Jean.mp3");
+            String string1 = trackUri.getPath();
+            if (string1.contains(":") && string1.charAt(0) == '/')
+            {
+                string1 = string1.substring(1);
+            }
+
+//            System.out.println(trackUriString);
+//            System.out.println(trackUri);
+//            System.out.println(string1);
+
+            Path trackFile = Paths.get(string1);
+
+            if (!Files.exists(trackFile))
             {
                 throw new RuntimeException("File at location" + trackFile.toString() + " (taken from " + trackUriString + ") does not exist");
             }
 
-
             // For example, on UNIX, if this path is "/a/b" and the given path is "/a/b/c/d" then the resulting relative path would be "c/d".
             Path playlistDestinationPath = Paths.get(playlistDestinationFolderString.toString());
-            Path trackPath = Paths.get(trackFile.toURI());
-            Path relativePath = playlistDestinationPath.relativize(trackPath);
+            Path relativePath = playlistDestinationPath.relativize(trackFile);
 
             content.append(relativePath);
             content.append('\n');
         }
 
-        writePlaylist(new File(playlistDestinationFileString), content.toString());
+        writePlaylist(playlistDestinationFile, content.toString());
     }
 
-    private void writePlaylist (File loc, String content)
+    private void writePlaylist (Path destination, String content)
     {
-        // create parent if needed
-        // TODO does this work if nesting > 1?
-        if (loc.getParentFile() != null && !loc.getParentFile().exists())
-        {
-            if (!loc.getParentFile().mkdirs())
-            {
-                throw new RuntimeException("Failed to create parent file " + loc.getParentFile().toString());
-            }
-        }
-
         try
         {
-            if (!loc.createNewFile())
-            {
-                throw new RuntimeException("Could not create Playlist at " + loc.getName());
-            }
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException("Could not create Playlist at " + loc.getName() + " due to IOException", e);
-        }
+            // create parent if needed
+            Path parent = destination.getParent();
 
-        PrintWriter file_writer;
+            // create parent directories
+            Files.createDirectories(parent);
 
-        try
-        {
-            file_writer = new PrintWriter(loc);
-        }
-        catch (FileNotFoundException e)
-        {
-            throw new RuntimeException("Could not write " + loc.getName());
-        }
+            //  Files.createFile(destination);
 
-        file_writer.println(content);
-        file_writer.close();
+            // write stuff
+            BufferedWriter bufferedWriter = Files.newBufferedWriter(destination, StandardCharsets.UTF_8);
+            bufferedWriter.write(content);
+            bufferedWriter.close();
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 }

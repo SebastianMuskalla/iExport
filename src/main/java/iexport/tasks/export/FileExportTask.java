@@ -8,10 +8,12 @@ import iexport.tasks.common.TaskSettings;
 import iexport.util.FolderDeleter;
 import iexport.util.IntegerFormatter;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -25,7 +27,7 @@ public class FileExportTask extends Task
 
     private final FileExportSettings fileExportSettings;
 
-    private final File outputFolder;
+    private final Path outputFolder;
 
     private int currentPlaylistNumber;
 
@@ -33,11 +35,17 @@ public class FileExportTask extends Task
 
     public FileExportTask (Library library, TaskSettings taskSettings)
     {
-        super(SHORTHAND, library, taskSettings);
+        super(library, taskSettings);
         fileExportSettings = new FileExportSettings(taskSettings);
-        outputFolder = new File(fileExportSettings.getOutputFolder());
+        outputFolder = Paths.get(fileExportSettings.getOutputFolder());
 
         currentPlaylistNumber = fileExportSettings.getFirstPlaylistNumber();
+    }
+
+
+    @Override
+    public String getShorthand() {
+        return SHORTHAND;
     }
 
     @Override
@@ -51,15 +59,19 @@ public class FileExportTask extends Task
 
     private void prepareFolder ()
     {
-        if (outputFolder.exists())
+        if (Files.exists(outputFolder))
         {
             FolderDeleter folderDeleter = new FolderDeleter();
-            if (!folderDeleter.recursiveDelete(outputFolder))
+            try
             {
-                throw new RuntimeException("Couldnt delete " + outputFolder);
+                folderDeleter.recursiveDelete(outputFolder);
+                Files.createDirectories(outputFolder);
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
             }
         }
-        outputFolder.mkdirs();
     }
 
 
@@ -139,15 +151,17 @@ public class FileExportTask extends Task
             playlistDestinationFolderString.append(File.separator);
         }
 
-        File playlistDestinationFolderFile = new File(playlistDestinationFolderString.toString());
-        if (!playlistDestinationFolderFile.mkdirs())
-        {
-            throw new RuntimeException("Failed to create folder " + playlistDestinationFolderFile.toString());
-        }
+//        File playlistDestinationFolderFile = new File(playlistDestinationFolderString.toString());
+////        if (!playlistDestinationFolderFile.mkdirs())
+////        {
+////            throw new RuntimeException("Failed to create folder " + playlistDestinationFolderFile.toString());
+////        }
 
 
         int trackCount = tracks.size();
         int trackNumber = 1;
+
+        StringBuilder playlistString = new StringBuilder();
 
         for (Track track : tracks)
         {
@@ -161,35 +175,84 @@ public class FileExportTask extends Task
             {
                 throw new RuntimeException(e);
             }
-            // discord the "authority" part of the uri
-            File trackFile = new File(trackUri.getPath());
 
-            if (!trackFile.exists())
+            if (!trackUri.getAuthority().equals("localhost"))
+            {
+                throw new RuntimeException("Remote file");
+            }
+
+            //Path trackFile = Paths.get("F:\\Audio\\Music\\M\\Michael Jackson - Billie Jean.mp3");
+            String string1 = trackUri.getPath();
+            if (string1.contains(":") && string1.charAt(0) == '/')
+            {
+                string1 = string1.substring(1);
+            }
+
+//            System.out.println(trackUriString);
+//            System.out.println(trackUri);
+//            System.out.println(string1);
+
+            Path trackFile = Paths.get(string1);
+
+            if (!Files.exists(trackFile))
             {
                 throw new RuntimeException("File at location" + trackFile.toString() + " (taken from " + trackUriString + ") does not exist");
             }
 
 
-            Path trackSourcePath = Paths.get(trackFile.toURI());
+            String filename = integerFormatter.toStringOfSize(trackNumber, integerFormatter.digits(trackCount));
+            filename += " - ";
+            filename += trackFile.getFileName();
 
-            String trackDestinationFileString = playlistDestinationFolderString.toString();
-            trackDestinationFileString += integerFormatter.toStringOfSize(trackNumber, integerFormatter.digits(trackCount));
-            trackDestinationFileString += " - ";
-            trackDestinationFileString += trackSourcePath.getFileName();
-
-            trackNumber++;
-
-            Path trackDestinationPath = Paths.get(trackDestinationFileString);
-
+            Path folder = Paths.get(playlistDestinationFolderString.toString());
             try
             {
-                Files.copy(trackSourcePath, trackDestinationPath);
+                Files.createDirectories(folder);
             }
             catch (IOException e)
             {
                 e.printStackTrace();
-                return;
+                throw new RuntimeException();
             }
+
+            String trackDestinationFileString = playlistDestinationFolderString.toString() + filename;
+            Path trackDestinationPath = Paths.get(trackDestinationFileString);
+
+            playlistString.append(filename).append("\n");
+
+            trackNumber++;
+
+            try
+            {
+                Files.copy(trackFile, trackDestinationPath);
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+                throw new RuntimeException();
+            }
+        }
+
+        if (fileExportSettings.createPlaylistPerFolder())
+        {
+            try
+            {
+                // create parent if needed
+                String destinationString = playlistDestinationFolderString.toString() + File.separator + playlist.getName() + ".m3u";
+
+                //  Files.createFile(destination);
+
+                // write stuff
+                BufferedWriter bufferedWriter = Files.newBufferedWriter(Paths.get(destinationString), StandardCharsets.UTF_8);
+                bufferedWriter.write(playlistString.toString());
+                bufferedWriter.close();
+
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+
         }
     }
 

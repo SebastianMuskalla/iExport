@@ -4,13 +4,15 @@ import com.dd.plist.*;
 import iexport.domain.Library;
 import iexport.parsing.itunes.IExportParsingException;
 import iexport.parsing.itunes.LibraryParser;
+import iexport.tasks.common.Task;
 import iexport.tasks.common.TaskSettings;
+import iexport.tasks.export.FileExportTask;
 import iexport.tasks.playlistgen.PlaylistGenTask;
 import iexport.tasks.print.LibraryPrinter;
 
 import java.io.File;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
+
 
 public class IExport
 {
@@ -23,8 +25,6 @@ public class IExport
         try
         {
             library = iTunesLibraryParser.parse();
-            var printer = new LibraryPrinter(library);
-            printer.run();
         }
         catch (IExportParsingException e)
         {
@@ -34,14 +34,50 @@ public class IExport
         TaskSettings taskSettings = new TaskSettings();
 
 
-        PlaylistGenTask playlistGenTask = new PlaylistGenTask(library, taskSettings);
-        playlistGenTask.run();
+        Map<String, Task> tasks = new HashMap<>();
+
+        Set<Task> taskList = new HashSet<>();
+
+        taskList.add(new FileExportTask(library, taskSettings));
+        taskList.add(new PlaylistGenTask(library, taskSettings));
+        taskList.add(new LibraryPrinter(library, taskSettings));
+
+        for (Task task : taskList)
+        {
+            tasks.put(task.getShorthand(), task);
+        }
 
 
-//        FileExportTask fileExportTask = new FileExportTask(library, taskSettings);
-//        fileExportTask.run();
+        String taskName;
 
+        if (args.length > 0)
+        {
+            taskName = args[0];
+        }
+        else
+        {
+            System.out.print("Interactive mode: Enter a task to execute. Pick among:");
+            for (Task task : taskList)
+            {
+                System.out.print(" " + task.getShorthand());
+            }
+            System.out.println("");
+
+            Scanner scanner = new Scanner(System.in);
+            taskName = scanner.next();
+        }
+
+        Task task = tasks.get(taskName);
+
+        if (task == null)
+        {
+            throw new RuntimeException("No task with name " + taskName);
+        }
+
+        System.out.println("Executing task " + task.getShorthand());
+        task.run();
     }
+
 //    public static void main (String[] args)
 //    {
 ////        File file = new File("C:/Users/Sebastian/Music/iTunes/iTunes Music Library.xml");

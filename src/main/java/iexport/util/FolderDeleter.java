@@ -1,31 +1,53 @@
 package iexport.util;
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 
 public class FolderDeleter
 {
 
-    public boolean recursiveDelete (File file)
+    public void recursiveDelete (Path pathToFile)
+            throws
+            IOException
     {
-        if (file == null || !file.exists())
+        if (pathToFile == null || !Files.exists(pathToFile))
         {
-            return false;
+            return;
         }
 
-        // if the file is a directory, we need to delete its content first
-        if (file.isDirectory())
+        Files.walkFileTree(pathToFile, new SimpleFileVisitor<Path>()
         {
-            for (File f : file.listFiles())
+            @Override
+            public FileVisitResult visitFile (Path file, BasicFileAttributes attrs)
+                    throws
+                    IOException
             {
-                if (!recursiveDelete(f))
+                Files.delete(file);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory (Path dir, IOException e)
+                    throws
+                    IOException
+            {
+                if (e == null)
                 {
-                    return false;
+                    Files.delete(dir);
+                    return FileVisitResult.CONTINUE;
+                }
+                else
+                {
+                    // directory iteration failed
+                    throw e;
                 }
             }
-        }
+        });
 
-        // if it is not a directory or an empty directory, we can delete it
-        return file.delete();
     }
 
 }

@@ -2,21 +2,29 @@ package iexport.tasks.print;
 
 import iexport.domain.Library;
 import iexport.domain.Playlist;
+import iexport.tasks.common.Task;
+import iexport.tasks.common.TaskSettings;
 
 import java.io.PrintStream;
 
-/**
- * @author Sebastian Muskalla
- */
-public class LibraryPrinter
+
+public class LibraryPrinter extends Task
 {
+    public static final String SHORTHAND = "print";
+
     private final Library library;
 
     private final PrintStream out = System.out;
 
-    public LibraryPrinter (Library library)
+    public LibraryPrinter (Library library, TaskSettings taskSettings)
     {
+        super(library, taskSettings);
         this.library = library;
+    }
+
+    @Override
+    public String getShorthand() {
+        return SHORTHAND;
     }
 
 
