@@ -590,4 +590,17 @@ public class Track
     {
         inPlaylists.add(playlist);
     }
+
+    public Set<Playlist> getInPlaylists ()
+    {
+        return inPlaylists;
+    }
+
+    @Override
+    public String toString()
+    {
+        return getName();
+    }
+
+
 }

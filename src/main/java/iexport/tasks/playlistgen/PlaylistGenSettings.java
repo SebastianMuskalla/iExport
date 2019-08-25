@@ -11,6 +11,11 @@ public class PlaylistGenSettings
 
     private final Boolean prependParents = true;
 
+    /**
+     * using .m3u leads to problems with non-ASCII chars (french accents, japanese characters, ...) in filenames within the playlist
+     */
+    private final String playlistExtension = ".m3u8";
+
     public PlaylistGenSettings (TaskSettings taskSettings)
     {
     }
@@ -44,5 +49,10 @@ public class PlaylistGenSettings
         }
 
         return false;
+    }
+
+    public String getPlaylistExtension ()
+    {
+        return playlistExtension;
     }
 }

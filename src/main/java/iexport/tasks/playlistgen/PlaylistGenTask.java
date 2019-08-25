@@ -84,6 +84,8 @@ public class PlaylistGenTask extends Task
 
     private void exportPlaylist (Playlist playlist, ArrayList<String> callStack)
     {
+        System.out.println("Exporting " + playlist);
+
         // export the playlist unless it is ignored
         if (!playlistGenSettings.isIgnored(playlist))
         {
@@ -131,7 +133,7 @@ public class PlaylistGenTask extends Task
             }
         }
         playlistDestinationFilenameString.append(playlist.getName());
-        playlistDestinationFilenameString.append(".m3u");
+        playlistDestinationFilenameString.append(playlistGenSettings.getPlaylistExtension());
 
         String playlistDestinationFileString = playlistDestinationFolderString.toString() + File.separator + playlistDestinationFilenameString.toString();
         Path playlistDestinationFile = Paths.get(playlistDestinationFileString);

@@ -4,7 +4,7 @@ import iexport.domain.Playlist;
 import iexport.domain.Track;
 
 import java.util.Comparator;
-import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * @author Sebastian Muskalla
@@ -76,28 +76,26 @@ public class TrackComparator implements Comparator<Track>
         return obj.getClass().equals(this.getClass());
     }
 
-    private boolean isAlbumTrack (Track o)
+    private boolean isAlbumTrack (Track track)
     {
         if (inPlaylist == null)
         {
             return false;
         }
 
-        if (o.getAlbumArtist() == null && o.getAlbum() == null)
+        if (track.getAlbumArtist() == null || track.getAlbum() == null)
         {
             return false;
         }
-        List<Track> tracks = inPlaylist.getTracks();
-        int count = 0;
-        for (Track track : tracks)
-        {
-            String album = track.getAlbum();
-            if (album != null && album.equals(o.getAlbum()))
-            {
-                count++;
-            }
-        }
-        return count >= MIN_ALBUM_TRACK_COUNT;
+
+        Predicate<Track> trackPredicate = t -> track.getAlbum().equals(t.getAlbum())
+                && track.getAlbumArtist().equals(t.getAlbumArtist())
+                && ((track.getDiscNumber() == null && t.getDiscNumber() == null) || (track.getDiscNumber() != null && track.getDiscNumber().equals(t.getDiscNumber())));
+
+        long tracksFromSameAlbumCount = inPlaylist.getTracks().stream().filter(trackPredicate).count();
+
+
+        return tracksFromSameAlbumCount >= MIN_ALBUM_TRACK_COUNT || (track.getTrackCount() != null && tracksFromSameAlbumCount >= track.getTrackCount());
     }
 
     private int compareAlbumTracks (Track o1, Track o2)
