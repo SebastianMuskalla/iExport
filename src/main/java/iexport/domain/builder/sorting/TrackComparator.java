@@ -11,7 +11,8 @@ import java.util.function.Predicate;
  */
 public class TrackComparator implements Comparator<Track>
 {
-    static public final int MIN_ALBUM_TRACK_COUNT = 5; // TODO
+    static public final int MIN_COMPLETE_ALBUM_TRACK_COUNT = 3; // TODO
+    static public final int MIN_INCOMPLETE_ALBUM_TRACK_COUNT = 5; // TODO
 
     private static final int EQUAL = 0;
     private static final int FIRST_HAS_PRIORITY = -1;
@@ -95,7 +96,7 @@ public class TrackComparator implements Comparator<Track>
         long tracksFromSameAlbumCount = inPlaylist.getTracks().stream().filter(trackPredicate).count();
 
 
-        return tracksFromSameAlbumCount >= MIN_ALBUM_TRACK_COUNT || (track.getTrackCount() != null && tracksFromSameAlbumCount >= track.getTrackCount());
+        return tracksFromSameAlbumCount >= MIN_INCOMPLETE_ALBUM_TRACK_COUNT || (track.getTrackCount() != null && track.getTrackCount() >= MIN_COMPLETE_ALBUM_TRACK_COUNT &&  tracksFromSameAlbumCount >= track.getTrackCount());
     }
 
     private int compareAlbumTracks (Track o1, Track o2)

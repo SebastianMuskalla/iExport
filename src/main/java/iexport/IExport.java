@@ -67,6 +67,9 @@ public class IExport
             taskName = scanner.next();
         }
 
+        // TODO WTF
+        taskName = "fileexport";
+
         Task task = tasks.get(taskName);
 
         if (task == null)
