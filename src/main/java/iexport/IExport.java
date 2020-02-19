@@ -68,7 +68,8 @@ public class IExport
         }
 
         // TODO WTF
-        taskName = "fileexport";
+//      taskName = "fileexport";
+        taskName = "playlistgen";
 
         Task task = tasks.get(taskName);
 

@@ -15,7 +15,7 @@ public class FileExportSettings
 
     private final Boolean onlyExportLeaves = true;
 
-    private final Boolean createPlaylistPerFolder = true;
+    private final Boolean createPlaylistPerFolder = false;
 
     public FileExportSettings (TaskSettings taskSettings)
     {

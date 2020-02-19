@@ -18,6 +18,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class PlaylistGenTask extends Task
@@ -179,7 +181,18 @@ public class PlaylistGenTask extends Task
             Path playlistDestinationPath = Paths.get(playlistDestinationFolderString.toString());
             Path relativePath = playlistDestinationPath.relativize(trackFile);
 
-            content.append(relativePath);
+            // check for brackets [ ] because VLC wants them to be escaped, but PowerAmp doesn't want to be the escaped
+            // -> we warn
+            String relativePathString = relativePath.toString();
+            String patternString = "\\[|\\]";
+            Pattern pattern = Pattern.compile(patternString);
+            Matcher matcher = pattern.matcher(relativePathString);
+            if (matcher.find())
+            {
+                System.out.println("Warning! - Invalid unescapable character in " + relativePathString);
+            }
+
+            content.append(relativePathString);
             content.append('\n');
         }
 
