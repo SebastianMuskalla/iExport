@@ -130,23 +130,12 @@ public class LibraryBuilder
         library.getPlaylists().sort(new PlaylistComparator());
         library.getTracks().sort(new TrackComparator());
 
-        for (Playlist playlist : playlistsAtTopLevel)
+        for (Playlist playlist : allPlaylists)
         {
-            sortPlaylist(playlist);
+            playlist.getTracks().sort(new TrackComparator());
+            playlist.getChildren().sort(new PlaylistComparator());
         }
     }
-
-    private void sortPlaylist (Playlist playlist)
-    {
-        playlist.getTracks().sort(new TrackComparator(playlist));
-        playlist.getChildren().sort(new PlaylistComparator());
-
-        for (Playlist childPlaylist : playlist.getChildren())
-        {
-            sortPlaylist(childPlaylist);
-        }
-    }
-
 
     private void constructPlaylists ()
             throws

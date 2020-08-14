@@ -5,7 +5,7 @@ import iexport.tasks.common.TaskSettings;
 
 public class PlaylistGenSettings
 {
-    private final String outputFolder = "F:\\Audio\\Playlists";
+    private final String outputFolder = "E:\\Audio\\Playlists";
 
     private final Boolean organizeInFolders = true;
 

@@ -5,7 +5,7 @@ import iexport.tasks.common.TaskSettings;
 
 public class FileExportSettings
 {
-    private final String outputFolder = "F:\\USBMP3\\";
+    private final String outputFolder = "E:\\USBMP3\\";
 
     private final Boolean prependParents = true;
 

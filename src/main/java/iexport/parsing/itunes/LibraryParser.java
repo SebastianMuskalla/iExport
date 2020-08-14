@@ -60,6 +60,11 @@ public class LibraryParser
             String key = keyValuePair.getKey();
             Object value = keyValuePair.getValue().toJavaObject();
 
+            // we will later handle the tracks seperately
+            if (key.equals("Tracks"))
+            {
+                continue;
+            }
 
             var handler = MetadataKeys.getHandlerFor(key);
 

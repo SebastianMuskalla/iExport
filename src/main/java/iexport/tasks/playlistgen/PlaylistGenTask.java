@@ -3,6 +3,8 @@ package iexport.tasks.playlistgen;
 import iexport.domain.Library;
 import iexport.domain.Playlist;
 import iexport.domain.Track;
+import iexport.helper.logging.LogLevel;
+import iexport.helper.logging.Logger;
 import iexport.tasks.common.Task;
 import iexport.tasks.common.TaskSettings;
 import iexport.util.FolderDeleter;
@@ -86,7 +88,7 @@ public class PlaylistGenTask extends Task
 
     private void exportPlaylist (Playlist playlist, ArrayList<String> callStack)
     {
-        System.out.println("Exporting " + playlist);
+        Logger.log(LogLevel.INFO, "Exporting " + playlist);
 
         // export the playlist unless it is ignored
         if (!playlistGenSettings.isIgnored(playlist))
@@ -189,7 +191,7 @@ public class PlaylistGenTask extends Task
             Matcher matcher = pattern.matcher(relativePathString);
             if (matcher.find())
             {
-                System.out.println("Warning! - Invalid unescapable character in " + relativePathString);
+                Logger.log(LogLevel.WARNING, "Invalid unescapable character in \" + relativePathString");
             }
 
             content.append(relativePathString);

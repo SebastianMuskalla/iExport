@@ -13,6 +13,10 @@ import iexport.tasks.print.LibraryPrinter;
 import java.io.File;
 import java.util.*;
 
+/**
+ * TODO: Settings to JSON
+ * TODO: Always use loggerr
+ */
 
 public class IExport
 {
@@ -68,8 +72,8 @@ public class IExport
         }
 
         // TODO WTF
-//      taskName = "fileexport";
-        taskName = "playlistgen";
+        taskName = "fileexport";
+        //taskName = "playlistgen";
 
         Task task = tasks.get(taskName);
 

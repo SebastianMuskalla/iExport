@@ -238,6 +238,7 @@ public class FileExportTask extends Task
             try
             {
                 // create parent if needed
+                // TODO: Should use .m3u8 here
                 String destinationString = playlistDestinationFolderString.toString() + File.separator + playlist.getName() + ".m3u";
 
                 //  Files.createFile(destination);

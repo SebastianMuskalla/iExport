@@ -5,6 +5,6 @@ public class SoutLog implements Log
     @Override
     public void log (LogLevel lvl, Object s)
     {
-        System.out.println(s);
+        System.out.println(lvl.toString() + ": " + s);
     }
 }
