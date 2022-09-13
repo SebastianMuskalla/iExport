@@ -1,8 +1,25 @@
+/*
+ * Copyright 2014-2022 Sebastian Muskalla
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package iexport.tasks.export;
 
-import iexport.domain.Library;
-import iexport.domain.Playlist;
-import iexport.domain.Track;
+import iexport.itunes.Library;
+import iexport.itunes.Playlist;
+import iexport.itunes.Track;
 import iexport.tasks.common.Task;
 import iexport.tasks.common.TaskSettings;
 import iexport.util.FolderDeleter;
@@ -44,7 +61,8 @@ public class FileExportTask extends Task
 
 
     @Override
-    public String getShorthand() {
+    public String getShorthand ()
+    {
         return SHORTHAND;
     }
 
@@ -77,7 +95,7 @@ public class FileExportTask extends Task
 
     private void exportAllPlaylists ()
     {
-        for (Playlist p : getLibrary().getPlaylistsAtTopLevel())
+        for (Playlist p : getLibrary().playlistsAtTopLevel())
         {
             export(p);
         }
@@ -106,12 +124,12 @@ public class FileExportTask extends Task
         // TODO should children of ignored playlists be ignored too?
 
         // if p has children
-        if (!playlist.getChildren().isEmpty())
+        if (!playlist.children().isEmpty())
         {
             // create a (deep) copy of the call stack to avoid problems with aliasing
             ArrayList<String> newStack = new ArrayList<>(callStack);
-            newStack.add(playlist.getName());
-            for (Playlist sl : playlist.getChildren())
+            newStack.add(playlist.name());
+            for (Playlist sl : playlist.children())
             {
                 exportPlaylist(sl, newStack);
             }
@@ -120,7 +138,7 @@ public class FileExportTask extends Task
 
     private void exportTracks (Playlist playlist, ArrayList<String> callStack, boolean exportToRootfolder)
     {
-        List<Track> tracks = playlist.getTracks();
+        List<Track> tracks = playlist.tracks();
 
         StringBuilder content = new StringBuilder();
 
@@ -132,7 +150,7 @@ public class FileExportTask extends Task
 
             if (fileExportSettings.getConsecutivePlaylistNumbering())
             {
-                playlistDestinationFolderString.append(integerFormatter.toStringOfSize(currentPlaylistNumber, integerFormatter.digits(getLibrary().getNumberOfPlayslists())));
+                playlistDestinationFolderString.append(integerFormatter.toStringOfSize(currentPlaylistNumber, integerFormatter.digits(getLibrary().numberOfPlaylists())));
                 playlistDestinationFolderString.append(" ");
                 currentPlaylistNumber++;
             }
@@ -147,7 +165,7 @@ public class FileExportTask extends Task
                 }
             }
 
-            playlistDestinationFolderString.append(playlist.getName());
+            playlistDestinationFolderString.append(playlist.name());
             playlistDestinationFolderString.append(File.separator);
         }
 
@@ -165,7 +183,7 @@ public class FileExportTask extends Task
 
         for (Track track : tracks)
         {
-            String trackUriString = track.getLocation();
+            String trackUriString = track.location();
             URI trackUri = null;
             try
             {
@@ -239,7 +257,7 @@ public class FileExportTask extends Task
             {
                 // create parent if needed
                 // TODO: Should use .m3u8 here
-                String destinationString = playlistDestinationFolderString.toString() + File.separator + playlist.getName() + ".m3u";
+                String destinationString = playlistDestinationFolderString.toString() + File.separator + playlist.name() + ".m3u";
 
                 //  Files.createFile(destination);
 

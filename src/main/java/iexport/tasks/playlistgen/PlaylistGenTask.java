@@ -1,10 +1,27 @@
+/*
+ * Copyright 2014-2022 Sebastian Muskalla
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package iexport.tasks.playlistgen;
 
-import iexport.domain.Library;
-import iexport.domain.Playlist;
-import iexport.domain.Track;
 import iexport.helper.logging.LogLevel;
 import iexport.helper.logging.Logger;
+import iexport.itunes.Library;
+import iexport.itunes.Playlist;
+import iexport.itunes.Track;
 import iexport.tasks.common.Task;
 import iexport.tasks.common.TaskSettings;
 import iexport.util.FolderDeleter;
@@ -40,7 +57,8 @@ public class PlaylistGenTask extends Task
     }
 
     @Override
-    public String getShorthand() {
+    public String getShorthand ()
+    {
         return SHORTHAND;
     }
 
@@ -75,7 +93,7 @@ public class PlaylistGenTask extends Task
 
     private void exportAllPlaylists ()
     {
-        for (Playlist p : getLibrary().getPlaylistsAtTopLevel())
+        for (Playlist p : getLibrary().playlistsAtTopLevel())
         {
             export(p);
         }
@@ -99,12 +117,12 @@ public class PlaylistGenTask extends Task
         // TODO should children of ignored playlists be ignored too?
 
         // if p has children
-        if (!playlist.getChildren().isEmpty())
+        if (!playlist.children().isEmpty())
         {
             // create a (deep) copy of the call stack to avoid problems with aliasing
             ArrayList<String> newStack = new ArrayList<>(callStack);
-            newStack.add(playlist.getName());
-            for (Playlist sl : playlist.getChildren())
+            newStack.add(playlist.name());
+            for (Playlist sl : playlist.children())
             {
                 exportPlaylist(sl, newStack);
             }
@@ -113,7 +131,7 @@ public class PlaylistGenTask extends Task
 
     private void exportTracks (Playlist playlist, ArrayList<String> callStack)
     {
-        List<Track> tracks = playlist.getTracks();
+        List<Track> tracks = playlist.tracks();
 
         StringBuilder content = new StringBuilder();
 
@@ -136,7 +154,7 @@ public class PlaylistGenTask extends Task
                 playlistDestinationFilenameString.append(" - ");
             }
         }
-        playlistDestinationFilenameString.append(playlist.getName());
+        playlistDestinationFilenameString.append(playlist.name());
         playlistDestinationFilenameString.append(playlistGenSettings.getPlaylistExtension());
 
         String playlistDestinationFileString = playlistDestinationFolderString.toString() + File.separator + playlistDestinationFilenameString.toString();
@@ -144,7 +162,7 @@ public class PlaylistGenTask extends Task
 
         for (Track track : tracks)
         {
-            String trackUriString = track.getLocation();
+            String trackUriString = track.location();
             URI trackUri = null;
             try
             {
@@ -191,7 +209,7 @@ public class PlaylistGenTask extends Task
             Matcher matcher = pattern.matcher(relativePathString);
             if (matcher.find())
             {
-                Logger.log(LogLevel.WARNING, "Invalid unescapable character in \" + relativePathString");
+                Logger.log(LogLevel.WARNING, "Invalid unescapable character in" + relativePathString);
             }
 
             content.append(relativePathString);

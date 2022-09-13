@@ -1,6 +1,23 @@
+/*
+ * Copyright 2014-2022 Sebastian Muskalla
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package iexport.tasks.export;
 
-import iexport.domain.Playlist;
+import iexport.itunes.Playlist;
 import iexport.tasks.common.TaskSettings;
 
 public class FileExportSettings
@@ -36,16 +53,16 @@ public class FileExportSettings
     // TODO should this method be here?
     public boolean isIgnored (Playlist playlist)
     {
-        if (playlist.getMaster() != null && playlist.getMaster())
+        if (playlist.master() != null && playlist.master())
         {
             return true;
         }
-        if (playlist.getDistinguishedKind() != null)
+        if (playlist.distinguishedKind() != null)
         {
             return true;
         }
 
-        if (getOnlyExportLeaves() && !playlist.getChildren().isEmpty())
+        if (getOnlyExportLeaves() && !playlist.children().isEmpty())
         {
             return true;
         }
@@ -66,7 +83,7 @@ public class FileExportSettings
     // TODO should this method be here?
     public boolean isExportedToRootFolder (Playlist playlist)
     {
-        return playlist.getName().toLowerCase().equals("Neues".toLowerCase());
+        return playlist.name().toLowerCase().equals("Neues".toLowerCase());
     }
 
     public Boolean getOnlyExportLeaves ()
@@ -74,7 +91,7 @@ public class FileExportSettings
         return onlyExportLeaves;
     }
 
-    public Boolean createPlaylistPerFolder()
+    public Boolean createPlaylistPerFolder ()
     {
         return createPlaylistPerFolder;
     }

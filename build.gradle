@@ -1,45 +1,31 @@
 plugins {
     id 'java'
+
+    // enable run task
+    id 'application'
 }
 
-// IDE Support
-apply plugin: 'idea'
-apply plugin: 'application'
+version '1.0-SNAPSHOT'
 
-project.group = 'de.solais'
-project.version = '0.1.0'
-project.mainClassName = 'iexport.IExport'
-project.sourceCompatibility = JavaVersion.VERSION_1_10
-project.targetCompatibility = JavaVersion.VERSION_1_10
-
-
-def defaultEncoding = 'UTF-8'
-
-tasks.withType(JavaCompile) {
-    options.encoding = defaultEncoding
-}
-tasks.withType(Javadoc) {
-    options.encoding = defaultEncoding
+application {
+    mainClass = 'iexport.IExport'
 }
 
 run {
+    // make sure that scanner works
     standardInput = System.in
-    args = ["playlistgen"]
 }
+
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-
-    // https://mvnrepository.com/artifact/com.googlecode.plist/dd-plist
-    compile group: 'com.googlecode.plist', name: 'dd-plist', version: '1.3'
-
-    compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
-
-    // https://mvnrepository.com/artifact/org.snakeyaml/snakeyaml-engine
-    compile group: 'org.snakeyaml', name: 'snakeyaml-engine', version: '1.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    implementation 'com.googlecode.plist:dd-plist:1.24'
 }
 
-
+test {
+    useJUnitPlatform()
+}

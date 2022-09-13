@@ -1,6 +1,6 @@
 package iexport.tasks.common;
 
-import iexport.domain.Library;
+import iexport.itunes.Library;
 
 public abstract class Task
 {

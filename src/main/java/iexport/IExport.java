@@ -1,9 +1,26 @@
+/*
+ * Copyright 2014-2022 Sebastian Muskalla
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package iexport;
 
 import com.dd.plist.*;
-import iexport.domain.Library;
-import iexport.parsing.itunes.IExportParsingException;
-import iexport.parsing.itunes.LibraryParser;
+import iexport.itunes.Library;
+import iexport.parsing.IExportParsingException;
+import iexport.parsing.LibraryParser;
 import iexport.tasks.common.Task;
 import iexport.tasks.common.TaskSettings;
 import iexport.tasks.export.FileExportTask;
@@ -22,7 +39,8 @@ public class IExport
 {
     public static void main (String[] args)
     {
-        File file = new File("C:/Users/Sebastian/Music/iTunes/iTunes Music Library.xml");
+        String userprofile = System.getenv("USERPROFILE");
+        File file = new File(userprofile + "\\Desktop\\iTunes Music Library.xml");
         LibraryParser iTunesLibraryParser = new LibraryParser(file);
         Library library = null;
 
@@ -51,7 +69,6 @@ public class IExport
             tasks.put(task.getShorthand(), task);
         }
 
-
         String taskName;
 
         if (args.length > 0)
@@ -67,13 +84,13 @@ public class IExport
             }
             System.out.println("");
 
-            Scanner scanner = new Scanner(System.in);
-            taskName = scanner.next();
+//            Scanner scanner = new Scanner(System.in);
+//            taskName = scanner.next();
         }
 
         // TODO WTF
-        taskName = "fileexport";
-        //taskName = "playlistgen";
+//         taskName = "fileexport";
+        taskName = "print";
 
         Task task = tasks.get(taskName);
 
@@ -126,7 +143,7 @@ public class IExport
 ////                System.out.println(rofl);
 ////
 ////                LinkedHashMap map = (LinkedHashMap) rofl;
-////                for (java.util.Map.Entry<?, ?> zomfg : map.entrySet())
+////                for (java.iexport.util.Map.Entry<?, ?> zomfg : map.entrySet())
 ////                {
 ////                    System.out.println("ZOMFG:");
 ////                    System.out.println(zomfg.getClass());
