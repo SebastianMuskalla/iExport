@@ -22,8 +22,14 @@ repositories {
 
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+
     implementation 'com.googlecode.plist:dd-plist:1.24'
+
+    // https://mvnrepository.com/artifact/org.snakeyaml/snakeyaml-engine
+    implementation 'org.snakeyaml:snakeyaml-engine:2.4'
+
 }
 
 test {

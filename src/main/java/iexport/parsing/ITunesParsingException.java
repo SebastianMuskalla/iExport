@@ -18,25 +18,25 @@
 package iexport.parsing;
 
 /**
- * An exception that will be thrown if parsing fails in a non-recoverable way.
+ * An exception that will be thrown if parsing the iTunes .xml fails in a non-recoverable way.
  */
-public class IExportParsingException extends Exception
+public class ITunesParsingException extends Exception
 {
-    public IExportParsingException ()
+    public ITunesParsingException ()
     {
     }
 
-    public IExportParsingException (Exception cause)
+    public ITunesParsingException (Exception cause)
     {
         super(cause);
     }
 
-    public IExportParsingException (String message, Exception cause)
+    public ITunesParsingException (String message, Exception cause)
     {
         super(message, cause);
     }
 
-    public IExportParsingException (String errorMessage)
+    public ITunesParsingException (String errorMessage)
     {
         super(errorMessage);
     }

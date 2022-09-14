@@ -19,8 +19,10 @@ package iexport;
 
 import com.dd.plist.*;
 import iexport.itunes.Library;
-import iexport.parsing.IExportParsingException;
+import iexport.parsing.ITunesParsingException;
 import iexport.parsing.LibraryParser;
+import iexport.settings.SettingsParser;
+import iexport.settings.SettingsTriple;
 import iexport.tasks.common.Task;
 import iexport.tasks.common.TaskSettings;
 import iexport.tasks.export.FileExportTask;
@@ -30,25 +32,76 @@ import iexport.tasks.print.LibraryPrinter;
 import java.io.File;
 import java.util.*;
 
-/**
- * TODO: Settings to JSON
- * TODO: Always use loggerr
- */
-
 public class IExport
 {
     public static void main (String[] args)
     {
+        System.out.println("ARGS");
+        System.out.println(Arrays.toString(args));
+
+        // An invalid number of arguments has been specified.
+        if (args.length > 2)
+        {
+            System.out.println("Expected 0-2 additional arguments, got " + args.length + ":\n" + Arrays.toString(args));
+            printUsage();
+            System.exit(1);
+        }
+        else
+        {
+            System.out.println("LOOKS GOOD");
+
+            printUsage();
+
+        }
+
+        // Get the settings
+        SettingsTriple settingsTriple = null;
+
+        // At least one argument has been specified.
+        // We expect this argument to be the path to the Settings file
+        if (args.length > 0)
+        {
+            String yamlFilePathAsString = args[0];
+            try
+            {
+                SettingsParser settingsParser = new SettingsParser(yamlFilePathAsString);
+                settingsTriple = settingsParser.parse();
+            }
+            catch (Exception e)
+            {
+                System.out.println("Parsing the .yaml file at the specified location \"" + yamlFilePathAsString + "\" has failed");
+                System.out.println(e.getMessage());
+                System.exit(1);
+            }
+        }
+
+
+        System.out.println(settingsTriple);
+
+
         String userprofile = System.getenv("USERPROFILE");
-        File file = new File(userprofile + "\\Desktop\\iTunes Music Library.xml");
+        String xmlPathString = userprofile + "\\Desktop\\iTunes Music Library.xml";
+
+        System.out.println(xmlPathString);
+
+        File file = new File(xmlPathString);
+
         LibraryParser iTunesLibraryParser = new LibraryParser(file);
         Library library = null;
+
+        // String yamlPathString = userprofile + "\\Desktop\\test.yaml";
+
+//
+//        Map<String, Object> map = (Map<String, Object>) load.loadFromString(jsonFileFileContent);
+//
+//        System.out.println(map);
+
 
         try
         {
             library = iTunesLibraryParser.parse();
         }
-        catch (IExportParsingException e)
+        catch (ITunesParsingException e)
         {
             e.printStackTrace();
         }
@@ -101,6 +154,11 @@ public class IExport
 
         System.out.println("Executing task " + task.getShorthand());
         task.run();
+    }
+
+    static void recursivelyPrint (NSObject nsObject)
+    {
+        recursivelyPrint(nsObject, 0);
     }
 
 //    public static void main (String[] args)
@@ -165,11 +223,6 @@ public class IExport
 //            e.printStackTrace();
 //        }
 //    }
-
-    static void recursivelyPrint (NSObject nsObject)
-    {
-        recursivelyPrint(nsObject, 0);
-    }
 
     static void recursivelyPrint (NSObject nsObject, int indentation)
     {
@@ -249,6 +302,23 @@ public class IExport
         System.out.println("EXCEPTION - actually it is class " + nsObject.getClass().toString());
         System.exit(1337);
 
+    }
+
+    private static void printUsage ()
+    {
+        // TODO -q -console plain
+        System.out.println("Usage: run --args=\"[PATH_TO_YAML_FILE] [TASK]\"");
+        System.out.println("  where");
+        System.out.println("    [PATH_TO_YAML_FILE] is the path to a YAML file with the settings that should be used");
+        System.out.println("      (e.g. %USERPROFILE%\\Desktop\\iExportSettings.yaml )");
+        System.out.println("      See the provided iExportDefaultSettings.yaml for the available settings");
+        System.out.println("      If omitted, default values will be used.");
+        System.out.println("    [TASK] is the task that should be performed after parsing the library");
+        System.out.println("      If specified, it will overwrite the \"task\" field from the settings.");
+        System.out.println("      If not specified at all, interactive mode will be used.");
+        System.out.println("  Available tasks:");
+        System.out.println("      interactive - Select a task via STDIN");
+        System.out.println("      none - Simply check if parsing the library succeeds");
     }
 
     private static void descent (Object o)

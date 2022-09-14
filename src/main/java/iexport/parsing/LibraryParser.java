@@ -79,10 +79,10 @@ public class LibraryParser
      * Parse the file as described above.
      *
      * @return the parsed library
-     * @throws IExportParsingException if parsing fails
+     * @throws ITunesParsingException if parsing fails
      */
     public Library parse ()
-            throws IExportParsingException
+            throws ITunesParsingException
     {
 
         // The dictionary that is at the root of the parsed file;
@@ -166,10 +166,10 @@ public class LibraryParser
      * Parse {@link #libraryFile} into a property list and then get the {@link NSDictionary} at the root of the property list files.
      *
      * @return the dictionary at the root of the property list file
-     * @throws IExportParsingException if parsing fails in an non-recoverable way. Otherwise, we will just log a warning.
+     * @throws ITunesParsingException if parsing fails in an non-recoverable way. Otherwise, we will just log a warning.
      */
     private NSDictionary parseAndGetRootDictionary ()
-            throws IExportParsingException
+            throws ITunesParsingException
     {
         // parse the file as a property list
         NSObject propertyList = null;
@@ -179,7 +179,7 @@ public class LibraryParser
         }
         catch (Exception e)
         {
-            throw new IExportParsingException(this.getClass().toString() + ": Parsing the library file as a property list has failed", e);
+            throw new ITunesParsingException(this.getClass().toString() + ": Parsing the library file as a property list has failed", e);
         }
 
         // get the root dictionary
@@ -190,7 +190,7 @@ public class LibraryParser
         }
         catch (ClassCastException e)
         {
-            throw new IExportParsingException(this.getClass().toString() + ": Expected a dictionary at the root of the library file, got " + propertyList.getClass() + " instead", e);
+            throw new ITunesParsingException(this.getClass().toString() + ": Expected a dictionary at the root of the library file, got " + propertyList.getClass() + " instead", e);
         }
 
         return rootDictionary;
@@ -352,7 +352,7 @@ public class LibraryParser
                 depth = parent.depth() + 1;
             }
             playlistBuilder.setDepth(depth);
-            
+
             // we can now finally turn the PlaylistBuilder into a real Playlist object
             Playlist playlist = playlistBuilder.build();
 
