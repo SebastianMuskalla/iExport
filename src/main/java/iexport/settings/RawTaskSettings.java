@@ -25,8 +25,11 @@ import java.util.Set;
  * <p>
  * For some task named TASK, these settings correspond to the dictionary
  * under the key "tasks.TASK" in the root dictionary of the .yaml file.
+ * <p>
+ * An object of this class should be later converted into an actual task settings object
+ * for the task at hand that provides type-safe accessors.
  */
-class TaskSettings extends Settings
+class RawTaskSettings extends Settings
 {
     /**
      * The name of the task these settings are for.
@@ -39,7 +42,7 @@ class TaskSettings extends Settings
      * @param taskName the name of the task these settings are for
      * @param taskMap  the user-provided values
      */
-    public TaskSettings (String taskName, Map<String, Object> taskMap)
+    public RawTaskSettings (String taskName, Map<String, Object> taskMap)
     {
         super(taskMap);
         this.taskName = taskName;
@@ -50,7 +53,7 @@ class TaskSettings extends Settings
      *
      * @param taskName the name of the task these settings are for
      */
-    public TaskSettings (String taskName)
+    public RawTaskSettings (String taskName)
     {
         super();
         this.taskName = taskName;

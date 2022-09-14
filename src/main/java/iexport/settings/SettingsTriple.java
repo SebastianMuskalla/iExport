@@ -35,7 +35,7 @@ public record SettingsTriple
         (
                 GeneralSettings generalSettings,
                 ParsingSettings parsingSettings,
-                Map<String, TaskSettings> taskSettings
+                Map<String, RawTaskSettings> taskSettings
         )
 {
 
