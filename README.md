@@ -18,6 +18,6 @@ iExport is free and open-source software, licensed under the GPLv3 (GNU General 
 
 ### TODO
 
-* rewrite Logging
 * setting Parsing
 * rewrite Tasks
+* remove `System.out.println` everywhere

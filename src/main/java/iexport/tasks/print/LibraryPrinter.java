@@ -20,10 +20,10 @@ package iexport.tasks.print;
 import iexport.itunes.Library;
 import iexport.itunes.Playlist;
 import iexport.itunes.Track;
+import iexport.logging.Logging;
 import iexport.tasks.common.Task;
 import iexport.tasks.common.TaskSettings;
 
-import java.io.PrintStream;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -33,8 +33,6 @@ public class LibraryPrinter extends Task
     public static final String SHORTHAND = "print";
 
     private final Library library;
-
-    private final PrintStream out = System.out;
 
     public LibraryPrinter (Library library, TaskSettings taskSettings)
     {
@@ -50,11 +48,11 @@ public class LibraryPrinter extends Task
 
     public void run ()
     {
-        out.println(library.toString());
+        Logging.getLogger().message(library.toString());
 
         for (Playlist playlist : library.playlists())
         {
-            System.out.println(ancestryToString(playlist) + "    " + playlist);
+            Logging.getLogger().message(ancestryToString(playlist) + "    " + playlist);
         }
 
 //        for (Playlist p : library.playlistsAtTopLevel())
@@ -72,11 +70,11 @@ public class LibraryPrinter extends Task
 //
 //        tracksWithoutPlaylist.forEach(out::println);
 
-        out.println();
-        out.println("---------------------------------");
-        out.println();
+        Logging.getLogger().message("");
+        Logging.getLogger().message("---------------------------------");
+        Logging.getLogger().message("");
 
-        out.println("Tracks that are in multiple playlists");
+        Logging.getLogger().message("Tracks that are in multiple playlists");
 
         Predicate<Playlist> playlistPredicate = p -> p.distinguishedKind() == null && (p.master() == null || !p.master()) && p.children().isEmpty() && !p.name().equals("NEUES");
         List<Track> tracksInMultiplePlayslists = library.tracks().stream().filter
@@ -86,10 +84,10 @@ public class LibraryPrinter extends Task
 
         tracksInMultiplePlayslists.forEach(
                 t -> {
-                    out.print(t);
-                    out.print(" ( ");
-                    t.inPlaylists().stream().filter(playlistPredicate).forEach(p -> out.print(p + " , "));
-                    out.println(" ) ");
+                    Logging.getLogger().message(t.toString());
+                    Logging.getLogger().message(" ( ");
+                    t.inPlaylists().stream().filter(playlistPredicate).forEach(p -> Logging.getLogger().message(p + " , "));
+                    Logging.getLogger().message(" ) ");
                 }
         );
 
@@ -114,7 +112,7 @@ public class LibraryPrinter extends Task
         {
             indent += "    ";
         }
-        out.println(indent + p);
+        Logging.getLogger().message(indent + p);
         for (Playlist subplaylist : p.children())
         {
             printPlaylist(subplaylist, indentLevel + 1);

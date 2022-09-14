@@ -29,6 +29,7 @@ public enum LogLevel
      * Debug / very verbose log messages: Stuff you don't need to see unless you try to fix a problem.
      */
     DEBUG(40),
+
     /**
      * Info / verbose log messages: Stuff that might be interesting, but that you don't really need to see.
      */

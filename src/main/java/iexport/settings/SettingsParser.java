@@ -17,6 +17,7 @@
 
 package iexport.settings;
 
+import iexport.logging.Logging;
 import org.snakeyaml.engine.v2.api.Load;
 import org.snakeyaml.engine.v2.api.LoadSettings;
 
@@ -85,7 +86,7 @@ public class SettingsParser
 
         // Generate the taskSettings for each task from the value for the key "tasks"
         Map<String, TaskSettings> taskSettingsMap = parseTasksSettings(yamlTasksObject);
-        
+
         return new SettingsTriple(generalSettings, parsingSettings, taskSettingsMap);
     }
 
@@ -182,8 +183,8 @@ public class SettingsParser
         }
         catch (Exception e)
         {
-            System.out.println("Applying Replacement of " + userProfilePlaceholder + " failed");
-            System.out.println(e.getMessage());
+            Logging.getLogger().important("Applying Replacement of " + userProfilePlaceholder + " failed");
+            Logging.getLogger().important(e.getMessage());
         }
         return pathToYamlFileAsString;
     }

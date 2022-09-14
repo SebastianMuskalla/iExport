@@ -1,5 +1,4 @@
-{
-  # iExport Settings
+{ # iExport Settings
 
   # This file contents the default settings for iExport
   # You can make a copy of this file, modify the settings,
@@ -34,8 +33,7 @@
       },
 
     "tasks" :
-      {
-        # settings for the "printPlaylist" task
+      { # settings for the "printPlaylist" task
           "printPlaylists" :
             {
 

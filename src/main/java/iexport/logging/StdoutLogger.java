@@ -80,10 +80,27 @@ public class StdoutLogger extends Logger
         // We only need to do something if we actually accept messages of this type
         if (accepts(logLevel))
         {
-            NEWLINE_PATTERN
-                    .splitAsStream(message)
-                    .map((s) -> PREFIXES.get(logLevel) + String.join("", Collections.nCopies(indentation, BASE_INDENTATION)) + s)
-                    .forEach(System.out::println);
+            if (!quietMode())
+            {
+                // Not in quiet mode - add prefixes
+                NEWLINE_PATTERN
+                        .splitAsStream(message)
+                        .map((s) -> String.join("", Collections.nCopies(indentation, BASE_INDENTATION) + s))
+                        .map((s) -> PREFIXES.get(logLevel) + s)
+                        .forEach(System.out::println);
+            }
+            else
+            {
+                // In quiet mode - just add indentation
+                NEWLINE_PATTERN
+                        .splitAsStream(message)
+//                        .map((s) -> {
+//                            System.out.println(s);
+//                            return s;
+//                        })
+                        .map((s) -> String.join("", Collections.nCopies(indentation, BASE_INDENTATION)) + s)
+                        .forEach(System.out::println);
+            }
         }
 
     }
@@ -103,5 +120,16 @@ public class StdoutLogger extends Logger
     private boolean accepts (LogLevel logLevel)
     {
         return (logLevel.getValue() <= verbosity.getValue());
+    }
+
+    /**
+     * If the verbosity is set to {@link LogLevel#IMPORTANT}, meaning that only important messages should be printed,
+     * we will set it to quiet mode and not print any prefixes.
+     *
+     * @return true iff this logger is currently in quiet mode
+     */
+    private boolean quietMode ()
+    {
+        return verbosity == LogLevel.IMPORTANT;
     }
 }
