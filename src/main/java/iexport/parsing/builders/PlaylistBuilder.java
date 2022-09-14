@@ -20,7 +20,6 @@ package iexport.parsing.builders;
 import iexport.itunes.Playlist;
 import iexport.itunes.Track;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -35,15 +34,10 @@ public class PlaylistBuilder
      * The list of track ids of the tracks in the playlist.
      * <p>
      * This can be parsed from the .xml file.
+     * <p>
+     * {@link iexport.parsing.LibraryParser} will later be convert this into an actual list of {@link Track} objects.
      */
     private final List<Integer> trackIds;
-
-    /**
-     * The list of tracks in the playlist.
-     * <p>
-     * This will be populated by converting {@link #trackIds}, the list of track Ids, by {@link iexport.parsing.LibraryParser}.
-     */
-    private final List<Track> tracks = new ArrayList<>();
 
     private Integer depth;
     private Integer playlistId;
@@ -60,7 +54,6 @@ public class PlaylistBuilder
     private Boolean tvShows;
     private Boolean audiobooks;
     private Playlist parent;
-    private List<Playlist> ancestry;
 
     public PlaylistBuilder ()
     {
@@ -182,11 +175,6 @@ public class PlaylistBuilder
         );
     }
 
-    public List<Track> getTracks ()
-    {
-        return tracks;
-    }
-
     public void setDepth (Integer depth)
     {
         this.depth = depth;
@@ -202,7 +190,6 @@ public class PlaylistBuilder
     {
         return "PlaylistBuilder{" +
                 "#trackIds=" + trackIds.size() +
-                ", #tracks=" + tracks.size() +
                 ", depth=" + depth +
                 ", playlistId=" + playlistId +
                 ", distinguishedKind=" + distinguishedKind +
@@ -218,7 +205,6 @@ public class PlaylistBuilder
                 ", tvShows=" + tvShows +
                 ", audiobooks=" + audiobooks +
                 ", parent=" + parent +
-                ", ancestry=" + ancestry +
                 '}';
     }
 }

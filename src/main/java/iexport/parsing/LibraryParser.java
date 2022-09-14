@@ -50,9 +50,9 @@ import java.util.List;
  *     <li> Parse the "Playlists" array of the library, obtaining a list of {@link PlaylistBuilder}
  * <p>
  *          It now remains to construct the relationships between tracks and playlists and the relationship among playlists.
- *     <li> We turn the list of track ids of type {@link Integer} of each {@link PlaylistBuilder} into an actual list of {@link Track} objects
  *     <li> We resolve the parent-child relationships between the playlists.
  *     While doing so, we convert each {@link PlaylistBuilder} into an actual {@link Playlist}.
+ *     <li> We turn the list of track ids of type {@link Integer} of each {@link PlaylistBuilder} into an actual list of {@link Track} objects
  *     <li> Finally, we sort the playlists and tracks using the comparators from {@link iexport.parsing.sorting}
  * </ol>
  */
@@ -98,11 +98,11 @@ public class LibraryParser
 
         // A few more steps are needed to turn PlaylistBuilders into actual Playlists:
 
-        // Turn the track ids of the playlist builders into actual tracks
-        convertPlaylistTrackIdListToTrackList();
-
         // Set the parent-child relationships between the playlists
         setPlaylistParentChildRelationships();
+
+        // Turn the track ids of the playlist builders into actual tracks
+        convertPlaylistTrackIdListToTrackList();
 
         // We can now build the library//
         // (and reset the library builder in case someone makes the mistake of using this method twice)
@@ -139,24 +139,24 @@ public class LibraryParser
     }
 
     /**
-     * Populate {@link PlaylistBuilder#tracks} by converting the list of track ids, {@link PlaylistBuilder#trackIds},
+     * Populate {@link Playlist#tracks} by converting the list of track ids, {@link PlaylistBuilder#trackIds},
      * into a list of real {@link Track} objects using the tracks that have been parsed.
      */
     private void convertPlaylistTrackIdListToTrackList ()
     {
-        for (PlaylistBuilder playlistBuilder : libraryBuilder.getPlaylistBuilders())
+        for (Playlist playlist : libraryBuilder.getPlaylists())
         {
-            for (Integer trackId : playlistBuilder.getTrackIds())
+            for (Integer trackId : libraryBuilder.getPlaylistsBuildersByPersistentId().get(playlist.playlistPersistentId()).getTrackIds())
             {
                 Track track = libraryBuilder.getTracksById().get(trackId);
 
                 if (track == null)
                 {
-                    Logging.getLogger().message(LibraryParser.class + ": Playlist " + playlistBuilder + " should contain track with track id " + trackId + ", but this track does not exist; skipping it");
+                    Logging.getLogger().message(LibraryParser.class + ": Playlist " + playlist + " should contain track with track id " + trackId + ", but this track does not exist; skipping it");
                     continue;
                 }
 
-                playlistBuilder.getTracks().add(track);
+                playlist.addTrack(track);
             }
         }
     }

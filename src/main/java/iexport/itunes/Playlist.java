@@ -25,6 +25,11 @@ import java.util.Objects;
 /**
  * A record class for representing playlists.
  * <p>
+ * Note that internally, iTunes also treats folders as playlists.
+ * For a playlist that is a folder, the list of tracks will be the union of the tracks inside its elements,
+ * e.g. if "POP" is a folder containing the playlists "80s" and "90s",
+ * then the tracks inside "POP" will be the tracks in 80s plus those in 90s.
+ * <p>
  * Example from iTunes Music Library.xml:
  * {@code
  * <dict>

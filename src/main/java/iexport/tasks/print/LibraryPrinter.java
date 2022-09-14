@@ -60,15 +60,15 @@ public class LibraryPrinter extends Task
 //            printPlaylist(p);
 //        }
 
-//        out.println();
-//        out.println("---------------------------------");
-//        out.println();
-//
-//        out.println("Tracks that are in no playlist");
+        Logging.getLogger().message("");
+        Logging.getLogger().message("---------------------------------");
+        Logging.getLogger().message("");
 
-//        List<Track> tracksWithoutPlaylist = library.tracks().stream().filter(t -> t.inPlaylists().isEmpty()).collect(Collectors.toList());
-//
-//        tracksWithoutPlaylist.forEach(out::println);
+        Logging.getLogger().message("Tracks that are in no playlist");
+
+        List<Track> tracksWithoutPlaylist = library.tracks().stream().filter(t -> t.inPlaylists().isEmpty()).toList();
+
+        tracksWithoutPlaylist.forEach(s -> Logging.getLogger().message(s.toString()));
 
         Logging.getLogger().message("");
         Logging.getLogger().message("---------------------------------");
