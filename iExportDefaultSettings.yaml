@@ -1,0 +1,44 @@
+{
+  # iExport Settings
+
+  # This file contents the default settings for iExport
+  # You can make a copy of this file, modify the settings,
+  # and pass the location of the file as an argument to iExport
+
+  # (Note that the default settings are not actually loaded from this file,
+  #  they are hardcoded in the Java source code.)
+
+  # logLevel
+  # how much output to do you want?
+  # Options:
+  #   "DEBUG"                     - full output for debugging
+  #   "VERBOSE"                   - a lot of output
+  #   "NORMAL"   (default value)  - regular output
+  #   "QUIET"                     - reduced output
+    "logLevel" : "DEBUG",
+
+  # task
+  # which task should be executed after parsing the library?
+  # OPTIONS:
+  #    "" - interactive mode (prints the list of tasks on STDOUT and asks the user)
+  # If a task is specified as a command-line argument, it will override this settings
+    "task" :     "printPlaylists",
+
+  # settings for parsing
+    "parsing" :
+      {
+        # path to "iTunes Music Library.xml"
+        # supports the %USERPROFILE% placeholder, which will typically get replaced by "C:\Users\<USERNAME>"
+          "xmlFilePath" : "%USERPROFILE%\\Desktop\\iTunes Music Library.xml",
+          "test" :        true,
+      },
+
+    "tasks" :
+      {
+        # settings for the "printPlaylist" task
+          "printPlaylists" :
+            {
+
+            }
+      },
+}

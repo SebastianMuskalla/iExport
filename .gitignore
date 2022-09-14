@@ -1,6 +1,21 @@
+# gradle
 build
 gradle
+
+# gradle wrapper
 gradlew
-gradlew.batg
+gradlew.bat
+
+# gradle cache
 .gradle
+
+# IntelliJ files
 .idea
+
+# ignore all .yaml files but !iExportDefaultSettings.yaml
+*.yml
+*.yaml
+!iExportDefaultSettings.yaml
+
+# .xml files (iTunes Library)
+/*.xml
