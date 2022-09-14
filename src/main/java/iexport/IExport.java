@@ -22,6 +22,8 @@ import iexport.logging.LogLevel;
 import iexport.logging.Logging;
 import iexport.parsing.ITunesParsingException;
 import iexport.parsing.LibraryParser;
+import iexport.settings.GeneralSettings;
+import iexport.settings.ParsingSettings;
 import iexport.settings.SettingsParser;
 import iexport.settings.SettingsTriple;
 import iexport.tasks.common.Task;
@@ -42,8 +44,7 @@ public class IExport
         // to make sure we don't get unnecessary output.
         Logging.getLogger().setLogLevel(LogLevel.IMPORTANT);
 
-        Logging.getLogger().important("ARGS");
-        Logging.getLogger().important(Arrays.toString(args));
+        Logging.getLogger().setLogLevel(LogLevel.IMPORTANT);
 
         // An invalid number of arguments has been specified.
         if (args.length > 2)
@@ -52,50 +53,26 @@ public class IExport
             printUsage();
             System.exit(1);
         }
-        else
-        {
-            Logging.getLogger().important("LOOKS GOOD");
 
-            printUsage();
+        // Get the settings (either parse them if the command line argument is specified, or use default values)
+        SettingsTriple settingsTriple = parseSettings(args);
+        GeneralSettings generalSettings = settingsTriple.generalSettings();
 
-        }
+        // We can now get the log level that should be used for the rest of the execution
+        LogLevel logLevel = generalSettings.getLogLevel();
 
-        // Get the settings
-        SettingsTriple settingsTriple = null;
+        Logging.getLogger().setLogLevel(logLevel);
+        Logging.getLogger().debug("Using logLevel " + logLevel);
 
-        // At least one argument has been specified.
-        // We expect this argument to be the path to the Settings file
-        if (args.length > 0)
-        {
-            String yamlFilePathAsString = args[0];
-            try
-            {
-                SettingsParser settingsParser = new SettingsParser(yamlFilePathAsString);
-                settingsTriple = settingsParser.parse();
-            }
-            catch (Exception e)
-            {
-                Logging.getLogger().important("Parsing the .yaml file at the specified location \"" + yamlFilePathAsString + "\" has failed");
-                Logging.getLogger().important("Reason: " + e.getMessage());
-                System.exit(1);
-            }
-        }
+        // Notify the user of any settings that have been set in the .yaml file but that actually do not exist
+        reportPotentialMistakesInSettings(settingsTriple);
 
-
-        Logging.getLogger().important(settingsTriple.toString());
-
-
-        String userprofile = System.getenv("USERPROFILE");
-        String xmlPathString = userprofile + "\\Desktop\\iTunes Music Library.xml";
-
-        Logging.getLogger().important(xmlPathString);
-
-        File file = new File(xmlPathString);
+        String libraryXmlFilePathString = settingsTriple.parsingSettings().getLibraryXmlFilePathString();
+        Logging.getLogger().important(libraryXmlFilePathString);
+        File file = new File(libraryXmlFilePathString);
 
         LibraryParser iTunesLibraryParser = new LibraryParser(file);
         Library library = null;
-
-        // String yamlPathString = userprofile + "\\Desktop\\test.yaml";
 
 //
 //        Map<String, Object> map = (Map<String, Object>) load.loadFromString(jsonFileFileContent);
@@ -162,6 +139,34 @@ public class IExport
         task.run();
     }
 
+    private static SettingsTriple parseSettings (String[] args)
+    {
+        if (args.length > 0)
+        {
+            // At least one argument has been specified.
+            // We expect this argument to be the path to the Settings file
+            String yamlFilePathAsString = args[0];
+            try
+            {
+                SettingsParser settingsParser = new SettingsParser(yamlFilePathAsString);
+                return settingsParser.parse();
+            }
+            catch (Exception e)
+            {
+                Logging.getLogger().important("Parsing the .yaml file at the specified location \"" + yamlFilePathAsString + "\" has failed");
+                Logging.getLogger().important("Reason: " + e.getMessage());
+                System.exit(1);
+                return null; // Unreachable
+            }
+        }
+        else
+        {
+            // No argument has been specified
+            Logging.getLogger().important("No .yaml file provided, using all default settings");
+            return new SettingsTriple(new GeneralSettings(), new ParsingSettings(), new HashMap<>());
+        }
+    }
+
     private static void printUsage ()
     {
         // TODO -q -console plain
@@ -179,5 +184,46 @@ public class IExport
         Logging.getLogger().important(2, "none - Simply check if parsing the library succeeds");
     }
 
+    /**
+     * Notify the user if the user-specified settings contain potential mistakes.
+     * <p>
+     * Notify the user if default settings are used for parsing or in general.
+     * <p>
+     * Notify the user if the {@link ParsingSettings} or {@link GeneralSettings} contained inside {@code settingsTriple}
+     * contain settings that have been specified by the user (via the .yaml settings file),
+     * but that are actually not valid iExport settings
+     *
+     * @param settingsTriple the triple of settings
+     */
+    private static void reportPotentialMistakesInSettings (SettingsTriple settingsTriple)
+    {
+        GeneralSettings generalSettings = settingsTriple.generalSettings();
+        if (generalSettings.isDefault())
+        {
+            Logging.getLogger().message("No general settings have been specified in the .yaml file, using all default settings from now on");
+        }
+        else
+        {
+            for (String key : generalSettings.unusedSettings())
+            {
+                Logging.getLogger().message("Settings for key \"" + generalSettings.getYamlPath(key) + "\""
+                        + " specified in .yaml file, but it is not used by iExport");
+            }
+        }
 
+
+        ParsingSettings parsingSettings = settingsTriple.parsingSettings();
+        if (generalSettings.isDefault())
+        {
+            Logging.getLogger().message("No parsings settings have been specified in the .yaml file (key \"parsing\"), using all default settings from now on");
+        }
+        else
+        {
+            for (String key : parsingSettings.unusedSettings())
+            {
+                Logging.getLogger().message("Settings for key \"" + parsingSettings.getYamlPath(key) + "\""
+                        + " specified in .yaml file, but it is not used by iExport");
+            }
+        }
+    }
 }

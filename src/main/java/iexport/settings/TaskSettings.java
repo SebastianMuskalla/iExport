@@ -18,11 +18,65 @@
 package iexport.settings;
 
 import java.util.Map;
+import java.util.Set;
 
-public class TaskSettings extends Settings
+/**
+ * A class for the settings used by each task
+ * <p>
+ * For some task named TASK, these settings correspond to the dictionary
+ * under the key "tasks.TASK" in the root dictionary of the .yaml file.
+ */
+class TaskSettings extends Settings
 {
-    public TaskSettings (Map<String, Object> taskMap)
+    /**
+     * The name of the task these settings are for.
+     */
+    private final String taskName;
+
+    /**
+     * Constructs {©code TaskSettings} for the specified task name with the user-provided values
+     *
+     * @param taskName the name of the task these settings are for
+     * @param taskMap  the user-provided values
+     */
+    public TaskSettings (String taskName, Map<String, Object> taskMap)
     {
         super(taskMap);
+        this.taskName = taskName;
+    }
+
+    /**
+     * Constructs {©code TaskSettings} for the specified task name with the default values
+     *
+     * @param taskName the name of the task these settings are for
+     */
+    public TaskSettings (String taskName)
+    {
+        super();
+        this.taskName = taskName;
+    }
+
+    public String getTaskName ()
+    {
+        return taskName;
+    }
+
+    @Override
+    public Set<String> unusedSettings ()
+    {
+        return Set.of();
+    }
+
+    @Override
+    protected String getYamlPrefix ()
+    {
+        return "tasks" + "." + getTaskName() + ".";
+    }
+
+    // TODO
+    @Override
+    Object getDefaultValueFor (String key)
+    {
+        return null;
     }
 }

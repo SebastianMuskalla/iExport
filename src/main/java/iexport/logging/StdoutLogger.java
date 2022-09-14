@@ -85,7 +85,7 @@ public class StdoutLogger extends Logger
                 // Not in quiet mode - add prefixes
                 NEWLINE_PATTERN
                         .splitAsStream(message)
-                        .map((s) -> String.join("", Collections.nCopies(indentation, BASE_INDENTATION) + s))
+                        .map((s) -> String.join("", Collections.nCopies(indentation, BASE_INDENTATION)) + s)
                         .map((s) -> PREFIXES.get(logLevel) + s)
                         .forEach(System.out::println);
             }
@@ -94,10 +94,6 @@ public class StdoutLogger extends Logger
                 // In quiet mode - just add indentation
                 NEWLINE_PATTERN
                         .splitAsStream(message)
-//                        .map((s) -> {
-//                            System.out.println(s);
-//                            return s;
-//                        })
                         .map((s) -> String.join("", Collections.nCopies(indentation, BASE_INDENTATION)) + s)
                         .forEach(System.out::println);
             }

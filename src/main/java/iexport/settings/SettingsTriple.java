@@ -19,6 +19,18 @@ package iexport.settings;
 
 import java.util.Map;
 
+/**
+ * The collection of settings used by iExport.
+ *
+ * @param generalSettings general settings,
+ *                        corresponds to the root dictionary of the settings .yaml file
+ *                        (e.g. "logLevel")
+ * @param parsingSettings settings for parsing the library,
+ *                        corresponds to the dictionary for the key "parsing",
+ *                        (e.g. "parsing.xmlFilePath")
+ * @param taskSettings    maps each task name to its settings.
+ *                        For each task TASK, the settings will correspond to the dictionary "tasks.TASK"
+ */
 public record SettingsTriple
         (
                 GeneralSettings generalSettings,

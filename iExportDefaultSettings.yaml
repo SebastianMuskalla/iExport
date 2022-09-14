@@ -28,8 +28,9 @@
       {
         # path to "iTunes Music Library.xml"
         # supports the %USERPROFILE% placeholder, which will typically get replaced by "C:\Users\<USERNAME>"
-          "xmlFilePath" : "%USERPROFILE%\\Desktop\\iTunes Music Library.xml",
-          "test" :        true,
+        # Note that if you want to use Windows notation with \ instead of /, you will need to escape them and write \\
+        #  "xmlFilePath" : "%USERPROFILE%/Music/iTunes/iTunes Music Library.xml",
+          "INVALID" : true,
       },
 
     "tasks" :
