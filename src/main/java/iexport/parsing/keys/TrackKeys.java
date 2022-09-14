@@ -17,8 +17,7 @@
 
 package iexport.parsing.keys;
 
-import iexport.helper.logging.LogLevel;
-import iexport.helper.logging.Logger;
+import iexport.logging.Logging;
 import iexport.parsing.TrackParser;
 import iexport.parsing.builders.TrackBuilder;
 
@@ -65,7 +64,7 @@ public class TrackKeys
     @SuppressWarnings("rawtypes")
     private static void logUnexpectedType (String key, String value, Class unexpectedType, Class expectedType)
     {
-        Logger.log(LogLevel.DEV_WARNING, TrackParser.class + ": key \"" + key + "\" with value \"" + value + "\" is of unexpected type \"" + unexpectedType.toString() + "\" expected \"" + expectedType + "\"");
+        Logging.getLogger().message(TrackParser.class + ": key \"" + key + "\" with value \"" + value + "\" is of unexpected type \"" + unexpectedType.toString() + "\" expected \"" + expectedType + "\"");
     }
 
     static

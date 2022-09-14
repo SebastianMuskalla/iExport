@@ -17,11 +17,10 @@
 
 package iexport.tasks.playlistgen;
 
-import iexport.helper.logging.LogLevel;
-import iexport.helper.logging.Logger;
 import iexport.itunes.Library;
 import iexport.itunes.Playlist;
 import iexport.itunes.Track;
+import iexport.logging.Logging;
 import iexport.tasks.common.Task;
 import iexport.tasks.common.TaskSettings;
 import iexport.util.FolderDeleter;
@@ -106,7 +105,7 @@ public class PlaylistGenTask extends Task
 
     private void exportPlaylist (Playlist playlist, ArrayList<String> callStack)
     {
-        Logger.log(LogLevel.INFO, "Exporting " + playlist);
+        Logging.getLogger().info("Exporting " + playlist);
 
         // export the playlist unless it is ignored
         if (!playlistGenSettings.isIgnored(playlist))
@@ -209,7 +208,7 @@ public class PlaylistGenTask extends Task
             Matcher matcher = pattern.matcher(relativePathString);
             if (matcher.find())
             {
-                Logger.log(LogLevel.WARNING, "Invalid unescapable character in" + relativePathString);
+                Logging.getLogger().message("Invalid unescapable character in" + relativePathString);
             }
 
             content.append(relativePathString);

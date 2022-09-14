@@ -17,8 +17,7 @@
 
 package iexport.parsing.keys;
 
-import iexport.helper.logging.LogLevel;
-import iexport.helper.logging.Logger;
+import iexport.logging.Logging;
 import iexport.parsing.LibraryParser;
 import iexport.parsing.builders.LibraryBuilder;
 
@@ -66,7 +65,7 @@ public class LibraryKeys
     @SuppressWarnings("rawtypes")
     private static void logUnexpectedType (String key, String value, Class unexpectedType, Class expectedType)
     {
-        Logger.log(LogLevel.DEV_WARNING, LibraryParser.class + ": key \"" + key + "\" with value \"" + value + "\" is of unexpected type \"" + unexpectedType.toString() + "\" expected \"" + expectedType + "\"");
+        Logging.getLogger().message(LibraryParser.class + ": key \"" + key + "\" with value \"" + value + "\" is of unexpected type \"" + unexpectedType.toString() + "\" expected \"" + expectedType + "\"");
     }
 
     static

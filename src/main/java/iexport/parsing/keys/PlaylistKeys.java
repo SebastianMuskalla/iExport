@@ -17,8 +17,7 @@
 
 package iexport.parsing.keys;
 
-import iexport.helper.logging.LogLevel;
-import iexport.helper.logging.Logger;
+import iexport.logging.Logging;
 import iexport.parsing.PlaylistParser;
 import iexport.parsing.builders.PlaylistBuilder;
 
@@ -65,7 +64,7 @@ public class PlaylistKeys
     @SuppressWarnings("rawtypes")
     private static void logUnexpectedType (String key, String value, Class unexpectedType, Class expectedType)
     {
-        Logger.log(LogLevel.DEV_WARNING, PlaylistParser.class + ": key \"" + key + "\" with value \"" + value + "\" is of unexpected type \"" + unexpectedType.toString() + "\" expected \"" + expectedType + "\"");
+        Logging.getLogger().message(PlaylistParser.class + ": key \"" + key + "\" with value \"" + value + "\" is of unexpected type \"" + unexpectedType.toString() + "\" expected \"" + expectedType + "\"");
     }
 
     static

@@ -21,11 +21,10 @@ import com.dd.plist.NSArray;
 import com.dd.plist.NSDictionary;
 import com.dd.plist.NSObject;
 import com.dd.plist.PropertyListParser;
-import iexport.helper.logging.LogLevel;
-import iexport.helper.logging.Logger;
 import iexport.itunes.Library;
 import iexport.itunes.Playlist;
 import iexport.itunes.Track;
+import iexport.logging.Logging;
 import iexport.parsing.builders.LibraryBuilder;
 import iexport.parsing.builders.PlaylistBuilder;
 import iexport.parsing.keys.LibraryKeys;
@@ -128,9 +127,9 @@ public class LibraryParser
         Integer trackId = track.trackId();
         if (libraryBuilder.getTracksById().get(trackId) != null)
         {
-            Logger.log(LogLevel.WARNING, this.getClass() + ": Library already contains track with id " + trackId + "; Skipping new track.");
-            Logger.log(LogLevel.WARNING, 1, "Old track:" + libraryBuilder.getTracksById().get(trackId));
-            Logger.log(LogLevel.WARNING, 1, "New track:" + track);
+            Logging.getLogger().message(this.getClass() + ": Library already contains track with id " + trackId + "; Skipping new track.");
+            Logging.getLogger().message(1, "Old track:" + libraryBuilder.getTracksById().get(trackId));
+            Logging.getLogger().message(1, "New track:" + track);
             return;
         }
 
@@ -153,7 +152,7 @@ public class LibraryParser
 
                 if (track == null)
                 {
-                    Logger.log(LogLevel.DEV_WARNING, LibraryParser.class + ": Playlist " + playlistBuilder + " should contain track with track id " + trackId + ", but this track does not exist; skipping it");
+                    Logging.getLogger().message(LibraryParser.class + ": Playlist " + playlistBuilder + " should contain track with track id " + trackId + ", but this track does not exist; skipping it");
                     continue;
                 }
 
@@ -220,7 +219,7 @@ public class LibraryParser
             }
             else
             {
-                Logger.log(LogLevel.DEV_WARNING, LibraryParser.class + ": No handler for key \"" + key + "\" with value \"" + value.toString() + "\"");
+                Logging.getLogger().message(LibraryParser.class + ": No handler for key \"" + key + "\" with value \"" + value.toString() + "\"");
             }
         }
     }
@@ -291,12 +290,12 @@ public class LibraryParser
             // we have exceeded the maximum number of iterations without resolving all dependencies
             if (iterationCount > maximumNumberOfIterations)
             {
-                Logger.log(LogLevel.ERROR, this.getClass() + ": Failed to resolve dependencies among playlists.");
-                Logger.log(LogLevel.ERROR, this.getClass() + ": Playlists with unresolved dependencies:");
+                Logging.getLogger().important(this.getClass() + ": Failed to resolve dependencies among playlists.");
+                Logging.getLogger().important(this.getClass() + ": Playlists with unresolved dependencies:");
 
                 for (PlaylistBuilder remaining : workList)
                 {
-                    Logger.log(LogLevel.ERROR, 1, remaining.toString());
+                    Logging.getLogger().important(1, remaining.toString());
                 }
                 return;
             }
@@ -325,7 +324,7 @@ public class LibraryParser
                     {
                         // the playlist with the specified Parent Persistent ID does not exist
                         // remove from worklist and issue a warning
-                        Logger.log(LogLevel.ERROR, this.getClass() + ": Playlist " + playlistBuilder + " specifiesparent playlist with Persistent ID " + parentPersistentId + ", but no such playlist exists");
+                        Logging.getLogger().important(this.getClass() + ": Playlist " + playlistBuilder + " specifies parent playlist with Persistent ID " + parentPersistentId + ", but no such playlist exists");
                     }
                     else
                     {
@@ -380,7 +379,7 @@ public class LibraryParser
 
         } // while !workList.isEmpty()
 
-        Logger.log(LogLevel.DEBUG, "Finished resolving all playlist dependencies within " + iterationCount + " iterations.");
+        Logging.getLogger().info("Finished resolving all playlist dependencies within " + iterationCount + " iterations.");
     }
 
     /**
@@ -394,7 +393,7 @@ public class LibraryParser
         Object tracksObject = rootDictionary.get("Tracks");
         if (tracksObject == null)
         {
-            Logger.log(LogLevel.DEV_WARNING, this.getClass() + ": Library " + libraryBuilder + " has no Tracks dictionary.");
+            Logging.getLogger().message(this.getClass() + ": Library " + libraryBuilder + " has no Tracks dictionary.");
             return;
         }
 
@@ -406,7 +405,7 @@ public class LibraryParser
         }
         catch (ClassCastException e)
         {
-            Logger.log(LogLevel.WARNING, this.getClass() + ": Library " + libraryBuilder + " has Tracks dictionary of unexpected type " + tracksObject.getClass() + ", expected NSDictionary; skipping it");
+            Logging.getLogger().important(this.getClass() + ": Library " + libraryBuilder + " has Tracks dictionary of unexpected type " + tracksObject.getClass() + ", expected NSDictionary; skipping it");
             return;
         }
 
@@ -431,7 +430,7 @@ public class LibraryParser
             }
             catch (Exception e)
             {
-                Logger.log(LogLevel.WARNING, this.getClass() + ": Track with key Track ID  \"" + trackIdKey + "\" is of unexpected type " + tracksObject.getClass() + ", expected an integer; skipping it");
+                Logging.getLogger().message(this.getClass() + ": Track with key Track ID  \"" + trackIdKey + "\" is of unexpected type " + tracksObject.getClass() + ", expected an integer; skipping it");
                 continue;
             }
 
@@ -443,7 +442,7 @@ public class LibraryParser
             }
             catch (ClassCastException e)
             {
-                Logger.log(LogLevel.WARNING, this.getClass() + ": Track with id \"" + trackId + "\" has track dictionary of unexpected type " + tracksObject.getClass() + ", expected NSDictionary; skipping it");
+                Logging.getLogger().message(this.getClass() + ": Track with id \"" + trackId + "\" has track dictionary of unexpected type " + tracksObject.getClass() + ", expected NSDictionary; skipping it");
                 continue;
             }
 
@@ -458,7 +457,7 @@ public class LibraryParser
              */
             if (!track.trackId().equals(trackId))
             {
-                Logger.log(LogLevel.WARNING, this.getClass() + ": For track " + track + ", Track ID  " + trackId + " from key does not match internal Track ID " + track.trackId() + "; skipping it");
+                Logging.getLogger().important(this.getClass() + ": For track " + track + ", Track ID  " + trackId + " from key does not match internal Track ID " + track.trackId() + "; skipping it");
                 continue;
             }
 
@@ -477,7 +476,7 @@ public class LibraryParser
         Object playlistsObject = rootDictionary.get("Playlists");
         if (playlistsObject == null)
         {
-            Logger.log(LogLevel.DEV_WARNING, this.getClass() + ": Library " + libraryBuilder + " has no Playlists array.");
+            Logging.getLogger().message(this.getClass() + ": Library " + libraryBuilder + " has no Playlists array.");
             return;
         }
 
@@ -489,7 +488,7 @@ public class LibraryParser
         }
         catch (ClassCastException e)
         {
-            Logger.log(LogLevel.WARNING, this.getClass() + ": Library " + libraryBuilder + " has Playlists array of unexpected type " + playlistsObject.getClass() + ", expected NSArray.");
+            Logging.getLogger().important(this.getClass() + ": Library " + libraryBuilder + " has Playlists array of unexpected type " + playlistsObject.getClass() + ", expected NSArray.");
             return;
         }
 
@@ -504,7 +503,7 @@ public class LibraryParser
             }
             catch (ClassCastException e)
             {
-                Logger.log(LogLevel.WARNING, this.getClass() + ": Playlist dictionary " + playlistObject + " is of unexpected type " + playlistObject.getClass() + ", expected NSDictionary; skipping it");
+                Logging.getLogger().important(": Playlist dictionary " + playlistObject + " is of unexpected type " + playlistObject.getClass() + ", expected NSDictionary; skipping it");
                 continue;
             }
 
@@ -519,7 +518,7 @@ public class LibraryParser
             // to this end, we will need the persistent id of the playlist
             if (playlistBuilder.getPlaylistPersistentId() == null)
             {
-                Logger.log(LogLevel.WARNING, this.getClass() + ": Playlist " + playlistBuilder + " has no Playlist Persistent ID, resolving dependencies for this playlist will likely fail.");
+                Logging.getLogger().message(this.getClass() + ": Playlist " + playlistBuilder + " has no Playlist Persistent ID, resolving dependencies for this playlist will likely fail.");
                 continue;
             }
 

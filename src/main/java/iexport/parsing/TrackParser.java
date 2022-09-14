@@ -18,9 +18,8 @@
 package iexport.parsing;
 
 import com.dd.plist.NSDictionary;
-import iexport.helper.logging.LogLevel;
-import iexport.helper.logging.Logger;
 import iexport.itunes.Track;
+import iexport.logging.Logging;
 import iexport.parsing.builders.TrackBuilder;
 import iexport.parsing.keys.TrackKeys;
 
@@ -72,7 +71,7 @@ public class TrackParser
             }
             else
             {
-                Logger.log(LogLevel.DEV_WARNING, this.getClass() + ": No handler for key \"" + key + "\" with value \"" + value.toString() + "\"");
+                Logging.getLogger().info(this.getClass() + ": No handler for key \"" + key + "\" with value \"" + value.toString() + "\"");
             }
         }
 
