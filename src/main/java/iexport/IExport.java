@@ -23,7 +23,6 @@ import iexport.logging.Logging;
 import iexport.parsing.ITunesParsingException;
 import iexport.parsing.LibraryParser;
 import iexport.settings.*;
-import iexport.tasks.HelpTask;
 import iexport.tasks.Task;
 import iexport.tasks.TaskRegistry;
 
@@ -59,18 +58,14 @@ public class IExport
     public static void main (String[] args)
     {
         // Initialize the global logger
-        // We don't know which log level we should use yet, so we set it to NORMAL
-        // to make sure we don't get unnecessary output.
         Logging.getLogger().setLogLevel(LogLevel.NORMAL);
-
-        HelpTask helpTask = TaskRegistry.getHelpTask();
 
         // An invalid number of arguments has been specified.
         if (args.length > 2)
         {
             // Print usage instructions
             Logging.getLogger().important("Expected 0-2 additional arguments, got " + args.length + ":\n" + Arrays.toString(args));
-            helpTask.run(null, null);
+            TaskRegistry.getHelpTask().run(null, null);
             System.exit(1);
         }
 
@@ -78,7 +73,7 @@ public class IExport
         // In this case, we can print usage instructions and don't even have to parse the settings
         if (Arrays.stream(args).anyMatch((s) -> HELP_TASK_NAMES.stream().anyMatch(s::equalsIgnoreCase)))
         {
-            helpTask.run(null, null);
+            TaskRegistry.getHelpTask().run(null, null);
             System.exit(0);
         }
 
@@ -102,7 +97,6 @@ public class IExport
 
         // We can now get the log level that should be used for the rest of the execution
         LogLevel logLevel = generalSettings.getLogLevel();
-
         Logging.getLogger().setLogLevel(logLevel);
         Logging.getLogger().info("Using logLevel " + logLevel);
 
@@ -119,116 +113,27 @@ public class IExport
             taskName = args[1];
         }
 
-        // Check if the task we should execute is simply "help" - In this case, we do not have to parse the library
-        if (HELP_TASK_NAMES.stream().anyMatch(taskName::equalsIgnoreCase))
+        // Parse the library
+        Library library = parseLibrary(settingsTriple);
+
+        // Get the task
+        Task task;
+        if (INTERACTIVE_MODE_NAMES.stream().anyMatch(taskName::equalsIgnoreCase))
         {
-            helpTask.run(null, null);
-            System.exit(0);
+            // Get the task using interactive mode
+            task = getTaskUsingInteractiveMode();
+        }
+        else
+        {
+            // Get the task from the specified task name
+            task = getTaskWithName(taskName);
         }
 
-        // The task we should execute is not help, we should parse the library now
-        String libraryXmlFilePathString = settingsTriple.parsingSettings().getLibraryXmlFilePathString();
+        // Execute it
+        runTask(task, library, settingsTriple);
 
-        Logging.getLogger().message("Trying to parse the iTunes library .xml file at " + libraryXmlFilePathString);
-
-        long startParsing = System.nanoTime();
-
-        File file = new File(libraryXmlFilePathString);
-        LibraryParser iTunesLibraryParser = new LibraryParser(file);
-
-        Library library = null;
-        try
-        {
-            library = iTunesLibraryParser.parse();
-        }
-        catch (ITunesParsingException e)
-        {
-            e.printStackTrace();
-            System.exit(1);
-            return;
-        }
-
-        long endParsing = System.nanoTime();
-        double parsingDurationInSeconds = ((double) ((endParsing - startParsing) / 1000000)) / 1000; // with 3 decimal digits
-        Logging.getLogger().message("Successfully parsed the iTunes library");
-        Logging.getLogger().info("Parsing took " + parsingDurationInSeconds + "s");
-
-        int iterations = 0;
-
-        boolean startedInInteractiveMode = INTERACTIVE_MODE_NAMES.stream().anyMatch(taskName::equalsIgnoreCase);
-
-        // if the task name matches "interactive", we should query the user for a new task name
-        while (INTERACTIVE_MODE_NAMES.stream().anyMatch(taskName::equalsIgnoreCase))
-        {
-            iterations++;
-            if (iterations > 3)
-            {
-                easterEgg();
-            }
-
-            taskName = runInteractiveMode();
-        }
-
-        do
-        {
-            // Try to get the task with the specified name
-            Task task = TaskRegistry.getTask(taskName);
-
-            if (task == null)
-            {
-                // The task with this name does not exist
-                Logging.getLogger().important("No task with the name \"" + taskName + "\" exists.");
-                if (startedInInteractiveMode)
-                {
-                    // if the user was in interactive mode, we will give them another chance
-                    taskName = runInteractiveMode();
-                }
-                else
-                {
-                    // Otherwise we print the list of available tasks once again and crash
-                    helpTask.printListOfTasks(false);
-                    System.exit(1);
-                }
-            }
-            else
-            {
-                // The task does exist and we should run it
-                long startTask = System.nanoTime();
-
-                // Get the appropriate settings
-                RawTaskSettings taskSettings = settingsTriple.taskSettings().get(taskName);
-
-                if (taskSettings == null)
-                {
-                    // Settings are not set, generate default settings
-                    taskSettings = new RawTaskSettings(taskName);
-                }
-
-                task.run(library, taskSettings);
-
-                long endTask = System.nanoTime();
-                double taskDurationInSeconds = ((double) ((endTask - startTask) / 1000000)) / 1000; // with 3 decimal digits
-                Logging.getLogger().message("Successfully executed task " + taskName);
-                Logging.getLogger().info("Task took " + taskDurationInSeconds + "s");
-                System.exit(0);
-            }
-        }
-        while (startedInInteractiveMode);
-
-    }
-
-    /**
-     * Run interactive mode, i.e. print the list of available tasks and let the user decide.
-     *
-     * @return the task name given by the user
-     */
-    private static String runInteractiveMode ()
-    {
-        Logging.getLogger().message("Please specify a task name");
-        TaskRegistry.getHelpTask().printListOfTasks(false);
-        System.out.print("Type a task name: ");
-        Scanner scanner = new Scanner(System.in);
-        return scanner.next();
+        // Done!
+        System.exit(0);
     }
 
     /**
@@ -256,6 +161,44 @@ public class IExport
             return null; // Unreachable
         }
     }
+
+    /**
+     * Use the parsed Settings to parse the iTunes library
+     *
+     * @param settingsTriple the settings triple containing the path to the xml file
+     * @return the parsed library
+     */
+    private static Library parseLibrary (SettingsTriple settingsTriple)
+    {
+        String libraryXmlFilePathString = settingsTriple.parsingSettings().getLibraryXmlFilePathString();
+
+        Logging.getLogger().message("Trying to parse the iTunes library .xml file at " + libraryXmlFilePathString);
+
+        long startParsing = System.nanoTime();
+
+        File file = new File(libraryXmlFilePathString);
+        LibraryParser iTunesLibraryParser = new LibraryParser(file);
+
+        Library library = null;
+        try
+        {
+            library = iTunesLibraryParser.parse();
+        }
+        catch (ITunesParsingException e)
+        {
+            e.printStackTrace();
+            System.exit(1);
+            return null;
+        }
+
+        long endParsing = System.nanoTime();
+        double parsingDurationInSeconds = ((double) ((endParsing - startParsing) / 1000000)) / 1000; // with 3 decimal digits
+        Logging.getLogger().message("Successfully parsed the iTunes library");
+        Logging.getLogger().info("Parsing took " + parsingDurationInSeconds + "s");
+
+        return library;
+    }
+
 
     /**
      * Notify the user if the user-specified settings contain potential mistakes.
@@ -298,6 +241,112 @@ public class IExport
             }
         }
     }
+
+
+    /**
+     * Returns the task with the specified name or exit if no such task exists.
+     *
+     * @param taskName the task name
+     * @return the task with the specified name
+     */
+    private static Task getTaskWithName (String taskName)
+    {
+        Task task = TaskRegistry.getTask(taskName);
+        if (task == null)
+        {
+            // The task with this name does not exist
+            Logging.getLogger().important("No task with the name \"" + taskName + "\" exists.");
+            // Otherwise we print the list of available tasks once again and crash
+            TaskRegistry.getHelpTask().printListOfTasks(false);
+            System.exit(1);
+            return null; // unreachable
+        }
+        else
+        {
+            return task;
+        }
+    }
+
+
+    /**
+     * Run interactive mode, i.e. print the list of available tasks and let the user decide.
+     */
+    private static Task getTaskUsingInteractiveMode ()
+    {
+        Logging.getLogger().message("Interactive mode.");
+
+        int iterations = 0;
+        // if the task name matches "interactive", we should query the user for a new task name
+        do
+        {
+            iterations++;
+            if (iterations > 5)
+            {
+                easterEgg();
+            }
+
+            // Print the available tasks
+            TaskRegistry.getHelpTask().printListOfTasks(false);
+
+            System.out.print("Type a task name: ");
+            Scanner scanner = new Scanner(System.in);
+            String taskName = scanner.next();
+
+            // If the may specify "interactive" again
+            if (INTERACTIVE_MODE_NAMES.stream().anyMatch(taskName::equalsIgnoreCase))
+            {
+                continue;
+            }
+
+            // Otherwise, try to get the specified task
+            Task task = TaskRegistry.getTask(taskName);
+
+            if (task == null)
+            {
+                // The task specified by the user does not exist
+                Logging.getLogger().important("No task with the name \"" + taskName + "\" exists.");
+                Logging.getLogger().message("Try again.");
+
+                // Let them try again
+                continue;
+            }
+
+            return task;
+        }
+        while (true);
+    }
+
+
+    /**
+     * Excutes the specified task on the given library and with the given settings.
+     *
+     * @param task           the task to execute
+     * @param library        the parsed iTunes library
+     * @param settingsTriple contains the task settings
+     */
+    private static void runTask (Task task, Library library, SettingsTriple settingsTriple)
+    {
+        long startTask = System.nanoTime();
+        String taskName = task.getTaskName();
+
+        // Get the appropriate settings
+        RawTaskSettings taskSettings = settingsTriple.taskSettings().get(taskName);
+
+        if (taskSettings == null)
+        {
+            // Settings are not set, generate default settings
+            taskSettings = new RawTaskSettings(taskName);
+        }
+
+        task.run(library, taskSettings);
+
+        long endTask = System.nanoTime();
+        double taskDurationInSeconds = ((double) ((endTask - startTask) / 1000000)) / 1000; // with 3 decimal digits
+
+        Logging.getLogger().message("Successfully executed task " + task.getTaskName());
+        Logging.getLogger().info("Executing task took " + taskDurationInSeconds + "s");
+    }
+
 
     /**
      * HMPH, you're a big baka!
