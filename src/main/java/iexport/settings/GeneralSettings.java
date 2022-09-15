@@ -17,6 +17,7 @@
 
 package iexport.settings;
 
+import iexport.IExport;
 import iexport.logging.LogLevel;
 
 import java.util.HashMap;
@@ -45,6 +46,16 @@ public class GeneralSettings extends Settings
     private static final String SETTING_LOG_LEVEL = "logLevel";
 
     /**
+     * Setting for the task.
+     */
+    private static final String SETTING_TASK = "task";
+
+    /**
+     * Default value for the setting task, which is "interactive"
+     */
+    private static final String SETTING_TASK_DEFAULT_VALUE = IExport.INTERACTIVE_MODE_NAMES.get(0);
+
+    /**
      * Values for the setting "logLevel" that are associated to each log level;
      */
     private static final Map<LogLevel, List<String>> SETTING_LOG_LEVEL_STRINGS;
@@ -66,8 +77,9 @@ public class GeneralSettings extends Settings
         // we can now get the default value for the log Level
         SETTING_LOG_LEVEL_DEFAULT_VALUE = SETTING_LOG_LEVEL_STRINGS.get(LogLevel.NORMAL).get(0);
 
-        // add the default setting
+        // add the default settings
         GENERAL_DEFAULT_SETTINGS.put(SETTING_LOG_LEVEL, SETTING_LOG_LEVEL_DEFAULT_VALUE);
+        GENERAL_DEFAULT_SETTINGS.put(SETTING_TASK, SETTING_TASK_DEFAULT_VALUE);
     }
 
     /**
@@ -91,6 +103,20 @@ public class GeneralSettings extends Settings
     public GeneralSettings (Map<String, Object> settings)
     {
         super(settings);
+    }
+
+    public String getTaskName ()
+    {
+        Object result = getValueFor(SETTING_TASK);
+        try
+        {
+            return (String) result;
+        }
+        catch (ClassCastException e)
+        {
+            throw new RuntimeException(this.getClass() + ": invalid entry for " + getYamlPath(SETTING_TASK)
+                    + ", expected a string, but got " + result.getClass());
+        }
     }
 
     /**

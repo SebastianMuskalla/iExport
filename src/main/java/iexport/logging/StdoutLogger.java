@@ -94,7 +94,7 @@ public class StdoutLogger extends Logger
                 // In quiet mode - just add indentation
                 NEWLINE_PATTERN
                         .splitAsStream(message)
-                        .map((s) -> String.join("", Collections.nCopies(indentation, BASE_INDENTATION)) + s)
+                        .map((s) -> BASE_INDENTATION.repeat(indentation) + s)
                         .forEach(System.out::println);
             }
         }

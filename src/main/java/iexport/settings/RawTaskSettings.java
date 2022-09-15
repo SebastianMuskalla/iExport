@@ -29,7 +29,7 @@ import java.util.Set;
  * An object of this class should be later converted into an actual task settings object
  * for the task at hand that provides type-safe accessors.
  */
-class RawTaskSettings extends Settings
+public class RawTaskSettings extends Settings
 {
     /**
      * The name of the task these settings are for.

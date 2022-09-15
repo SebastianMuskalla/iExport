@@ -17,7 +17,6 @@
 
 package iexport.settings;
 
-import iexport.tasks.print.LibraryPrinter;
 import org.snakeyaml.engine.v2.api.Load;
 import org.snakeyaml.engine.v2.api.LoadSettings;
 

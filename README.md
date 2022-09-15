@@ -18,6 +18,9 @@ iExport is free and open-source software, licensed under the GPLv3 (GNU General 
 
 ### TODO
 
-* setting Parsing
 * rewrite Tasks
-* remove `System.out.println` everywhere
+* remove remaining `System.out.println`
+* UTF8 output? (e.g. playlist names)
+* check full Javadoc
+* finish README
+* use equalsIgnoreCase e.g. for logLevel DEBUG
