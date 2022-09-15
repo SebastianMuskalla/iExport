@@ -64,7 +64,7 @@ public class TrackKeys
     @SuppressWarnings("rawtypes")
     private static void logUnexpectedType (String key, String value, Class unexpectedType, Class expectedType)
     {
-        Logging.getLogger().message(TrackParser.class + ": key \"" + key + "\" with value \"" + value + "\" is of unexpected type \"" + unexpectedType.toString() + "\" expected \"" + expectedType + "\"");
+        Logging.getLogger().info(TrackParser.class + ": key \"" + key + "\" with value \"" + value + "\" is of unexpected type \"" + unexpectedType.toString() + "\" expected \"" + expectedType + "\"");
     }
 
     static

@@ -127,9 +127,9 @@ public class LibraryParser
         Integer trackId = track.trackId();
         if (libraryBuilder.getTracksById().get(trackId) != null)
         {
-            Logging.getLogger().message(this.getClass() + ": Library already contains track with id " + trackId + "; Skipping new track.");
-            Logging.getLogger().message(1, "Old track:" + libraryBuilder.getTracksById().get(trackId));
-            Logging.getLogger().message(1, "New track:" + track);
+            Logging.getLogger().info(this.getClass() + ": Library already contains track with id " + trackId + "; Skipping new track.");
+            Logging.getLogger().debug(1, "Old track:" + libraryBuilder.getTracksById().get(trackId));
+            Logging.getLogger().debug(1, "New track:" + track);
             return;
         }
 
@@ -152,7 +152,7 @@ public class LibraryParser
 
                 if (track == null)
                 {
-                    Logging.getLogger().message(LibraryParser.class + ": Playlist " + playlist + " should contain track with track id " + trackId + ", but this track does not exist; skipping it");
+                    Logging.getLogger().info(LibraryParser.class + ": Playlist " + playlist + " should contain track with track id " + trackId + ", but this track does not exist; skipping it");
                     continue;
                 }
 
@@ -219,7 +219,7 @@ public class LibraryParser
             }
             else
             {
-                Logging.getLogger().message(LibraryParser.class + ": No handler for key \"" + key + "\" with value \"" + value.toString() + "\"");
+                Logging.getLogger().debug(LibraryParser.class + ": No handler for key \"" + key + "\" with value \"" + value.toString() + "\"");
             }
         }
     }
@@ -291,11 +291,11 @@ public class LibraryParser
             if (iterationCount > maximumNumberOfIterations)
             {
                 Logging.getLogger().important(this.getClass() + ": Failed to resolve dependencies among playlists.");
-                Logging.getLogger().important(this.getClass() + ": Playlists with unresolved dependencies:");
+                Logging.getLogger().info(this.getClass() + ": Playlists with unresolved dependencies:");
 
                 for (PlaylistBuilder remaining : workList)
                 {
-                    Logging.getLogger().important(1, remaining.toString());
+                    Logging.getLogger().info(1, remaining.toString());
                 }
                 return;
             }
@@ -324,7 +324,7 @@ public class LibraryParser
                     {
                         // the playlist with the specified Parent Persistent ID does not exist
                         // remove from worklist and issue a warning
-                        Logging.getLogger().important(this.getClass() + ": Playlist " + playlistBuilder + " specifies parent playlist with Persistent ID " + parentPersistentId + ", but no such playlist exists");
+                        Logging.getLogger().info(this.getClass() + ": Playlist " + playlistBuilder + " specifies parent playlist with Persistent ID " + parentPersistentId + ", but no such playlist exists");
                     }
                     else
                     {
@@ -393,7 +393,7 @@ public class LibraryParser
         Object tracksObject = rootDictionary.get("Tracks");
         if (tracksObject == null)
         {
-            Logging.getLogger().message(this.getClass() + ": Library " + libraryBuilder + " has no Tracks dictionary.");
+            Logging.getLogger().info(this.getClass() + ": Library " + libraryBuilder + " has no Tracks dictionary.");
             return;
         }
 
@@ -405,7 +405,7 @@ public class LibraryParser
         }
         catch (ClassCastException e)
         {
-            Logging.getLogger().important(this.getClass() + ": Library " + libraryBuilder + " has Tracks dictionary of unexpected type " + tracksObject.getClass() + ", expected NSDictionary; skipping it");
+            Logging.getLogger().info(this.getClass() + ": Library " + libraryBuilder + " has Tracks dictionary of unexpected type " + tracksObject.getClass() + ", expected NSDictionary; skipping it");
             return;
         }
 
@@ -430,7 +430,7 @@ public class LibraryParser
             }
             catch (Exception e)
             {
-                Logging.getLogger().message(this.getClass() + ": Track with key Track ID  \"" + trackIdKey + "\" is of unexpected type " + tracksObject.getClass() + ", expected an integer; skipping it");
+                Logging.getLogger().info(this.getClass() + ": Track with key Track ID  \"" + trackIdKey + "\" is of unexpected type " + tracksObject.getClass() + ", expected an integer; skipping it");
                 continue;
             }
 
@@ -442,7 +442,7 @@ public class LibraryParser
             }
             catch (ClassCastException e)
             {
-                Logging.getLogger().message(this.getClass() + ": Track with id \"" + trackId + "\" has track dictionary of unexpected type " + tracksObject.getClass() + ", expected NSDictionary; skipping it");
+                Logging.getLogger().info(this.getClass() + ": Track with id \"" + trackId + "\" has track dictionary of unexpected type " + tracksObject.getClass() + ", expected NSDictionary; skipping it");
                 continue;
             }
 
@@ -457,7 +457,7 @@ public class LibraryParser
              */
             if (!track.trackId().equals(trackId))
             {
-                Logging.getLogger().important(this.getClass() + ": For track " + track + ", Track ID  " + trackId + " from key does not match internal Track ID " + track.trackId() + "; skipping it");
+                Logging.getLogger().info(this.getClass() + ": For track " + track + ", Track ID  " + trackId + " from key does not match internal Track ID " + track.trackId() + "; skipping it");
                 continue;
             }
 
@@ -476,7 +476,7 @@ public class LibraryParser
         Object playlistsObject = rootDictionary.get("Playlists");
         if (playlistsObject == null)
         {
-            Logging.getLogger().message(this.getClass() + ": Library " + libraryBuilder + " has no Playlists array.");
+            Logging.getLogger().info(this.getClass() + ": Library " + libraryBuilder + " has no Playlists array.");
             return;
         }
 
@@ -488,7 +488,7 @@ public class LibraryParser
         }
         catch (ClassCastException e)
         {
-            Logging.getLogger().important(this.getClass() + ": Library " + libraryBuilder + " has Playlists array of unexpected type " + playlistsObject.getClass() + ", expected NSArray.");
+            Logging.getLogger().info(this.getClass() + ": Library " + libraryBuilder + " has Playlists array of unexpected type " + playlistsObject.getClass() + ", expected NSArray.");
             return;
         }
 
@@ -503,7 +503,7 @@ public class LibraryParser
             }
             catch (ClassCastException e)
             {
-                Logging.getLogger().important(": Playlist dictionary " + playlistObject + " is of unexpected type " + playlistObject.getClass() + ", expected NSDictionary; skipping it");
+                Logging.getLogger().info(": Playlist dictionary " + playlistObject + " is of unexpected type " + playlistObject.getClass() + ", expected NSDictionary; skipping it");
                 continue;
             }
 
@@ -518,7 +518,7 @@ public class LibraryParser
             // to this end, we will need the persistent id of the playlist
             if (playlistBuilder.getPlaylistPersistentId() == null)
             {
-                Logging.getLogger().message(this.getClass() + ": Playlist " + playlistBuilder + " has no Playlist Persistent ID, resolving dependencies for this playlist will likely fail.");
+                Logging.getLogger().info(this.getClass() + ": Playlist " + playlistBuilder + " has no Playlist Persistent ID, resolving dependencies for this playlist will likely fail.");
                 continue;
             }
 

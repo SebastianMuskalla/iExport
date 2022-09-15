@@ -127,7 +127,7 @@ public class PlaylistParser
         }
         catch (ClassCastException e)
         {
-            Logging.getLogger().important(this.getClass() + ": Playlist " + playlistBuilder.toString() + " has track array of unexpected type " + playlistItemsArrayObject.getClass() + ", skipping it");
+            Logging.getLogger().info(this.getClass() + ": Playlist " + playlistBuilder.toString() + " has track array of unexpected type " + playlistItemsArrayObject.getClass() + ", skipping it");
             return;
         }
 
@@ -148,14 +148,14 @@ public class PlaylistParser
             }
             catch (ClassCastException e)
             {
-                Logging.getLogger().important(this.getClass() + ": Track array of playlist " + playlistBuilder + " contains entry of unexpected type " + trackDictionaryObject.getClass() + "; skipping it");
+                Logging.getLogger().info(this.getClass() + ": Track array of playlist " + playlistBuilder + " contains entry of unexpected type " + trackDictionaryObject.getClass() + "; skipping it");
                 continue;
             }
 
             // each dictionary should just have a single key-value pair inside it
             if (trackDictionary.count() != 1)
             {
-                Logging.getLogger().important(this.getClass() + ": Dictionary " + trackDictionary + " inside track array of playlist " + playlistBuilder + " has unexpected size " + trackDictionary.count() + ", expected size 1; skipping it.");
+                Logging.getLogger().info(this.getClass() + ": Dictionary " + trackDictionary + " inside track array of playlist " + playlistBuilder + " has unexpected size " + trackDictionary.count() + ", expected size 1; skipping it.");
                 continue;
             }
 
@@ -163,7 +163,7 @@ public class PlaylistParser
             NSObject trackIdObject = trackDictionary.get("Track ID");
             if (trackIdObject == null)
             {
-                Logging.getLogger().message(this.getClass() + ": Dictionary " + trackDictionary + " inside track array of playlist " + playlistBuilder + " does not contain the key \"Track ID\"; skipping it.");
+                Logging.getLogger().info(this.getClass() + ": Dictionary " + trackDictionary + " inside track array of playlist " + playlistBuilder + " does not contain the key \"Track ID\"; skipping it.");
                 continue;
             }
 
@@ -175,7 +175,7 @@ public class PlaylistParser
             }
             catch (ClassCastException e)
             {
-                Logging.getLogger().important(": Value " + trackIdObject.toJavaObject() + " inside track array of playlist " + playlistBuilder + " has unexpected type " + trackIdObject.getClass() + ", expected an integer; skipping it.");
+                Logging.getLogger().info(": Value " + trackIdObject.toJavaObject() + " inside track array of playlist " + playlistBuilder + " has unexpected type " + trackIdObject.getClass() + ", expected an integer; skipping it.");
                 continue;
             }
 

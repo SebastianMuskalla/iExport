@@ -71,7 +71,7 @@ public class TrackParser
             }
             else
             {
-                Logging.getLogger().info(this.getClass() + ": No handler for key \"" + key + "\" with value \"" + value.toString() + "\"");
+                Logging.getLogger().debug(this.getClass() + ": No handler for key \"" + key + "\" with value \"" + value.toString() + "\"");
             }
         }
 

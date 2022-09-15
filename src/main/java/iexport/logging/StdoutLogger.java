@@ -48,9 +48,9 @@ public class StdoutLogger extends Logger
     static
     {
         PREFIXES.put(LogLevel.DEBUG, "//");
-        PREFIXES.put(LogLevel.INFO, "? ");
-        PREFIXES.put(LogLevel.NORMAL, "> ");
-        PREFIXES.put(LogLevel.IMPORTANT, "! ");
+//        PREFIXES.put(LogLevel.INFO, "//");
+//        PREFIXES.put(LogLevel.NORMAL, "> ");
+//        PREFIXES.put(LogLevel.IMPORTANT, "! ");
     }
 
     /**
@@ -83,10 +83,13 @@ public class StdoutLogger extends Logger
             if (!quietMode())
             {
                 // Not in quiet mode - add prefixes
+                final String prefix = PREFIXES.get(logLevel) == null ? "" : PREFIXES.get(logLevel);
+
+                String finalPrefix = prefix;
                 NEWLINE_PATTERN
                         .splitAsStream(message)
                         .map((s) -> String.join("", Collections.nCopies(indentation, BASE_INDENTATION)) + s)
-                        .map((s) -> PREFIXES.get(logLevel) + s)
+                        .map((s) -> finalPrefix + s)
                         .forEach(System.out::println);
             }
             else

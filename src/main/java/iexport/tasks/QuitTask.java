@@ -18,6 +18,7 @@
 package iexport.tasks;
 
 import iexport.itunes.Library;
+import iexport.logging.Logging;
 import iexport.settings.RawTaskSettings;
 
 /**
@@ -34,12 +35,13 @@ public class QuitTask implements Task
     @Override
     public String getDescription ()
     {
-        return "Bye!";
+        return "exit iExport";
     }
 
     @Override
     public void run (Library library, RawTaskSettings rawTaskSettings)
     {
+        Logging.getLogger().message("Bye!");
         System.exit(0);
     }
 }

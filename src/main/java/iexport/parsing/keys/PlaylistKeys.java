@@ -64,7 +64,7 @@ public class PlaylistKeys
     @SuppressWarnings("rawtypes")
     private static void logUnexpectedType (String key, String value, Class unexpectedType, Class expectedType)
     {
-        Logging.getLogger().message(PlaylistParser.class + ": key \"" + key + "\" with value \"" + value + "\" is of unexpected type \"" + unexpectedType.toString() + "\" expected \"" + expectedType + "\"");
+        Logging.getLogger().info(PlaylistParser.class + ": key \"" + key + "\" with value \"" + value + "\" is of unexpected type \"" + unexpectedType.toString() + "\" expected \"" + expectedType + "\"");
     }
 
     static

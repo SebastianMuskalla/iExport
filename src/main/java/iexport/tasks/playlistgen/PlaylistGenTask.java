@@ -184,9 +184,6 @@
 //                string1 = string1.substring(1);
 //            }
 //
-////            System.out.println(trackUriString);
-////            System.out.println(trackUri);
-////            System.out.println(string1);
 //
 //            Path trackFile = Paths.get(string1);
 //

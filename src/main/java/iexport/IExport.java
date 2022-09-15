@@ -59,9 +59,9 @@ public class IExport
     public static void main (String[] args)
     {
         // Initialize the global logger
-        // We don't know which log level we should use yet, so we set it to IMPORTANT
+        // We don't know which log level we should use yet, so we set it to NORMAL
         // to make sure we don't get unnecessary output.
-        Logging.getLogger().setLogLevel(LogLevel.IMPORTANT);
+        Logging.getLogger().setLogLevel(LogLevel.NORMAL);
 
         HelpTask helpTask = TaskRegistry.getHelpTask();
 
@@ -104,7 +104,7 @@ public class IExport
         LogLevel logLevel = generalSettings.getLogLevel();
 
         Logging.getLogger().setLogLevel(logLevel);
-        Logging.getLogger().debug("Using logLevel " + logLevel);
+        Logging.getLogger().info("Using logLevel " + logLevel);
 
         // Notify the user of any settings that have been set in the .yaml file but that actually do not exist
         reportPotentialMistakesInSettings(settingsTriple);
@@ -224,8 +224,7 @@ public class IExport
      */
     private static String runInteractiveMode ()
     {
-        Logging.getLogger().important("Please specify a task name");
-        Logging.getLogger().important("Available tasks:");
+        Logging.getLogger().message("Please specify a task name");
         TaskRegistry.getHelpTask().printListOfTasks(false);
         System.out.print("Type a task name: ");
         Scanner scanner = new Scanner(System.in);
@@ -252,7 +251,7 @@ public class IExport
         catch (Exception e)
         {
             Logging.getLogger().important("Parsing the .yaml file at the specified location \"" + yamlFilePathAsString + "\" has failed");
-            Logging.getLogger().important("Reason: " + e.getMessage());
+            Logging.getLogger().message("Because of: " + e.getMessage());
             System.exit(1);
             return null; // Unreachable
         }
@@ -274,28 +273,27 @@ public class IExport
         GeneralSettings generalSettings = settingsTriple.generalSettings();
         if (generalSettings.isDefault())
         {
-            Logging.getLogger().message("No general settings have been specified in the .yaml file, using all default settings from now on");
+            Logging.getLogger().info("No general settings have been specified in the .yaml file, using all default settings from now on");
         }
         else
         {
             for (String key : generalSettings.unusedSettings())
             {
-                Logging.getLogger().message("Settings for key \"" + generalSettings.getYamlPath(key) + "\""
+                Logging.getLogger().info("Settings for key \"" + generalSettings.getYamlPath(key) + "\""
                         + " specified in .yaml file, but it is not used by iExport");
             }
         }
 
-
         ParsingSettings parsingSettings = settingsTriple.parsingSettings();
         if (generalSettings.isDefault())
         {
-            Logging.getLogger().message("No parsings settings have been specified in the .yaml file (key \"parsing\"), using all default settings from now on");
+            Logging.getLogger().info("No parsings settings have been specified in the .yaml file (key \"parsing\"), using all default settings from now on");
         }
         else
         {
             for (String key : parsingSettings.unusedSettings())
             {
-                Logging.getLogger().message("Settings for key \"" + parsingSettings.getYamlPath(key) + "\""
+                Logging.getLogger().info("Settings for key \"" + parsingSettings.getYamlPath(key) + "\""
                         + " specified in .yaml file, but it is not used by iExport");
             }
         }
@@ -306,13 +304,13 @@ public class IExport
      */
     private static void easterEgg ()
     {
-        System.out.println("########     ###    ##    ##    ###    #### #### ####");
-        System.out.println("##     ##   ## ##   ##   ##    ## ##   #### #### ####");
-        System.out.println("##     ##  ##   ##  ##  ##    ##   ##  #### #### ####");
-        System.out.println("########  ##     ## #####    ##     ##  ##   ##   ## ");
-        System.out.println("##     ## ######### ##  ##   #########               ");
-        System.out.println("##     ## ##     ## ##   ##  ##     ## #### #### ####");
-        System.out.println("########  ##     ## ##    ## ##     ## #### #### ####");
+        Logging.getLogger().message("########     ###    ##    ##    ###    #### #### ####");
+        Logging.getLogger().message("##     ##   ## ##   ##   ##    ## ##   #### #### ####");
+        Logging.getLogger().message("##     ##  ##   ##  ##  ##    ##   ##  #### #### ####");
+        Logging.getLogger().message("########  ##     ## #####    ##     ##  ##   ##   ## ");
+        Logging.getLogger().message("##     ## ######### ##  ##   #########               ");
+        Logging.getLogger().message("##     ## ##     ## ##   ##  ##     ## #### #### ####");
+        Logging.getLogger().message("########  ##     ## ##    ## ##     ## #### #### ####");
         System.exit(1337 % 167);
     }
 }

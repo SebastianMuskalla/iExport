@@ -21,7 +21,7 @@
   # OPTIONS:
   #    "" - interactive mode (prints the list of tasks on STDOUT and asks the user)
   # If a task is specified as a command-line argument, it will override this settings
-    "task" :     "printPlaylists",
+    "task" :     "",
 
   # settings for parsing
     "parsing" :

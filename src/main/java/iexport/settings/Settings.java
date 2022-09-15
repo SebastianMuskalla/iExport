@@ -67,8 +67,8 @@ public abstract class Settings
         catch (Exception e)
         {
             Logging.getLogger().important("Applying replacement of " + userProfilePlaceholder + " failed");
-            Logging.getLogger().important(1, "Cause : " + e);
-            Logging.getLogger().important(1, "Message: " + e.getMessage());
+            Logging.getLogger().info(1, "Cause : " + e);
+            Logging.getLogger().info(1, "Message: " + e.getMessage());
         }
         return pathString;
     }
@@ -171,7 +171,7 @@ public abstract class Settings
             // We should notify the user that we use this default setting (unless this whole object just contains default Settings)
             if (!isDefault())
             {
-                Logging.getLogger().message("No user-provided setting for key \"" + getYamlPath(key) + "\", using default value \"" + value + "\" from now on");
+                Logging.getLogger().info("No user-provided setting for key \"" + getYamlPath(key) + "\", using default value \"" + value + "\" from now on");
             }
 
             settings.put(key, value);
