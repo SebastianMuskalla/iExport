@@ -17,16 +17,24 @@
 
 package iexport.logging;
 
+import java.io.PrintStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * A logger that logs all messages up to a specified log level to STDOUT.
  */
 public class StdoutLogger extends Logger
 {
+    /**
+     * A print stream that uses UTF8.
+     */
+    private static final PrintStream OUT = new PrintStream(System.out, true, UTF_8);
+
     /**
      * Pattern for newline (either \n or \r\n)
      */
@@ -90,7 +98,7 @@ public class StdoutLogger extends Logger
                         .splitAsStream(message)
                         .map((s) -> String.join("", Collections.nCopies(indentation, BASE_INDENTATION)) + s)
                         .map((s) -> finalPrefix + s)
-                        .forEach(System.out::println);
+                        .forEach(OUT::println);
             }
             else
             {
@@ -98,7 +106,7 @@ public class StdoutLogger extends Logger
                 NEWLINE_PATTERN
                         .splitAsStream(message)
                         .map((s) -> BASE_INDENTATION.repeat(indentation) + s)
-                        .forEach(System.out::println);
+                        .forEach(OUT::println);
             }
         }
 

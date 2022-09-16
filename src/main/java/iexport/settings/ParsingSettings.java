@@ -29,12 +29,12 @@ import java.util.stream.Collectors;
  * <p>
  * These settings correspond to the dictionary under the key "parsing" in the root dictionary of the .yaml file.
  */
-public class ParsingSettings extends Settings
+public class ParsingSettings extends SettingsImpl
 {
     /**
      * Map holding the default settings for parsing
      */
-    protected static final Map<String, Object> PARSING_DEFAULT_SETTINGS = new HashMap<>();
+    private static final Map<String, Object> PARSING_DEFAULT_SETTINGS = new HashMap<>();
     /**
      * Setting for the location of the {@code iTunes Music Library.xml} file
      */
@@ -163,15 +163,14 @@ public class ParsingSettings extends Settings
         }
     }
 
-
-    public List<String> getSettingIgnoredPlaylistNames ()
+    public List<String> getSettingIgnorePlaylistNames ()
     {
         String key = SETTING_IGNORE_PLAYLISTS_BY_NAME;
         Object result = getValueFor(key);
 
         try
         {
-            // Type erasure yada yada
+            // Type erasure
             @SuppressWarnings("unchecked")
             List<String> resultList = (List<String>) result;
             return resultList;
@@ -179,12 +178,12 @@ public class ParsingSettings extends Settings
         catch (ClassCastException e)
         {
             throw new RuntimeException(this.getClass().getSimpleName() + ": invalid entry for " + getYamlPath(key)
-                    + ", expected a boolean, but got " + result.getClass().getSimpleName());
+                    + ", expected an array of strings, but got " + result.getClass().getSimpleName());
         }
         catch (NullPointerException e)
         {
             throw new RuntimeException(this.getClass().getSimpleName() + ": invalid entry for " + getYamlPath(key)
-                    + ", expected a boolean, but got null");
+                    + ", expected an array of strings, but got null");
         }
     }
 
@@ -216,13 +215,13 @@ public class ParsingSettings extends Settings
     }
 
     @Override
-    protected String getYamlPrefix ()
+    public String getYamlPrefix ()
     {
         return "parsing.";
     }
 
     @Override
-    Object getDefaultValueFor (String key)
+    protected Object getDefaultValueFor (String key)
     {
         return PARSING_DEFAULT_SETTINGS.get(key);
     }

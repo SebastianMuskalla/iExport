@@ -29,7 +29,7 @@ import java.util.Set;
  * An object of this class should be later converted into an actual task settings object
  * for the task at hand that provides type-safe accessors.
  */
-public class RawTaskSettings extends Settings
+public class RawTaskSettings extends SettingsImpl
 {
     /**
      * The name of the task these settings are for.
@@ -71,15 +71,14 @@ public class RawTaskSettings extends Settings
     }
 
     @Override
-    protected String getYamlPrefix ()
+    public String getYamlPrefix ()
     {
         return "tasks" + "." + getTaskName() + ".";
     }
 
-    // TODO
     @Override
-    Object getDefaultValueFor (String key)
+    protected Object getDefaultValueFor (String key)
     {
-        return null;
+        throw new RuntimeException("You cannot call getDefaultValueFor on RawTaskSettings (for task " + taskName + ")");
     }
 }

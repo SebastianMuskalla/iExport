@@ -17,11 +17,12 @@
 
 package iexport.tasks;
 
-import iexport.tasks.print.PrintLibraryTask;
+import iexport.tasks.printing.PrintLibraryTask;
+import iexport.tasks.printing.PrintMultiplyListedTracksTask;
+import iexport.tasks.printing.PrintPlaylistsTask;
+import iexport.tasks.printing.PrintUnlistedTracksTask;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * A static class in which the available tasks are registered.
@@ -32,6 +33,13 @@ public class TaskRegistry
      * A map in which the existing tasks are registered.
      */
     private static final Map<String, Task> tasksByName;
+
+    /**
+     * A list in which the existing tasks are registered.
+     * <p>
+     * We maintain this list in addition to {@link #tasksByName} to maintain the order
+     */
+    private static final List<Task> tasks;
 
     /**
      * The special help task that prints usage instructions.
@@ -50,17 +58,19 @@ public class TaskRegistry
 
     static Collection<Task> getTaskList ()
     {
-        return tasksByName.values();
+        return tasks;
     }
 
     private static void registerTask (Task task)
     {
+        tasks.add(task);
         tasksByName.put(task.getTaskName(), task);
     }
 
     static
     {
         tasksByName = new HashMap<>();
+        tasks = new ArrayList<>();
 
         HelpTask helpTask = new HelpTask();
         registerTask(helpTask);
@@ -69,5 +79,13 @@ public class TaskRegistry
         registerTask(new QuitTask());
 
         registerTask(new PrintLibraryTask());
+
+        registerTask(new PrintPlaylistsTask());
+
+        registerTask(new PrintUnlistedTracksTask());
+
+        registerTask(new PrintMultiplyListedTracksTask());
+
+        registerTask(new QuitTask());
     }
 }

@@ -663,11 +663,11 @@ public class LibraryParser
         }
 
         // Ignore playlists whose name is in parsing.ignorePlaylistsByName
-        if (builder.getName() != null && parsingSettings.getSettingIgnoredPlaylistNames().contains(builder.getName()))
+        if (builder.getName() != null && parsingSettings.getSettingIgnorePlaylistNames().contains(builder.getName()))
         {
             Logging.getLogger().info(this.getClass().getSimpleName() +
                     " Ignoring playlist " + builder + " because its name is in parsing.ignorePlaylistsByName "
-                    + "(" + parsingSettings.getSettingIgnoredPlaylistNames() + ")");
+                    + "(" + parsingSettings.getSettingIgnorePlaylistNames() + ")");
             return true;
         }
 

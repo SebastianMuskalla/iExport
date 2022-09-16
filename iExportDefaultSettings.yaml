@@ -1,61 +1,150 @@
-{ # iExport Settings
+{
+  # iExport Settings
 
   # This file contents the default settings for iExport
   # You can make a copy of this file, modify the settings,
-  # and pass the location of the file as an argument to iExport
+  # and pass the location of the file as an argument to iExport.
 
   # (Note that the default settings are not actually loaded from this file,
   #  they are hardcoded in the Java source code.)
 
+  # General settings
+  # ================
+
   # logLevel
-  # how much output to do you want?
+  # --------
+  # How much output to do you want?
   # Options:
-  #   "QUIET"                     - reduced output
-  #   "NORMAL"   (default value)  - regular output
-  #   "VERBOSE"                   - additional output
-  #   "DEBUG"                     - full output for debugging
+  #   "QUIET"   - reduced output
+  #   "NORMAL"  - regular output
+  #   "VERBOSE" - additional output
+  #   "DEBUG"   - full output for debugging
+  # Default value: "NORMAL"
     "logLevel" : "DEBUG",
 
   # task
-  # which task should be executed after parsing the library?
-  # OPTIONS:
-  #    "" - interactive mode (prints the list of tasks on STDOUT and asks the user)
-  # TODO
-  # If a task is specified as a command-line argument, it will override this settings
-    "task" :     "",
+  # ----
+  # Which task should be executed after parsing the library?
+  # Options: see list of tasks below.
+  # If a task is specified as a command-line argument, it will override this settings.
+  # Default value: "interactive" (ask user for a task name on STDIN).
+    "task" :     "interactive",
 
-  # settings for parsing
+
     "parsing" :
       {
-        # path to "iTunes Music Library.xml"
-        # supports the %USERPROFILE% placeholder, which will typically get replaced by "C:\Users\<USERNAME>"
-        # Note that if you want to use Windows notation with \ instead of /,
-        # you will need to escape them and write \\
+        # Parsing settings
+        # ================
+
+        # parsing.xmlFilePath
+        # -----------
+        # Path to "iTunes Music Library.xml".
+        #   Supports the %USERPROFILE% placeholder, which will typically get replaced by "C:\Users\<USERNAME>".
+        #   Note that backslashes ("\") need to be escaped as "\\".
+        # Default value: %USERPROFILE%\\Music\\iTunes\\iTunes Music Library.xml"
           "xmlFilePath" :                  "%USERPROFILE%\\Music\\iTunes\\iTunes Music Library.xml",
+
         # Settings for ignoring playlists
-        # Note that if an ignored playlists is a folder, all its children (the elements of the folder)
-        # are ignored, too
-        # set to "true" to ignore playlists that contain no tracks
+        # -------------------------------
+        # Playlists that get ignored will not be parsed and will not be available to any task.
+        #   Note that if an ignored playlists is a folder, its contents will be ignored too.
+
+        # parsing.ignoreEmptyPlaylists
+        # Set to true to ignore playlists that contain no tracks
+        # Default value: true
           "ignoreEmptyPlaylists" :         true,
-        # set to "true" to ignore playlists for movies, tvShows, audiobooks
+
+        # parsing.ignoreNonMusicPlaylists
+        # Set to true to ignore playlists for movies, tvShows, audiobooks.
+        # Default value: true
           "ignoreNonMusicPlaylists" :      true,
-        # set to "true" to ignore distinguished playlists
-        # this includes playlists like "Music" (the entire music library), "Downloaded", and non-music libraries
+
+        # parsing.ignoreDistinguishedPlaylists
+        # Set to true to ignore distinguished playlists.
+        #   This includes playlists like "Music" (the entire music library), "Downloaded", and non-music libraries.
+        # Default value: false
           "ignoreDistinguishedPlaylists" : false,
-        # ignore the playlist "Library" containing the entire iTunes library
+
+        # parsing.ignoreMaster
+        # Set to true to ignore the playlist "Library" with the "master" flag
+        # Default value: false
           "ignoreMaster" :                 true,
-        # specify a list of playlists to ignore by name
+
+        # parsing.ignorePlaylistsByName
+        # Specify an array of playlist names that should be ignored
+        # Default value: ["Downloaded"]
           "ignorePlaylistsByName" :
             [
                 "Downloaded",
-            ]
+            ],
       },
 
-    "tasks" :
-      { # settings for the "printPlaylist" task
-          "print" :
-            {
 
-            }
+    "tasks" :
+      {
+        # Tasks and their settings
+        # ========================
+
+          "interactive" :
+            # Ask the user to provide a task name on STDIN and execute this task.
+            {
+              # (this task has no settings)
+            },
+
+          "help" :
+            # Print usage instructions on STDOUT, including a list of all tasks.
+            {
+              # (this task has no settings)
+            },
+
+          "quit" :
+            # Exit iExport. Bye!
+            {
+              # (this task has no settings)
+            },
+
+          "printLibrary" :
+            # Print information about the library, including the playlists and tracks.
+            {
+              # (this task has no settings)
+            },
+
+          "printPlaylists" :
+            # Print detailed information on the playlists in the library.
+            {
+              # (this task has no settings)
+            },
+
+          "printUnlistedTracks" :
+            # Print the list of tracks that are not contained in any playlist.
+            # We ignore the master playlist ("Library"), all distinguished playlists ("Music", ...),
+            #   and playlists whose name is specified below.
+            {
+              # tasks.printUnlistedTracks.ignorePlaylists
+              # Specify playlists that should be ignored,
+              #   i.e. a track will be counted as unlisted even if it is contained in one of these playlists.
+              # Default value: []
+                "ignorePlaylists" :
+                  [
+                      "Nirgends",
+                  ],
+            },
+
+          "printMultiplyListedTracks" :
+            # Print the list of tracks that are contained in more than one playlist.
+            # We ignore the master playlist ("Library"), all distinguished playlists ("Music", ...),
+            #   playlist folders, and playlists whose name is specified below.
+            {
+              # tasks.printMultiplyListedTracks.ignorePlaylists
+              # Specify playlists that should be ignored,
+              #   i.e. they will not be counted towards the number of playlists a track is in.
+              # Default value: []
+                "ignorePlaylists" :
+                  [
+                      "NEUES",
+                  ],
+            },
+
+
       },
 }

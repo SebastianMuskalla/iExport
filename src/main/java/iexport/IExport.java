@@ -172,6 +172,7 @@ public class IExport
     {
         String libraryXmlFilePathString = settingsTriple.parsingSettings().getSettingLibraryXmlFilePathString();
 
+        Logging.getLogger().message("");
         Logging.getLogger().message("Trying to parse the iTunes library .xml file at " + libraryXmlFilePathString);
 
         long startParsing = System.nanoTime();
@@ -195,6 +196,7 @@ public class IExport
         double parsingDurationInSeconds = ((double) ((endParsing - startParsing) / 1000000)) / 1000; // with 3 decimal digits
         Logging.getLogger().message("Successfully parsed the iTunes library");
         Logging.getLogger().info("Parsing took " + parsingDurationInSeconds + "s");
+        Logging.getLogger().message("");
 
         return library;
     }
@@ -339,14 +341,17 @@ public class IExport
         }
 
         Logging.getLogger().message("Running task " + taskName);
+        Logging.getLogger().message("");
 
         task.run(library, taskSettings);
 
         long endTask = System.nanoTime();
         double taskDurationInSeconds = ((double) ((endTask - startTask) / 1000000)) / 1000; // with 3 decimal digits
 
+        Logging.getLogger().message("");
         Logging.getLogger().message("Successfully executed task " + task.getTaskName());
         Logging.getLogger().info("Executing task took " + taskDurationInSeconds + "s");
+        Logging.getLogger().message("");
     }
 
 

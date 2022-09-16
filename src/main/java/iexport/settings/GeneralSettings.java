@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  * These settings correspond to the root dictionary of the settings .yaml file
  * minus the keys "parsing" and tasks.
  */
-public class GeneralSettings extends Settings
+public class GeneralSettings extends SettingsImpl
 {
     /**
      * Map holding the default general settings
@@ -164,13 +164,13 @@ public class GeneralSettings extends Settings
     }
 
     @Override
-    protected String getYamlPrefix ()
+    public String getYamlPrefix ()
     {
         return "";
     }
 
     @Override
-    Object getDefaultValueFor (String key)
+    protected Object getDefaultValueFor (String key)
     {
         return GENERAL_DEFAULT_SETTINGS.get(key);
     }
