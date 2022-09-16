@@ -50,13 +50,13 @@ import java.util.Objects;
  * }
  *
  * @param playlistId           the iTunes-internal playlist ID
- *                             <p>
- *                             we use this field for {@link #equals(Object)} and {@link #hashCode()}
  * @param depth                the depth of the playlist,
  *                             i.e. this value is 0 if the playlist has no parent or it is its parent's depth plus one.
  * @param distinguishedKind    ???
  * @param name                 the name of the playlist
  * @param playlistPersistentId the iTunes-internal persistent playlist ID
+ *                             <p>
+ *                             we use this field for {@link #equals(Object)} and {@link #hashCode()}
  * @param parentPersistentId   the persistent ID of the parent playlist
  * @param visible              ???
  * @param allItems             ???
@@ -158,13 +158,13 @@ public record Playlist
 
         Playlist playlist = (Playlist) o;
 
-        return Objects.equals(playlistId, playlist.playlistId);
+        return Objects.equals(playlistPersistentId, playlist.playlistPersistentId);
     }
 
     @Override
     public int hashCode ()
     {
-        return playlistId != null ? playlistId.hashCode() : 0;
+        return playlistPersistentId != null ? playlistPersistentId.hashCode() : 0;
     }
 
     @Override

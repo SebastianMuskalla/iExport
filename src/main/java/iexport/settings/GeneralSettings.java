@@ -114,8 +114,8 @@ public class GeneralSettings extends Settings
         }
         catch (ClassCastException e)
         {
-            throw new RuntimeException(this.getClass() + ": invalid entry for " + getYamlPath(SETTING_TASK)
-                    + ", expected a string, but got " + result.getClass());
+            throw new RuntimeException(this.getClass().getSimpleName() + ": invalid entry for " + getYamlPath(SETTING_TASK)
+                    + ", expected a string, but got " + result.getClass().getSimpleName());
         }
     }
 

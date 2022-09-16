@@ -57,8 +57,6 @@ import java.util.Set;
  *
  * @param trackId             the internal track ID.
  *                            <p>
- *                            We use this field for {@link #equals(Object)} and {@link #hashCode()}.
- *                            <p>
  *                            Example from iTunes Music Library.xml:
  *                            {@code <key>Track ID</key><integer>2339</integer>}
  * @param year                the release year.
@@ -145,6 +143,8 @@ import java.util.Set;
  *                            Example from iTunes Music Library.xml:
  *                            {@code  <key>Play Date</key><integer>3729804533</integer>}a
  * @param persistentId        iTunes-internal persistent ID.
+ *                            <p>
+ *                            We use this field for {@link #equals(Object)} and {@link #hashCode()}.
  *                            <p>
  *                            Example from iTunes Music Library.xml:
  *                            {@code <key>Persistent ID</key><string>9D376722713BF099</string>}
@@ -384,23 +384,25 @@ public record Track
 
         Track track = (Track) o;
 
-        return Objects.equals(trackId, track.trackId);
+        return Objects.equals(persistentId, track.persistentId);
     }
 
     @Override
     public int hashCode ()
     {
-        return trackId != null ? trackId.hashCode() : 0;
+        return persistentId != null ? persistentId.hashCode() : 0;
     }
 
     @Override
     public String toString ()
     {
-        return "Track{" +
-                "trackId='" + trackId + '\'' +
-                ", persistentId='" + persistentId + '\'' +
-                ", name='" + name + '\'' +
-                '}';
+        return ((artist != null) ? artist : "UNKNOWN ARTIST")
+                + " - "
+                + ((name != null) ? name : "UNKNOWN TITLE")
+                + " {"
+                + ((trackId != null) ? "trackId=" + trackId : "")
+                + ((persistentId != null) ? ", persistentId=" + persistentId : "")
+                + '}';
     }
 
     /**

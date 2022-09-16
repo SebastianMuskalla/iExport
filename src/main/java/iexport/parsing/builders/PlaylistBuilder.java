@@ -213,8 +213,8 @@ public class PlaylistBuilder
     @Override
     public String toString ()
     {
-        return "PlaylistBuilder" +
-                (name != null ? " '" + name + "' " : "")
+        return "PlaylistBuilder for " +
+                (name != null ? " '" + name + "' " : "UNNAMED PLAYLIST")
                 + "{"
                 + "depth=" + depth
                 + ", #trackIds=" + trackIds.size()

@@ -409,4 +409,17 @@ public class TrackBuilder
                 grouping,
                 genre);
     }
+
+    @Override
+    public String toString ()
+    {
+        return "TrackBuilder for "
+                + ((artist != null) ? artist : "UNKNOWN ARTIST")
+                + " - "
+                + ((name != null) ? name : "UNKNOWN TITLE")
+                + " {"
+                + ((trackId != null) ? "trackId=" + trackId : "")
+                + ((persistentId != null) ? ", persistentId=" + persistentId : "")
+                + '}';
+    }
 }
