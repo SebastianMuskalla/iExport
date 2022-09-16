@@ -65,7 +65,7 @@ public class LibraryKeys
     @SuppressWarnings("rawtypes")
     private static void logUnexpectedType (String key, String value, Class unexpectedType, Class expectedType)
     {
-        Logging.getLogger().info(LibraryParser.class + ": key \"" + key + "\" with value \"" + value + "\" is of unexpected type \"" + unexpectedType.toString() + "\" expected \"" + expectedType + "\"");
+        Logging.getLogger().info(LibraryParser.class.getSimpleName() + ": key \"" + key + "\" with value \"" + value + "\" is of unexpected type \"" + unexpectedType.getSimpleName() + "\" expected \"" + expectedType.getSimpleName() + "\"");
     }
 
     static

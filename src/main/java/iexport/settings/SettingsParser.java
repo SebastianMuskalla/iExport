@@ -102,7 +102,7 @@ public class SettingsParser
         // The root object of the .yaml file should be a dictionary (= Map<String,Object>)
         if (!(yamlObject instanceof Map))
         {
-            throw new SettingsParsingException("Expected the root object of the .yaml file to be a dictionary with strings as keys, found  " + yamlObject + " of type " + yamlObject.getClass() + " instead");
+            throw new SettingsParsingException("Expected the root object of the .yaml file to be a dictionary with strings as keys, found  " + yamlObject + " of type " + yamlObject.getClass().getSimpleName() + " instead");
         }
 
         // Due to type erasure at runtime, we can only check that yamlObject is Map,
@@ -149,7 +149,7 @@ public class SettingsParser
             // Same thing with type erasure as before
             if (!(yamlParsingObject instanceof Map))
             {
-                throw new SettingsParsingException("Expected the value for the key " + SETTINGS_KEY_PARSING + " in the root dictionary to be a dictionary with strings as keys, found  " + yamlParsingObject + " of type " + yamlParsingObject.getClass() + " instead");
+                throw new SettingsParsingException("Expected the value for the key " + SETTINGS_KEY_PARSING + " in the root dictionary to be a dictionary with strings as keys, found  " + yamlParsingObject + " of type " + yamlParsingObject.getClass().getSimpleName() + " instead");
             }
             @SuppressWarnings("unchecked")
             Map<String, Object> yamlParsingMap = (Map<String, Object>) yamlParsingObject;
@@ -180,7 +180,7 @@ public class SettingsParser
         // Same thing with type erasure as before
         if (!(yamlTasksObject instanceof Map<?, ?> yamlTasksMap))
         {
-            throw new SettingsParsingException("Expected the value for the key " + SETTINGS_KEY_TASKS + "key to be a a dictionary with strings as keys, found  " + yamlTasksObject + " of type " + yamlTasksObject.getClass() + " instead");
+            throw new SettingsParsingException("Expected the value for the key " + SETTINGS_KEY_TASKS + "key to be a a dictionary with strings as keys, found  " + yamlTasksObject + " of type " + yamlTasksObject.getClass().getSimpleName() + " instead");
         }
 
         // Go through all keys and construct the corresponding task settings
@@ -191,7 +191,7 @@ public class SettingsParser
 
             if (!(taskNameObject instanceof String taskName))
             {
-                throw new SettingsParsingException("Expected they keys inside the \"tasks\" dictionary to be strings, found " + taskNameObject + " of type " + taskNameObject.getClass() + " instead");
+                throw new SettingsParsingException("Expected they keys inside the \"tasks\" dictionary to be strings, found " + taskNameObject + " of type " + taskNameObject.getClass().getSimpleName() + " instead");
             }
 
             // Transform the value for each such key into TaskSettings
@@ -219,7 +219,7 @@ public class SettingsParser
         // The settings for the key"tasks.taskName" should be a dictionary (i.e. a Map<String,Object>)
         if (!(taskMapObject instanceof Map))
         {
-            throw new SettingsParsingException("Expected they values for the keys inside the \"tasks\" dictionary to be maps with strings as keys, found " + taskMapObject + " of type " + taskMapObject.getClass() + " instead");
+            throw new SettingsParsingException("Expected they values for the keys inside the \"tasks\" dictionary to be maps with strings as keys, found " + taskMapObject + " of type " + taskMapObject.getClass().getSimpleName() + " instead");
         }
 
         // Type erasure again

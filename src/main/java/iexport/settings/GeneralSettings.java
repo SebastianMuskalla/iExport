@@ -147,13 +147,13 @@ public class GeneralSettings extends Settings
                 }
             }
 
-            throw new RuntimeException(this.getClass() + ": invalid entry for " + getYamlPath(SETTING_LOG_LEVEL)
+            throw new RuntimeException(this.getClass().getSimpleName() + ": invalid entry for " + getYamlPath(SETTING_LOG_LEVEL)
                     + ": " + logLevelString + ". Expected one of " + SETTING_LOG_LEVEL_STRINGS);
         }
         catch (ClassCastException e)
         {
-            throw new RuntimeException(this.getClass() + ": invalid entry for " + getYamlPath(SETTING_LOG_LEVEL)
-                    + ", expected a string, but got " + logLevelObject.getClass());
+            throw new RuntimeException(this.getClass().getSimpleName() + ": invalid entry for " + getYamlPath(SETTING_LOG_LEVEL)
+                    + ", expected a string, but got " + logLevelObject.getClass().getSimpleName());
         }
     }
 

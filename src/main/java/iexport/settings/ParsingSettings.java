@@ -95,8 +95,8 @@ public class ParsingSettings extends Settings
         }
         catch (ClassCastException e)
         {
-            throw new RuntimeException(this.getClass() + ": invalid entry for " + getYamlPath(SETTING_XML_FILE_PATH)
-                    + ", expected a string, but got " + result.getClass());
+            throw new RuntimeException(this.getClass().getSimpleName() + ": invalid entry for " + getYamlPath(SETTING_XML_FILE_PATH)
+                    + ", expected a string, but got " + result.getClass().getSimpleName());
         }
     }
 
@@ -111,12 +111,12 @@ public class ParsingSettings extends Settings
         }
         catch (ClassCastException e)
         {
-            throw new RuntimeException(this.getClass() + ": invalid entry for " + getYamlPath(key)
-                    + ", expected a boolean, but got " + result.getClass());
+            throw new RuntimeException(this.getClass().getSimpleName() + ": invalid entry for " + getYamlPath(key)
+                    + ", expected a boolean, but got " + result.getClass().getSimpleName());
         }
         catch (NullPointerException e)
         {
-            throw new RuntimeException(this.getClass() + ": invalid entry for " + getYamlPath(key)
+            throw new RuntimeException(this.getClass().getSimpleName() + ": invalid entry for " + getYamlPath(key)
                     + ", expected a boolean, but got null");
         }
     }
@@ -132,12 +132,12 @@ public class ParsingSettings extends Settings
         }
         catch (ClassCastException e)
         {
-            throw new RuntimeException(this.getClass() + ": invalid entry for " + getYamlPath(key)
-                    + ", expected a boolean, but got " + result.getClass());
+            throw new RuntimeException(this.getClass().getSimpleName() + ": invalid entry for " + getYamlPath(key)
+                    + ", expected a boolean, but got " + result.getClass().getSimpleName());
         }
         catch (NullPointerException e)
         {
-            throw new RuntimeException(this.getClass() + ": invalid entry for " + getYamlPath(key)
+            throw new RuntimeException(this.getClass().getSimpleName() + ": invalid entry for " + getYamlPath(key)
                     + ", expected a boolean, but got null");
         }
     }
@@ -153,12 +153,12 @@ public class ParsingSettings extends Settings
         }
         catch (ClassCastException e)
         {
-            throw new RuntimeException(this.getClass() + ": invalid entry for " + getYamlPath(key)
-                    + ", expected a boolean, but got " + result.getClass());
+            throw new RuntimeException(this.getClass().getSimpleName() + ": invalid entry for " + getYamlPath(key)
+                    + ", expected a boolean, but got " + result.getClass().getSimpleName());
         }
         catch (NullPointerException e)
         {
-            throw new RuntimeException(this.getClass() + ": invalid entry for " + getYamlPath(key)
+            throw new RuntimeException(this.getClass().getSimpleName() + ": invalid entry for " + getYamlPath(key)
                     + ", expected a boolean, but got null");
         }
     }
@@ -178,12 +178,12 @@ public class ParsingSettings extends Settings
         }
         catch (ClassCastException e)
         {
-            throw new RuntimeException(this.getClass() + ": invalid entry for " + getYamlPath(key)
-                    + ", expected a boolean, but got " + result.getClass());
+            throw new RuntimeException(this.getClass().getSimpleName() + ": invalid entry for " + getYamlPath(key)
+                    + ", expected a boolean, but got " + result.getClass().getSimpleName());
         }
         catch (NullPointerException e)
         {
-            throw new RuntimeException(this.getClass() + ": invalid entry for " + getYamlPath(key)
+            throw new RuntimeException(this.getClass().getSimpleName() + ": invalid entry for " + getYamlPath(key)
                     + ", expected a boolean, but got null");
         }
     }
@@ -199,12 +199,12 @@ public class ParsingSettings extends Settings
         }
         catch (ClassCastException e)
         {
-            throw new RuntimeException(this.getClass() + ": invalid entry for " + getYamlPath(key)
-                    + ", expected a boolean, but got " + result.getClass());
+            throw new RuntimeException(this.getClass().getSimpleName() + ": invalid entry for " + getYamlPath(key)
+                    + ", expected a boolean, but got " + result.getClass().getSimpleName());
         }
         catch (NullPointerException e)
         {
-            throw new RuntimeException(this.getClass() + ": invalid entry for " + getYamlPath(key)
+            throw new RuntimeException(this.getClass().getSimpleName() + ": invalid entry for " + getYamlPath(key)
                     + ", expected a boolean, but got null");
         }
     }

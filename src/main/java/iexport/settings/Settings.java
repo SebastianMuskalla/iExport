@@ -180,7 +180,7 @@ public abstract class Settings
         else
         {
             // No default value for this setting exists
-            throw new RuntimeException(this.getClass() + ": Not a valid key: " + getYamlPath(key));
+            throw new RuntimeException(this.getClass().getSimpleName() + ": Not a valid key: " + getYamlPath(key));
         }
 
     }
