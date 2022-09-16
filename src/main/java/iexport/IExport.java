@@ -343,8 +343,18 @@ public class IExport
         Logging.getLogger().message("Running task " + taskName);
         Logging.getLogger().message("");
 
-        task.run(library, taskSettings);
-
+        try
+        {
+            task.run(library, taskSettings);
+        }
+        catch (Exception e)
+        {
+            Logging.getLogger().important("Running task " + task.getTaskName() + " failed");
+            Logging.getLogger().important("ERROR " + e + " (" + e.getMessage() + ")");
+            e.printStackTrace();
+            System.exit(1);
+        }
+        
         long endTask = System.nanoTime();
         double taskDurationInSeconds = ((double) ((endTask - startTask) / 1000000)) / 1000; // with 3 decimal digits
 

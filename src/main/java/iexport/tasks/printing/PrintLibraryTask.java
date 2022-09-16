@@ -70,11 +70,6 @@ public class PrintLibraryTask implements Task
         for (Track track : library.tracks())
         {
             Logging.getLogger().message(track.toString());
-
-            for (Playlist playlist : track.inPlaylists())
-            {
-                Logging.getLogger().message(1, playlist.toString());
-            }
         }
         Logging.getLogger().message("");
 

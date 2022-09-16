@@ -31,6 +31,11 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class StdoutLogger extends Logger
 {
     /**
+     * Should output messages be prefixes with their log level?
+     */
+    private static final boolean USE_PREFIXES = false;
+
+    /**
      * A print stream that uses UTF8.
      */
     private static final PrintStream OUT = new PrintStream(System.out, true, UTF_8);
@@ -55,10 +60,10 @@ public class StdoutLogger extends Logger
 
     static
     {
-        PREFIXES.put(LogLevel.DEBUG, "DEBUG: ");
-        PREFIXES.put(LogLevel.INFO, "INFO: ");
-        PREFIXES.put(LogLevel.NORMAL, "");
-        PREFIXES.put(LogLevel.IMPORTANT, "WARNING: ");
+        PREFIXES.put(LogLevel.DEBUG, "//");
+        PREFIXES.put(LogLevel.INFO, "? ");
+        PREFIXES.put(LogLevel.NORMAL, "? ");
+        PREFIXES.put(LogLevel.IMPORTANT, "! ");
     }
 
     /**
@@ -88,16 +93,15 @@ public class StdoutLogger extends Logger
         // We only need to do something if we actually accept messages of this type
         if (accepts(logLevel))
         {
-            if (!quietMode())
+            if (USE_PREFIXES)
             {
                 // Not in quiet mode - add prefixes
                 final String prefix = PREFIXES.get(logLevel) == null ? "" : PREFIXES.get(logLevel);
 
-                String finalPrefix = prefix;
                 NEWLINE_PATTERN
                         .splitAsStream(message)
                         .map((s) -> String.join("", Collections.nCopies(indentation, BASE_INDENTATION)) + s)
-                        .map((s) -> finalPrefix + s)
+                        .map((s) -> prefix + s)
                         .forEach(OUT::println);
             }
             else
@@ -129,14 +133,4 @@ public class StdoutLogger extends Logger
         return (logLevel.getValue() <= verbosity.getValue());
     }
 
-    /**
-     * If the verbosity is set to {@link LogLevel#IMPORTANT}, meaning that only important messages should be printed,
-     * we will set it to quiet mode and not print any prefixes.
-     *
-     * @return true iff this logger is currently in quiet mode
-     */
-    private boolean quietMode ()
-    {
-        return verbosity == LogLevel.IMPORTANT;
-    }
 }
