@@ -225,5 +225,15 @@ public record Playlist
         tracks.add(track);
         track.setContainedInPlaylist(this);
     }
+
+    /**
+     * Check if this playlist is actually a folder.
+     *
+     * @return true iff this playlist has children
+     */
+    public boolean hasChildren ()
+    {
+        return children != null && !children.isEmpty();
+    }
 }
 

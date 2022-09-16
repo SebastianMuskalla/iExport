@@ -18,6 +18,7 @@
 package iexport.tasks.generateplaylists;
 
 import iexport.settings.RawTaskSettings;
+import iexport.settings.Settings;
 import iexport.settings.TaskSettings;
 
 import java.util.HashMap;
@@ -158,7 +159,6 @@ public class GeneratePlaylistsTaskSettings extends TaskSettings
      */
     private static final Boolean SETTING_WARN_SQUARE_BRACKETS_DEFAULT_VALUE = true;
 
-
     /**
      * tasks.generatePlaylists.ignorePlaylists
      * <p>
@@ -197,6 +197,20 @@ public class GeneratePlaylistsTaskSettings extends TaskSettings
      */
     private static final Boolean SETTING_SLASH_AS_SEPARATOR_DEFAULT_VALUE = false;
 
+    /**
+     * tasks.generatePlaylists.trackVerification
+     * <p>
+     * If set to true, we verify for each track that the corresponding file actually exists.
+     * This may substantially slow down this task.
+     */
+    private static final String SETTING_TRACK_VERIFICATION = "trackVerification";
+
+    /**
+     * Default value for tasks.generatePlaylists.trackVerification
+     */
+    private static final Boolean SETTING_TRACK_VERIFICATION_DEFAULT_VALUE = false;
+
+
     static
     {
         GENERATE_PLAYLISTS_DEFAULT_SETTINGS.put(SETTING_IGNORE_PLAYLISTS, SETTING_IGNORE_PLAYLISTS_DEFAULT_VALUE);
@@ -210,6 +224,7 @@ public class GeneratePlaylistsTaskSettings extends TaskSettings
         GENERATE_PLAYLISTS_DEFAULT_SETTINGS.put(SETTING_DELETE_FOLDER, SETTING_DELETE_FOLDER_DEFAULT_VALUE);
         GENERATE_PLAYLISTS_DEFAULT_SETTINGS.put(SETTING_ORGANIZE_IN_FOLDERS, SETTING_ORGANIZE_IN_FOLDERS_DEFAULT_VALUE);
         GENERATE_PLAYLISTS_DEFAULT_SETTINGS.put(SETTING_HIERARCHICAL_NAMES, SETTING_HIERARCHICAL_NAMES_DEFAULT_VALUE);
+        GENERATE_PLAYLISTS_DEFAULT_SETTINGS.put(SETTING_TRACK_VERIFICATION, SETTING_TRACK_VERIFICATION_DEFAULT_VALUE);
     }
 
     public GeneratePlaylistsTaskSettings (RawTaskSettings rawTaskSettings)
@@ -261,6 +276,30 @@ public class GeneratePlaylistsTaskSettings extends TaskSettings
     public boolean getSettingDeleteFolder ()
     {
         String key = SETTING_DELETE_FOLDER;
+        Object result = getValueFor(key);
+
+        try
+        {
+            return (boolean) result;
+        }
+        catch (ClassCastException e)
+        {
+            throw new RuntimeException(this.getClass().getSimpleName() + ": invalid entry for " + getYamlPath(key)
+                    + ", expected a boolean, but got " + result.getClass().getSimpleName());
+        }
+        catch (NullPointerException e)
+        {
+            throw new RuntimeException(this.getClass().getSimpleName() + ": invalid entry for " + getYamlPath(key)
+                    + ", expected a boolean, but got null");
+        }
+    }
+
+    /**
+     * @return tasks.generatePlaylists.trackVerification
+     */
+    public boolean getSettingTrackVerification ()
+    {
+        String key = SETTING_TRACK_VERIFICATION;
         Object result = getValueFor(key);
 
         try
@@ -399,6 +438,7 @@ public class GeneratePlaylistsTaskSettings extends TaskSettings
         }
     }
 
+
     /**
      * @return tasks.generatePlaylists.hierarchicalNames
      */
@@ -448,6 +488,8 @@ public class GeneratePlaylistsTaskSettings extends TaskSettings
     }
 
     /**
+     * Also replace %USERPROFIL% using {@link Settings#applyUserProfileReplacement(String)}
+     *
      * @return tasks.generatePlaylists.outputFolder
      */
     public String getSettingOutputFolder ()
@@ -457,7 +499,8 @@ public class GeneratePlaylistsTaskSettings extends TaskSettings
 
         try
         {
-            return (String) result;
+            String resultString = (String) result;
+            return Settings.applyUserProfileReplacement(resultString);
         }
         catch (ClassCastException e)
         {

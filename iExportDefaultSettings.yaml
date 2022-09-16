@@ -20,7 +20,7 @@
   #   "VERBOSE" - additional output
   #   "DEBUG"   - full output for debugging
   # Default value: "NORMAL"
-    "logLevel" : "DEBUG",
+    "logLevel" : "NORMAL",
 
   # task
   # ----
@@ -156,14 +156,14 @@
               #   Supports the %USERPROFILE% placeholder, which will typically get replaced by "C:\Users\<USERNAME>".
               #   Note that backslashes ("\") need to be escaped as "\\".
               # Default value: "%USERPROFILE%\\Desktop\\iExport\\Playlists"
-                "outputFolder" :           "%USERPROFILE%\\Desktop\\iExport\\Playlists",
+                "outputFolder" :           "E:\\Audio\\Playlists",
 
               # tasks.generatePlaylists.deleteFolder
               # ------------------------------------
               # If set to false, iExport will only proceed if outputFolder does not exist yet.
               # If set to true, the folder will be deleted if it already exists.
               # Default value: false
-                "deleteFolder" :           false,
+                "deleteFolder" :           true,
 
               # tasks.generatePlaylists.organizeInFolders
               # -----------------------------------------
@@ -241,8 +241,16 @@
               # ----------------------------------------------
               # If set to false, use Backslash ('\', Windows notation) in file paths inside the playlist files.
               # If set to true, use Slash ('/', Unix/Linux/Mac notation) in file paths inside the playlist files.
+              #   Note that this will not replace the first backslash in absolute Windows paths (e.g. C:\)
               # Default value: false
                 "slashAsSeparator" :       true,
+
+              # tasks.generatePlaylists.trackVerification
+              # ----------------------------------------------
+              # If set to true, we verify for each track that the corresponding file actually exists.
+              #   This may substantially slow down this task.
+              # Default value: false
+                "trackVerification" :      true,
             },
       },
 }

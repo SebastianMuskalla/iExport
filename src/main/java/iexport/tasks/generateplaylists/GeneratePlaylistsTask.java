@@ -18,12 +18,42 @@
 package iexport.tasks.generateplaylists;
 
 import iexport.itunes.Library;
+import iexport.itunes.Playlist;
+import iexport.itunes.Track;
+import iexport.logging.Logging;
 import iexport.settings.RawTaskSettings;
 import iexport.tasks.Task;
+import iexport.utils.FolderDeleter;
+
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 
 public class GeneratePlaylistsTask implements Task
 {
+
+    private static final PrintStream OUT = new PrintStream(System.out, true, UTF_8);
+
+    private static final String SQUARE_BRACKETS = "\\[|\\]";
+    private static final Pattern SQUARE_BRACKETS_PATTERN = Pattern.compile(SQUARE_BRACKETS);
+
+    private int playlistsProcessed = 0;
+    private int playlistsToProcess = 0;
+
+    private GeneratePlaylistsTaskSettings settings;
+
     @Override
     public String getTaskName ()
     {
@@ -39,207 +69,337 @@ public class GeneratePlaylistsTask implements Task
     @Override
     public void run (Library library, RawTaskSettings rawTaskSettings)
     {
-        GeneratePlaylistsTaskSettings settings = new GeneratePlaylistsTaskSettings(rawTaskSettings);
+        settings = new GeneratePlaylistsTaskSettings(rawTaskSettings);
+
+        // Prepare the output folder
+        prepareOutputFolder();
+
+
+        playlistsToProcess = library.numberOfPlaylists();
+
+        Logging.getLogger().message("Exporting " + playlistsToProcess + " playlists.");
+
+        // Export each playlist
+        library.playlists().forEach(this::exportPlaylist);
+
+        reset();
     }
 
+    private void reset ()
+    {
+        playlistsProcessed = 0;
+        settings = null;
+    }
+
+    /**
+     * Prepare the output folder,
+     * i.e. whether it exists,
+     * delete it if tasks.generatePlaylists.deleteFolder is set,
+     * then recreate it.
+     */
+    private void prepareOutputFolder ()
+    {
+        // Get the location of the output folder
+        String outputFolderPathAsString = settings.getSettingOutputFolder();
+        Path outputFolderPath = Paths.get(outputFolderPathAsString);
+
+        if (Files.exists(outputFolderPath))
+        {
+            // The folder already exists
+            if (!settings.getSettingDeleteFolder())
+            {
+                throw new RuntimeException("The specified output folder " + outputFolderPathAsString + " already exists. Delete the folder or set tasks.generatePlaylists.deleteFolder to true.");
+            }
+            else
+            {
+                // Delete the folder
+                Logging.getLogger().message("Folder " + outputFolderPathAsString + " exists and tasks.generatePlaylists.deleteFolder is set to true, deleting it.");
+
+                FolderDeleter folderDeleter = new FolderDeleter();
+                try
+                {
+                    folderDeleter.recursiveDelete(outputFolderPath);
+                }
+                catch (IOException e)
+                {
+                    throw new RuntimeException("Deleting the folder " + outputFolderPathAsString + "failed", e);
+                }
+            }
+
+            // Now the folder definitely does not exist and we can delete it
+            try
+            {
+                Logging.getLogger().message("Creating empty folder " + outputFolderPathAsString + ".");
+
+                Files.createDirectories(outputFolderPath);
+            }
+            catch (IOException e)
+            {
+                throw new RuntimeException("Creating the folder " + outputFolderPathAsString + "failed ", e);
+            }
+
+
+        }
+    }
+
+    private void exportPlaylist (Playlist playlist)
+    {
+        if (settings.getSettingShowContinuousProgress())
+        {
+            printProgress(playlist);
+        }
+
+        // We first check if this playlist is ignored.
+        if (isIgnored(playlist))
+        {
+            Logging.getLogger().debug("Ignoring playlist " + playlist);
+            return;
+        }
+
+        Logging.getLogger().info("Exporting playlist " + playlist);
+
+        Path destination = destinationLocation(playlist);
+
+        // Compute the list of paths that should be put into the playlist
+        List<String> contentLines =
+                playlist
+                        .tracks()
+                        .stream()
+                        .map((track) -> convertTrack(track, destination))
+                        .toList();
+
+        // Merge them into a single string
+        String content =
+                contentLines
+                        .stream()
+                        .filter((s) -> !s.equals(""))
+                        .reduce((s1, s2) -> s1 + "\n" + s2)
+                        .orElse("");
+
+        if (content.isEmpty())
+        {
+            Logging.getLogger().info("Skipping playlist " + playlist + " with no valid tracks");
+            return;
+        }
+
+        // We can now actually write the file
+        writePlaylist(destination, content);
+    }
+
+    private void printProgress (Playlist playlist)
+    {
+        playlistsProcessed++;
+
+        double ratio = (double) playlistsProcessed / (double) playlistsToProcess;
+
+        int percent = (int) Math.round(ratio * 100);
+
+        String percentString = (percent > 99) ? Integer.toString(percent) :
+                (percent > 9) ? " " + Integer.toString(percent) :
+                        (percent > 0) ? "  " + Integer.toString(percent) : "  0";
+
+        int totalSegments = 20;
+        int filledSegments = (int) Math.round(ratio * totalSegments);
+
+        String progress = "\r" + "[";
+        for (int i = 0; i < filledSegments; i++)
+        {
+            progress += '█';
+        }
+        for (int i = filledSegments; i < totalSegments; i++)
+        {
+            progress += '·';
+        }
+        progress += "] " + percentString + "% " + " Exporting " + playlist.name();
+
+        // Make sure progress is exactly 80 characters long
+        if (progress.length() > 80)
+        {
+            progress = progress.substring(0, 77);
+            progress += "...";
+        }
+        else
+        {
+            progress += " ".repeat(80 - progress.length());
+        }
+
+        OUT.print(progress);
+
+        if (percent == 100)
+        {
+            OUT.println("");
+            OUT.println("Done!");
+        }
+    }
+
+    /**
+     * Check if a playlist should not be exported
+     * because it is a folder and tasks.generatePlaylists.onlyActualPlaylists is set,
+     * or because its name is specified in tasks.generatePlaylists.ignorePlaylists.
+     *
+     * @param playlist the play
+     * @return true iff it should not be exported
+     */
+    private boolean isIgnored (Playlist playlist)
+    {
+        return
+                (settings.getSettingOnlyActualPlaylists() && playlist.hasChildren())
+                        ||
+                        (playlist.name() != null && settings.getSettingIgnorePlaylists().contains(playlist.name()))
+                ;
+    }
+
+    /**
+     * Compute the path to the file to which the playlist should be exported,
+     * taking tasks.generatePlaylists.hierarchicalNames and tasks.generatePlaylists.organizeInFolders into account.
+     *
+     * @param playlist the playlist
+     * @return the path
+     */
+    private Path destinationLocation (Playlist playlist)
+    {
+        String outputFolder = settings.getSettingOutputFolder();
+
+        Path result = Paths.get(outputFolder);
+
+        // Compute the file location
+        // If tasks.generatePlaylists.organizeInFolders is set, we have to create intermediary folders
+        if (settings.getSettingOrganizeInFolders() && playlist.ancestry() != null && playlist.ancestry().size() > 1)
+        {
+            // We need to skip the last element of ancestry() because that is the playlist itself
+            int ancestors = playlist.ancestry().size();
+            for (Playlist ancestor : playlist.ancestry().stream().limit(ancestors - 1).toList())
+            {
+                result = result.resolve(ancestor.name());
+            }
+        }
+
+        // Compute the file name
+        String fileName = "";
+        if (settings.getSettingHierarchicalNames() && playlist.ancestry() != null)
+        {
+            // If tasks.generatePlaylists.hierarchicalNames is set, the file name is composed of the ancestry
+            fileName = playlist.ancestry().stream().map(Playlist::name).reduce((s1, s2) -> s1 + " - " + s2).orElse(playlist.name());
+        }
+        else
+        {
+            // Otherwise, the file name is simply the name of the playlist
+            fileName = playlist.name();
+        }
+
+        // Get the extension from tasks.generatePlaylists.playlistExtension
+        fileName += settings.getSettingPlaylistExtension();
+
+        return result.resolve(fileName);
+    }
+
+    private String convertTrack (Track track, Path playlistDestinationPath)
+    {
+        // Get the URI of the track and convert it
+        String uriString = track.location();
+        URI uri;
+        try
+        {
+            uri = new URI(uriString);
+        }
+        catch (URISyntaxException e)
+        {
+            Logging.getLogger().important("Error when converting track " + track + ": Bad URI. " + e + " (" + e.getMessage() + "); skipping this track.");
+            return "";
+        }
+
+        // We can only deal with local files
+        if (!uri.getAuthority().equals("localhost"))
+        {
+            Logging.getLogger().important("Track " + track + " is at remote location " + uriString + "; skipping this track.");
+            return "";
+        }
+
+        // Get of the authority (e.g. localhost)
+        String pathString = uri.getPath();
+
+        // Under Windows, the String may be of the shape /E:/... something
+        // We need to get rid of the initial backslash
+        if (pathString.contains(":") && pathString.charAt(0) == '/')
+        {
+            pathString = pathString.substring(1);
+        }
+
+        Path path = Paths.get(pathString);
+
+        // If tasks.generatePlaylists.trackVerification is set, we should verify that the file actually exists.
+        // This may be slow!
+        if (settings.getSettingTrackVerification() && !Files.exists(path))
+        {
+            Logging.getLogger().important("File for track " + track + "  at remote location " + pathString + " does not exist; skipping this track.");
+            return "";
+        }
+
+        // If tasks.generatePlaylists.useRelativePaths, we should compute a relative path
+        if (settings.getSettingUseRelativePaths() && playlistDestinationPath != null)
+        {
+            // Computing the relative path may fail if they don't share the same root
+            try
+            {
+                path = playlistDestinationPath.getParent().relativize(path);
+            }
+            catch (Exception ignored)
+            {
+                // Just continue with the absolute path
+            }
+        }
+
+        String result = path.toString();
+
+        // If tasks.generatePlaylists.warnSquareBrackets, is set, we should warn the user if the path contains [ or ]
+        if (settings.getSettingWarnSquareBrackets())
+        {
+            Matcher matcher = SQUARE_BRACKETS_PATTERN.matcher(result);
+            if (matcher.find())
+            {
+                Logging.getLogger().message("WARNING: String " + result + " for track " + track + " contains '[' or ']'.");
+            }
+        }
+
+        // If tasks.generatePlaylists.slashAsSeparator, we should convert backslashes to slashes
+        if (settings.getSettingSlashAsSeparator())
+        {
+            // If the path is of the shape C:\Some\Folder, we should not apply the replacement to the first backslash C:\
+            if (result.length() > 2 && result.charAt(1) == ':' && result.charAt(2) == '\\')
+            {
+                int firstBackslashIndex = result.indexOf('\\') + 1;
+                String rootString = result.substring(0, firstBackslashIndex);
+                String remainingString = result.substring(firstBackslashIndex);
+                remainingString = remainingString.replace('\\', '/');
+                result = rootString + remainingString;
+            }
+            else
+            {
+                result = result.replace('\\', '/');
+            }
+        }
+
+        return result;
+    }
+
+    private void writePlaylist (Path destination, String content)
+    {
+        Logging.getLogger().debug("Trying to write file " + destination);
+
+        try
+        {
+            // Create parent dictionaries if needed
+            Path parent = destination.getParent();
+            Files.createDirectories(parent);
+
+            // Write contents as UTF_8
+            BufferedWriter bufferedWriter = Files.newBufferedWriter(destination, StandardCharsets.UTF_8);
+            bufferedWriter.write(content);
+            bufferedWriter.close();
+        }
+        catch (Exception e)
+        {
+            Logging.getLogger().important("Writing file " + destination + " failed " + e + " (" + e.getMessage() + ").");
+        }
+    }
 }
-
-
-//public class PlaylistGenTask extends Task
-//{
-//    public static final String SHORTHAND = "playlistgen";
-//
-//    private final PlaylistGenSettings playlistGenSettings;
-//
-//    private final Path outputFolder;
-//
-//    public PlaylistGenTask (Library library, TaskSettings taskSettings)
-//    {
-//        super(library, taskSettings);
-//        playlistGenSettings = new PlaylistGenSettings(taskSettings);
-//        outputFolder = Paths.get(playlistGenSettings.getOutputFolder());
-//    }
-//
-//    @Override
-//    public String getShorthand ()
-//    {
-//        return SHORTHAND;
-//    }
-//
-//    @Override
-//    public void run ()
-//    {
-//        prepareFolder();
-//
-//        exportAllPlaylists();
-//    }
-//
-//
-//    private void prepareFolder ()
-//    {
-//        try
-//        {
-//            if (Files.exists(outputFolder))
-//            {
-//                FolderDeleter folderDeleter = new FolderDeleter();
-//
-//                folderDeleter.recursiveDelete(outputFolder);
-//
-//            }
-//            Files.createDirectories(outputFolder);
-//        }
-//        catch (IOException e)
-//        {
-//            throw new RuntimeException(e);
-//        }
-//    }
-//
-//
-//    private void exportAllPlaylists ()
-//    {
-//        for (Playlist p : getLibrary().playlistsAtTopLevel())
-//        {
-//            export(p);
-//        }
-//    }
-//
-//    private void export (Playlist p)
-//    {
-//        exportPlaylist(p, new ArrayList<>());
-//    }
-//
-//    private void exportPlaylist (Playlist playlist, ArrayList<String> callStack)
-//    {
-//        Logging.getLogger().info("Exporting " + playlist);
-//
-//        // export the playlist unless it is ignored
-//        if (!playlistGenSettings.isIgnored(playlist))
-//        {
-//            exportTracks(playlist, callStack);
-//        }
-//
-//        // TODO should children of ignored playlists be ignored too?
-//
-//        // if p has children
-//        if (!playlist.children().isEmpty())
-//        {
-//            // create a (deep) copy of the call stack to avoid problems with aliasing
-//            ArrayList<String> newStack = new ArrayList<>(callStack);
-//            newStack.add(playlist.name());
-//            for (Playlist sl : playlist.children())
-//            {
-//                exportPlaylist(sl, newStack);
-//            }
-//        }
-//    }
-//
-//    private void exportTracks (Playlist playlist, ArrayList<String> callStack)
-//    {
-//        List<Track> tracks = playlist.tracks();
-//
-//        StringBuilder content = new StringBuilder();
-//
-//        StringBuilder playlistDestinationFolderString = new StringBuilder(outputFolder.toString());
-//
-//        if (playlistGenSettings.getOrganizeInFolders())
-//        {
-//            for (String s : callStack)
-//            {
-//                playlistDestinationFolderString.append(File.separator).append(s);
-//            }
-//        }
-//
-//        StringBuilder playlistDestinationFilenameString = new StringBuilder();
-//        if (playlistGenSettings.getPrependParents())
-//        {
-//            for (String s : callStack)
-//            {
-//                playlistDestinationFilenameString.append(s);
-//                playlistDestinationFilenameString.append(" - ");
-//            }
-//        }
-//        playlistDestinationFilenameString.append(playlist.name());
-//        playlistDestinationFilenameString.append(playlistGenSettings.getPlaylistExtension());
-//
-//        String playlistDestinationFileString = playlistDestinationFolderString.toString() + File.separator + playlistDestinationFilenameString.toString();
-//        Path playlistDestinationFile = Paths.get(playlistDestinationFileString);
-//
-//        for (Track track : tracks)
-//        {
-//            String trackUriString = track.location();
-//            URI trackUri = null;
-//            try
-//            {
-//                trackUri = new URI(trackUriString);
-//            }
-//            catch (URISyntaxException e)
-//            {
-//                throw new RuntimeException(e);
-//            }
-//
-//            if (!trackUri.getAuthority().equals("localhost"))
-//            {
-//                throw new RuntimeException("Remote file");
-//            }
-//
-//
-//            //Path trackFile = Paths.get("F:\\Audio\\Music\\M\\Michael Jackson - Billie Jean.mp3");
-//            String string1 = trackUri.getPath();
-//            if (string1.contains(":") && string1.charAt(0) == '/')
-//            {
-//                string1 = string1.substring(1);
-//            }
-//
-//
-//            Path trackFile = Paths.get(string1);
-//
-//            if (!Files.exists(trackFile))
-//            {
-//                throw new RuntimeException("File at location" + trackFile.toString() + " (taken from " + trackUriString + ") does not exist");
-//            }
-//
-//            // For example, on UNIX, if this path is "/a/b" and the given path is "/a/b/c/d" then the resulting relative path would be "c/d".
-//            Path playlistDestinationPath = Paths.get(playlistDestinationFolderString.toString());
-//            Path relativePath = playlistDestinationPath.relativize(trackFile);
-//
-//            // check for brackets [ ] because VLC wants them to be escaped, but PowerAmp doesn't want to be the escaped
-//            // -> we warn
-//            String relativePathString = relativePath.toString();
-//            String patternString = "\\[|\\]";
-//            Pattern pattern = Pattern.compile(patternString);
-//            Matcher matcher = pattern.matcher(relativePathString);
-//            if (matcher.find())
-//            {
-//                Logging.getLogger().message("Invalid unescapable character in" + relativePathString);
-//            }
-//
-//            content.append(relativePathString);
-//            content.append('\n');
-//        }
-//
-//        writePlaylist(playlistDestinationFile, content.toString());
-//    }
-//
-//    private void writePlaylist (Path destination, String content)
-//    {
-//        try
-//        {
-//            // create parent if needed
-//            Path parent = destination.getParent();
-//
-//            // create parent directories
-//            Files.createDirectories(parent);
-//
-//            //  Files.createFile(destination);
-//
-//            // write stuff
-//            BufferedWriter bufferedWriter = Files.newBufferedWriter(destination, StandardCharsets.UTF_8);
-//            bufferedWriter.write(content);
-//            bufferedWriter.close();
-//        }
-//        catch (Exception e)
-//        {
-//            throw new RuntimeException(e);
-//        }
-//    }
-//}
