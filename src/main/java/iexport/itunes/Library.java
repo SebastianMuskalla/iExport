@@ -74,11 +74,11 @@ public record Library
     {
         return tracks.size();
     }
-    
+
     @Override
     public String toString ()
     {
-        return "Library{" +
+        return "Library {" +
                 "majorVersion=" + majorVersion +
                 ", minorVersion=" + minorVersion +
                 ", features=" + features +

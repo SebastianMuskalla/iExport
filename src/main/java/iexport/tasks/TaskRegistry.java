@@ -17,6 +17,8 @@
 
 package iexport.tasks;
 
+import iexport.tasks.print.PrintLibraryTask;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -65,5 +67,7 @@ public class TaskRegistry
         theHelpTask = helpTask;
 
         registerTask(new QuitTask());
+
+        registerTask(new PrintLibraryTask());
     }
 }

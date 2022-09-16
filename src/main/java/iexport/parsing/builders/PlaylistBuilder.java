@@ -60,6 +60,51 @@ public class PlaylistBuilder
         this.trackIds = new LinkedList<>();
     }
 
+    public Boolean getAudiobooks ()
+    {
+        return audiobooks;
+    }
+
+    public Boolean getTvShows ()
+    {
+        return tvShows;
+    }
+
+    public void setTvShows (Boolean tvShows)
+    {
+        this.tvShows = tvShows;
+    }
+
+    public Boolean getMovies ()
+    {
+        return movies;
+    }
+
+    public void setMovies (Boolean movies)
+    {
+        this.movies = movies;
+    }
+
+    public Boolean getMaster ()
+    {
+        return master;
+    }
+
+    public void setMaster (Boolean master)
+    {
+        this.master = master;
+    }
+
+    public Integer getDistinguishedKind ()
+    {
+        return distinguishedKind;
+    }
+
+    public void setDistinguishedKind (Integer distinguishedKind)
+    {
+        this.distinguishedKind = distinguishedKind;
+    }
+
     public void addTrackId (Integer trackId)
     {
         trackIds.add(trackId);
@@ -90,11 +135,6 @@ public class PlaylistBuilder
         this.playlistPersistentId = playlistPersistentId;
     }
 
-    public void setMaster (Boolean master)
-    {
-        this.master = master;
-    }
-
     public void setVisible (Boolean visible)
     {
         this.visible = visible;
@@ -110,11 +150,6 @@ public class PlaylistBuilder
         this.playlistId = playlistId;
     }
 
-    public void setDistinguishedKind (Integer distinguishedKind)
-    {
-        this.distinguishedKind = distinguishedKind;
-    }
-
     public void setFolder (Boolean folder)
     {
         this.folder = folder;
@@ -123,16 +158,6 @@ public class PlaylistBuilder
     public void setMusic (Boolean music)
     {
         this.music = music;
-    }
-
-    public void setMovies (Boolean movies)
-    {
-        this.movies = movies;
-    }
-
-    public void setTvShows (Boolean tvShows)
-    {
-        this.tvShows = tvShows;
     }
 
     public void setAudibooks (Boolean audiobooks)
@@ -188,23 +213,23 @@ public class PlaylistBuilder
     @Override
     public String toString ()
     {
-        return "PlaylistBuilder{" +
-                "#trackIds=" + trackIds.size() +
-                ", depth=" + depth +
-                ", playlistId=" + playlistId +
-                ", distinguishedKind=" + distinguishedKind +
-                ", name='" + name + '\'' +
-                ", playlistPersistentId='" + playlistPersistentId + '\'' +
-                ", parentPersistentId='" + parentPersistentId + '\'' +
-                ", allItems=" + allItems +
-                ", master=" + master +
-                ", visible=" + visible +
-                ", folder=" + folder +
-                ", music=" + music +
-                ", movies=" + movies +
-                ", tvShows=" + tvShows +
-                ", audiobooks=" + audiobooks +
-                ", parent=" + parent +
-                '}';
+        return "PlaylistBuilder" +
+                (name != null ? " '" + name + "' " : "")
+                + "{"
+                + "depth=" + depth
+                + ", #trackIds=" + trackIds.size()
+                + (playlistId != null ? ", #playlistId=" + playlistId : "")
+                + (playlistPersistentId != null ? ", playlistPersistentId=" + playlistPersistentId : "")
+                + (distinguishedKind != null ? ", distinguishedKind=" + distinguishedKind : "")
+                + (allItems != null ? ", allItems=" + allItems : "")
+                + (master != null ? ", master=" + master : "")
+                + (visible != null ? ", visible=" + visible : "")
+                + (folder != null ? ", folder=" + folder : "")
+                + (music != null ? ", music=" + music : "")
+                + (tvShows != null ? ", tvShows=" + tvShows : "")
+                + (audiobooks != null ? ", audiobooks=" + audiobooks : "")
+                + (parentPersistentId != null ? ", parentPersistentId=" + parentPersistentId : "")
+                + (parent != null ? ", parent set" : ", parent null")
+                + "}";
     }
 }

@@ -170,14 +170,14 @@ public class IExport
      */
     private static Library parseLibrary (SettingsTriple settingsTriple)
     {
-        String libraryXmlFilePathString = settingsTriple.parsingSettings().getLibraryXmlFilePathString();
+        String libraryXmlFilePathString = settingsTriple.parsingSettings().getSettingLibraryXmlFilePathString();
 
         Logging.getLogger().message("Trying to parse the iTunes library .xml file at " + libraryXmlFilePathString);
 
         long startParsing = System.nanoTime();
 
         File file = new File(libraryXmlFilePathString);
-        LibraryParser iTunesLibraryParser = new LibraryParser(file);
+        LibraryParser iTunesLibraryParser = new LibraryParser(file, settingsTriple.parsingSettings());
 
         Library library = null;
         try
@@ -337,6 +337,8 @@ public class IExport
             // Settings are not set, generate default settings
             taskSettings = new RawTaskSettings(taskName);
         }
+
+        Logging.getLogger().message("Running task " + taskName);
 
         task.run(library, taskSettings);
 

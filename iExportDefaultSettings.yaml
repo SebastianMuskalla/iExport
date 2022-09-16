@@ -10,16 +10,17 @@
   # logLevel
   # how much output to do you want?
   # Options:
-  #   "DEBUG"                     - full output for debugging
-  #   "VERBOSE"                   - a lot of output
-  #   "NORMAL"   (default value)  - regular output
   #   "QUIET"                     - reduced output
+  #   "NORMAL"   (default value)  - regular output
+  #   "VERBOSE"                   - additional output
+  #   "DEBUG"                     - full output for debugging
     "logLevel" : "DEBUG",
 
   # task
   # which task should be executed after parsing the library?
   # OPTIONS:
   #    "" - interactive mode (prints the list of tasks on STDOUT and asks the user)
+  # TODO
   # If a task is specified as a command-line argument, it will override this settings
     "task" :     "",
 
@@ -28,14 +29,31 @@
       {
         # path to "iTunes Music Library.xml"
         # supports the %USERPROFILE% placeholder, which will typically get replaced by "C:\Users\<USERNAME>"
-        # Note that if you want to use Windows notation with \ instead of /, you will need to escape them and write \\
-        #  "xmlFilePath" : "%USERPROFILE%/Music/iTunes/iTunes Music Library.xml",
-          "INVALID" : true,
+        # Note that if you want to use Windows notation with \ instead of /,
+        # you will need to escape them and write \\
+          "xmlFilePath" :                  "%USERPROFILE%\\Music\\iTunes\\iTunes Music Library.xml",
+        # Settings for ignoring playlists
+        # Note that if an ignored playlists is a folder, all its children (the elements of the folder)
+        # are ignored, too
+        # set to "true" to ignore playlists that contain no tracks
+          "ignoreEmptyPlaylists" :         true,
+        # set to "true" to ignore playlists for movies, tvShows, audiobooks
+          "ignoreNonMusicPlaylists" :      true,
+        # set to "true" to ignore distinguished playlists
+        # this includes playlists like "Music" (the entire music library), "Downloaded", and non-music libraries
+          "ignoreDistinguishedPlaylists" : false,
+        # ignore the playlist "Library" containing the entire iTunes library
+          "ignoreMaster" :                 true,
+        # specify a list of playlists to ignore by name
+          "ignorePlaylistsByName" :
+            [
+                "Downloaded",
+            ]
       },
 
     "tasks" :
       { # settings for the "printPlaylist" task
-          "printPlaylists" :
+          "print" :
             {
 
             }

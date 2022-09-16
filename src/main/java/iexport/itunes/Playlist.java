@@ -170,26 +170,31 @@ public record Playlist
     @Override
     public String toString ()
     {
-        return "Playlist{" +
-                "name='" + name + '\'' +
-                ", depth=" + depth +
-                ", #tracks=" + tracks.size() +
-                ", #children=" + children.size() +
-                ", playlistId=" + playlistId +
-                ", distinguishedKind=" + distinguishedKind +
-                ", playlistPersistentId='" + playlistPersistentId + '\'' +
-                ", parentPersistentId='" + parentPersistentId + '\'' +
-                ", visible=" + visible +
-                ", allItems=" + allItems +
-                ", folder=" + folder +
-                ", master=" + master +
-                ", music=" + music +
-                ", movies=" + movies +
-                ", tvShows=" + tvShows +
-                ", audiobooks=" + audiobooks +
-                ", parent=" + (parent == null ? "null" : parent.name) +
-                // ", ancestry=" + ancestry +
-                '}';
+        return (name != null ? name : "UNNAMED PLAYLIST")
+                + " {"
+                + (ancestry != null ?
+                ancestry
+                        .stream()
+                        .map(Playlist::name)
+                        .reduce((s1, s2) -> s1 + "/" + s2)
+                        .orElse("")
+                : "")
+                + ", depth=" + depth
+                + (tracks != null ? ", #tracks=" + tracks.size() : "")
+                + (playlistId != null ? ", #playlistId=" + playlistId : "")
+                + (playlistPersistentId != null ? ", playlistPersistentId=" + playlistPersistentId : "")
+                + (distinguishedKind != null ? ", distinguishedKind=" + distinguishedKind : "")
+                + (allItems != null ? ", allItems=" + allItems : "")
+                + (master != null ? ", master=" + master : "")
+                + (visible != null ? ", visible=" + visible : "")
+                + (folder != null ? ", folder=" + folder : "")
+                + (music != null ? ", music=" + music : "")
+                + (tvShows != null ? ", tvShows=" + tvShows : "")
+                + (audiobooks != null ? ", audiobooks=" + audiobooks : "")
+                + (parentPersistentId != null ? ", parentPersistentId=" + parentPersistentId : "")
+                + (parent != null ? ", parent set" : ", parent null")
+                + (children != null ? ", #children=" + children.size() : "")
+                + "}";
     }
 
     /**

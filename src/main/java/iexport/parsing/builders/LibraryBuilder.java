@@ -21,7 +21,10 @@ import iexport.itunes.Library;
 import iexport.itunes.Playlist;
 import iexport.itunes.Track;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * A mutable builder class for building a record of type {@link iexport.itunes.Library}.
@@ -33,44 +36,19 @@ import java.util.*;
 public class LibraryBuilder
 {
     /**
-     * A map that maps track ids to tracks.
-     * <p>
-     * Will be needed for parsing playlists.
-     */
-    private final Map<Integer, Track> tracksById = new HashMap<>();
-
-    /**
      * The list of tracks in this library.
      */
     private final List<Track> tracks = new ArrayList<>();
-
     /**
      * The list of playlists in this library (that have already been constructed).
      */
     private final List<Playlist> playlists = new LinkedList<>();
 
+
     /**
      * The list of playlists that are top level, i.e. they have no parent playlist.
      */
     private final List<Playlist> playlistsAtTopLevel = new LinkedList<>();
-
-    /**
-     * The builders for the playlists in this library.
-     * <p>
-     * {@link iexport.parsing.LibraryParser} will convert these builders into actual playlists.
-     */
-    private final List<PlaylistBuilder> playlistBuilders = new ArrayList<>();
-
-    /**
-     * A map that takes a Playlist Persistent ID and returns the associated {@link PlaylistBuilder}
-     */
-    private final Map<String, PlaylistBuilder> playlistsBuildersByPersistentId = new HashMap<>();
-
-    /**
-     * A map that takes a Playlist Persistent ID and returns the associated {@link Playlist} once it has been constructed
-     */
-    private final Map<String, Playlist> playlistsByPersistentId = new HashMap<>();
-
     private Integer majorVersion;
     private Integer minorVersion;
     private Integer features;
@@ -78,16 +56,6 @@ public class LibraryBuilder
     private String applicationVersion;
     private String musicFolder;
     private Date date;
-
-    public List<Track> getTracks ()
-    {
-        return tracks;
-    }
-
-    public Map<Integer, Track> getTracksById ()
-    {
-        return tracksById;
-    }
 
     public void setMajorVersion (Integer majorVersion)
     {
@@ -143,28 +111,19 @@ public class LibraryBuilder
                 playlistsAtTopLevel);
     }
 
-    public List<PlaylistBuilder> getPlaylistBuilders ()
+    public List<Playlist> getPlaylists ()
     {
-        return playlistBuilders;
+        return playlists;
     }
 
-    public Map<String, Playlist> getPlaylistsByPersistentId ()
-    {
-        return playlistsByPersistentId;
-    }
 
-    public Map<String, PlaylistBuilder> getPlaylistsBuildersByPersistentId ()
+    public List<Track> getTracks ()
     {
-        return playlistsBuildersByPersistentId;
+        return tracks;
     }
 
     public List<Playlist> getPlaylistsAtTopLevel ()
     {
         return playlistsAtTopLevel;
-    }
-
-    public List<Playlist> getPlaylists ()
-    {
-        return playlists;
     }
 }

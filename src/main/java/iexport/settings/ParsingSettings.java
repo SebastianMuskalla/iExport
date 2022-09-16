@@ -18,6 +18,7 @@
 package iexport.settings;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -38,6 +39,7 @@ public class ParsingSettings extends Settings
      * Setting for the location of the {@code iTunes Music Library.xml} file
      */
     private static final String SETTING_XML_FILE_PATH = "xmlFilePath";
+
     /**
      * Default location of the {@code iTunes Music Library.xml} file:
      * {@code %USERPROFILE%/Music/iTunes/iTunes Music Library.xml}
@@ -46,9 +48,30 @@ public class ParsingSettings extends Settings
      */
     private static final String SETTING_XML_FILE_PATH_DEFAULT_VALUE = "%USERPROFILE%/Music/iTunes/iTunes Music Library.xml";
 
+    private static final String SETTING_IGNORE_EMPTY_PLAYLISTS = "ignoreEmptyPlaylists";
+    private static final Boolean SETTING_IGNORE_EMPTY_PLAYLISTS_DEFAULT_VALUE = true;
+
+    private static final String SETTING_IGNORE_NON_MUSIC_PLAYLISTS = "ignoreNonMusicPlaylists";
+    private static final Boolean SETTING_IGNORE_NON_MUSIC_PLAYLISTS_DEFAULT_VALUE = true;
+
+    private static final String SETTING_IGNORE_DISTINGUISHED_PLAYLISTS = "ignoreDistinguishedPlaylists";
+    private static final Boolean SETTING_IGNORE_DISTINGUISHED_PLAYLISTS_DEFAULT_VALUE = false;
+
+    private static final String SETTING_IGNORE_MASTER = "ignoreMaster";
+    private static final Boolean SETTING_IGNORE_MASTER_DEFAULT_VALUE = true;
+
+    private static final String SETTING_IGNORE_PLAYLISTS_BY_NAME = "ignorePlaylistsByName";
+    private static final List<String> SETTING_IGNORE_PLAYLISTS_BY_NAME_DEFAULT_VALUE = List.of();
+
     static
     {
         PARSING_DEFAULT_SETTINGS.put(SETTING_XML_FILE_PATH, SETTING_XML_FILE_PATH_DEFAULT_VALUE);
+
+        PARSING_DEFAULT_SETTINGS.put(SETTING_IGNORE_EMPTY_PLAYLISTS, SETTING_IGNORE_EMPTY_PLAYLISTS_DEFAULT_VALUE);
+        PARSING_DEFAULT_SETTINGS.put(SETTING_IGNORE_NON_MUSIC_PLAYLISTS, SETTING_IGNORE_NON_MUSIC_PLAYLISTS_DEFAULT_VALUE);
+        PARSING_DEFAULT_SETTINGS.put(SETTING_IGNORE_DISTINGUISHED_PLAYLISTS, SETTING_IGNORE_DISTINGUISHED_PLAYLISTS_DEFAULT_VALUE);
+        PARSING_DEFAULT_SETTINGS.put(SETTING_IGNORE_MASTER, SETTING_IGNORE_MASTER_DEFAULT_VALUE);
+        PARSING_DEFAULT_SETTINGS.put(SETTING_IGNORE_PLAYLISTS_BY_NAME, SETTING_IGNORE_PLAYLISTS_BY_NAME_DEFAULT_VALUE);
     }
 
     public ParsingSettings (Map<String, Object> yamlParsingMap)
@@ -61,7 +84,7 @@ public class ParsingSettings extends Settings
         super();
     }
 
-    public String getLibraryXmlFilePathString ()
+    public String getSettingLibraryXmlFilePathString ()
     {
         Object result = getValueFor(SETTING_XML_FILE_PATH);
 
@@ -74,6 +97,115 @@ public class ParsingSettings extends Settings
         {
             throw new RuntimeException(this.getClass() + ": invalid entry for " + getYamlPath(SETTING_XML_FILE_PATH)
                     + ", expected a string, but got " + result.getClass());
+        }
+    }
+
+    public boolean getSettingIgnoreEmptyPlaylists ()
+    {
+        String key = SETTING_IGNORE_EMPTY_PLAYLISTS;
+        Object result = getValueFor(key);
+
+        try
+        {
+            return (boolean) result;
+        }
+        catch (ClassCastException e)
+        {
+            throw new RuntimeException(this.getClass() + ": invalid entry for " + getYamlPath(key)
+                    + ", expected a boolean, but got " + result.getClass());
+        }
+        catch (NullPointerException e)
+        {
+            throw new RuntimeException(this.getClass() + ": invalid entry for " + getYamlPath(key)
+                    + ", expected a boolean, but got null");
+        }
+    }
+
+    public boolean getSettingIgnoreNonMusicPlaylists ()
+    {
+        String key = SETTING_IGNORE_NON_MUSIC_PLAYLISTS;
+        Object result = getValueFor(key);
+
+        try
+        {
+            return (boolean) result;
+        }
+        catch (ClassCastException e)
+        {
+            throw new RuntimeException(this.getClass() + ": invalid entry for " + getYamlPath(key)
+                    + ", expected a boolean, but got " + result.getClass());
+        }
+        catch (NullPointerException e)
+        {
+            throw new RuntimeException(this.getClass() + ": invalid entry for " + getYamlPath(key)
+                    + ", expected a boolean, but got null");
+        }
+    }
+
+    public boolean getSettingIgnoreDistinguishedPlaylists ()
+    {
+        String key = SETTING_IGNORE_DISTINGUISHED_PLAYLISTS;
+        Object result = getValueFor(key);
+
+        try
+        {
+            return (boolean) result;
+        }
+        catch (ClassCastException e)
+        {
+            throw new RuntimeException(this.getClass() + ": invalid entry for " + getYamlPath(key)
+                    + ", expected a boolean, but got " + result.getClass());
+        }
+        catch (NullPointerException e)
+        {
+            throw new RuntimeException(this.getClass() + ": invalid entry for " + getYamlPath(key)
+                    + ", expected a boolean, but got null");
+        }
+    }
+
+
+    public List<String> getSettingIgnoredPlaylistNames ()
+    {
+        String key = SETTING_IGNORE_PLAYLISTS_BY_NAME;
+        Object result = getValueFor(key);
+
+        try
+        {
+            // Type erasure yada yada
+            @SuppressWarnings("unchecked")
+            List<String> resultList = (List<String>) result;
+            return resultList;
+        }
+        catch (ClassCastException e)
+        {
+            throw new RuntimeException(this.getClass() + ": invalid entry for " + getYamlPath(key)
+                    + ", expected a boolean, but got " + result.getClass());
+        }
+        catch (NullPointerException e)
+        {
+            throw new RuntimeException(this.getClass() + ": invalid entry for " + getYamlPath(key)
+                    + ", expected a boolean, but got null");
+        }
+    }
+
+    public boolean getSettingsIgnoreMaster ()
+    {
+        String key = SETTING_IGNORE_MASTER;
+        Object result = getValueFor(key);
+
+        try
+        {
+            return (boolean) result;
+        }
+        catch (ClassCastException e)
+        {
+            throw new RuntimeException(this.getClass() + ": invalid entry for " + getYamlPath(key)
+                    + ", expected a boolean, but got " + result.getClass());
+        }
+        catch (NullPointerException e)
+        {
+            throw new RuntimeException(this.getClass() + ": invalid entry for " + getYamlPath(key)
+                    + ", expected a boolean, but got null");
         }
     }
 

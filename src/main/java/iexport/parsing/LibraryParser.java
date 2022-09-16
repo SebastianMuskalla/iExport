@@ -30,10 +30,13 @@ import iexport.parsing.builders.PlaylistBuilder;
 import iexport.parsing.keys.LibraryKeys;
 import iexport.parsing.sorting.PlaylistComparator;
 import iexport.parsing.sorting.TrackComparator;
+import iexport.settings.ParsingSettings;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The main class of the iExport parsing module.
@@ -64,12 +67,41 @@ public class LibraryParser
     private final File libraryFile;
 
     /**
+     * The settings that will be used for parsing.
+     */
+    private final ParsingSettings parsingSettings;
+    /**
+     * List of playlist persistent ids that should be ignored
+     */
+    private final List<String> ignoredPlaylistPersistentIds = new ArrayList<>();
+    /**
+     * A map that takes a Playlist Persistent ID and returns the associated {@link PlaylistBuilder}
+     */
+    private final Map<String, PlaylistBuilder> playlistsBuildersByPersistentId = new HashMap<>();
+    /**
+     * A map that takes a Playlist Persistent ID and returns the associated {@link Playlist} once it has been constructed
+     */
+    private final Map<String, Playlist> playlistsByPersistentId = new HashMap<>();
+    /**
+     * The builders for the playlists in this library.
+     * <p>
+     * {@link iexport.parsing.LibraryParser} will convert these builders into actual playlists.
+     */
+    private final List<PlaylistBuilder> playlistBuilders = new ArrayList<>();
+    /**
+     * A map that maps track ids to tracks.
+     * <p>
+     * Will be needed for parsing playlists.
+     */
+    private final Map<Integer, Track> tracksById = new HashMap<>();
+    /**
      * The builder that will be used to construct the library.
      */
     private LibraryBuilder libraryBuilder;
 
-    public LibraryParser (File libraryFile)
+    public LibraryParser (File libraryFile, ParsingSettings parsingSettings)
     {
+        this.parsingSettings = parsingSettings;
         libraryBuilder = new LibraryBuilder();
         this.libraryFile = libraryFile;
     }
@@ -99,15 +131,15 @@ public class LibraryParser
         // A few more steps are needed to turn PlaylistBuilders into actual Playlists:
 
         // Set the parent-child relationships between the playlists
-        setPlaylistParentChildRelationships();
+        processPlaylistBuilders();
 
         // Turn the track ids of the playlist builders into actual tracks
         convertPlaylistTrackIdListToTrackList();
 
         // We can now build the library//
-        // (and reset the library builder in case someone makes the mistake of using this method twice)
         Library library = libraryBuilder.build();
-        libraryBuilder = new LibraryBuilder();
+
+        reset();
 
         sortLibrary(library);
 
@@ -125,17 +157,30 @@ public class LibraryParser
     {
         // check for a duplicate
         Integer trackId = track.trackId();
-        if (libraryBuilder.getTracksById().get(trackId) != null)
+        if (tracksById.get(trackId) != null)
         {
             Logging.getLogger().info(this.getClass() + ": Library already contains track with id " + trackId + "; Skipping new track.");
-            Logging.getLogger().debug(1, "Old track:" + libraryBuilder.getTracksById().get(trackId));
+            Logging.getLogger().debug(1, "Old track:" + tracksById.get(trackId));
             Logging.getLogger().debug(1, "New track:" + track);
             return;
         }
 
         // no duplicate, we can add the track
-        libraryBuilder.getTracksById().put(track.trackId(), track);
+        tracksById.put(track.trackId(), track);
         libraryBuilder.getTracks().add(track);
+    }
+
+    /**
+     * Resets the internal state of the parser in case somebody tries to use the same parser twice
+     */
+    private void reset ()
+    {
+        libraryBuilder = new LibraryBuilder();
+        ignoredPlaylistPersistentIds.clear();
+        playlistsBuildersByPersistentId.clear();
+        playlistsByPersistentId.clear();
+        playlistBuilders.clear();
+
     }
 
     /**
@@ -146,9 +191,9 @@ public class LibraryParser
     {
         for (Playlist playlist : libraryBuilder.getPlaylists())
         {
-            for (Integer trackId : libraryBuilder.getPlaylistsBuildersByPersistentId().get(playlist.playlistPersistentId()).getTrackIds())
+            for (Integer trackId : playlistsBuildersByPersistentId.get(playlist.playlistPersistentId()).getTrackIds())
             {
-                Track track = libraryBuilder.getTracksById().get(trackId);
+                Track track = tracksById.get(trackId);
 
                 if (track == null)
                 {
@@ -171,7 +216,7 @@ public class LibraryParser
             throws ITunesParsingException
     {
         // parse the file as a property list
-        NSObject propertyList = null;
+        NSObject propertyList;
         try
         {
             propertyList = PropertyListParser.parse(libraryFile);
@@ -267,12 +312,12 @@ public class LibraryParser
      * <p>
      * Within finitely many iterations (at most the number of playlists squared), we should be able to resolve all dependencies.
      */
-    private void setPlaylistParentChildRelationships ()
+    private void processPlaylistBuilders ()
     {
 
         int iterationCount = 0;
 
-        int numberOfPlaylists = libraryBuilder.getPlaylistBuilders().size();
+        int numberOfPlaylists = playlistBuilders.size();
 
         // The maximum numbers of iterations we will do in order to avoid an infinite loop.
         // In the worst case, the tree is a single sequence.
@@ -281,7 +326,7 @@ public class LibraryParser
         int maximumNumberOfIterations = numberOfPlaylists * numberOfPlaylists + numberOfPlaylists + 1;
 
         // copy all playlist builders into a work list
-        List<PlaylistBuilder> workList = new ArrayList<>(libraryBuilder.getPlaylistBuilders());
+        List<PlaylistBuilder> workList = new ArrayList<>(playlistBuilders);
 
         while (!workList.isEmpty())
         {
@@ -304,6 +349,18 @@ public class LibraryParser
             PlaylistBuilder playlistBuilder = workList.get(0);
             workList.remove(playlistBuilder);
 
+            // Check if we should ignore this playlist
+            if (shouldBeIgnored(playlistBuilder))
+            {
+                if (playlistBuilder.getPlaylistPersistentId() != null)
+                {
+                    Logging.getLogger().debug(this.getClass() + ": Adding " + playlistBuilder.getPlaylistPersistentId()
+                            + " to the list of ignored playlists.");
+                    ignoredPlaylistPersistentIds.add(playlistBuilder.getPlaylistPersistentId());
+                }
+                continue;
+            }
+
             // we want to compute the parent playlist and the depth
             Playlist parent = null;
             int depth;
@@ -312,24 +369,38 @@ public class LibraryParser
             String parentPersistentId = playlistBuilder.getParentPersistentId();
             if (parentPersistentId != null)
             {
+                // Check if we should ignore the parent playlist
+                if (ignoredPlaylistPersistentIds.contains(parentPersistentId))
+                {
+                    Logging.getLogger().info(this.getClass() + ": Ignoring " + playlistBuilder
+                            + " because its parent with persistent id " + parentPersistentId + " has been ignored.");
+                    
+                    if (playlistBuilder.getPlaylistPersistentId() != null)
+                    {
+                        Logging.getLogger().debug(this.getClass() + ": Adding " + playlistBuilder.getPlaylistPersistentId()
+                                + " to the list of ignored playlists.");
+                        ignoredPlaylistPersistentIds.add(playlistBuilder.getPlaylistPersistentId());
+                    }
+
+                    continue;
+                }
+
                 // check if we have already constructed this parent playlist
-                parent = libraryBuilder.getPlaylistsByPersistentId().get(parentPersistentId);
+                parent = playlistsByPersistentId.get(parentPersistentId);
                 if (parent == null)
                 {
-                    /*
-                     * The parent has not been constructed.
-                     * Either this is because it not yet been processed, or it does not exist at all.
-                     */
-                    if (libraryBuilder.getPlaylistsBuildersByPersistentId().get(parentPersistentId) == null)
+                    // The parent has not been constructed.
+                    // Either this is because it not yet been processed, or it does not exist at all.
+                    if (playlistsBuildersByPersistentId.get(parentPersistentId) == null)
                     {
                         // the playlist with the specified Parent Persistent ID does not exist
-                        // remove from worklist and issue a warning
+                        // remove from work list and issue a warning
                         Logging.getLogger().info(this.getClass() + ": Playlist " + playlistBuilder + " specifies parent playlist with Persistent ID " + parentPersistentId + ", but no such playlist exists");
                     }
                     else
                     {
                         // The parent playlist exists, but has not been processed yet
-                        // Simply add the current playlist back to the end of the worklist.
+                        // Simply add the current playlist back to the end of the work list.
                         // simply requeue this playlist for later construction, and skip it for now
                         workList.add(playlistBuilder);
                     }
@@ -357,7 +428,7 @@ public class LibraryParser
 
             // do some additional maintenance
             libraryBuilder.getPlaylists().add(playlist);
-            libraryBuilder.getPlaylistsByPersistentId().put(playlist.playlistPersistentId(), playlist);
+            playlistsByPersistentId.put(playlist.playlistPersistentId(), playlist);
 
             if (parent == null)
             {
@@ -419,10 +490,10 @@ public class LibraryParser
          * </dict>
          *
          */
-        for (var trackIdtrackDictionaryPair : tracksDictionary.entrySet())
+        for (var trackIdTrackDictionaryPair : tracksDictionary.entrySet())
         {
             // extract the Track ID from the key of the pair, and convert it to an integer
-            String trackIdKey = trackIdtrackDictionaryPair.getKey();
+            String trackIdKey = trackIdTrackDictionaryPair.getKey();
             Integer trackId;
             try
             {
@@ -438,7 +509,7 @@ public class LibraryParser
             NSDictionary trackDictionary;
             try
             {
-                trackDictionary = (NSDictionary) trackIdtrackDictionaryPair.getValue();
+                trackDictionary = (NSDictionary) trackIdTrackDictionaryPair.getValue();
             }
             catch (ClassCastException e)
             {
@@ -451,7 +522,7 @@ public class LibraryParser
             Track track = trackParser.parse();
 
             /*
-             * we should veryify that the two Track IDs match
+             * we should verify that the two Track IDs match
              * - the Track ID from the key of the "Tracks" dictionary of the library
              * - the Track ID from the key "Track ID" of the track dictionary
              */
@@ -466,7 +537,7 @@ public class LibraryParser
     }
 
     /**
-     * Parse the playslists in the library from the array with the key "Playlists".
+     * Parse the playlists in the library from the array with the key "Playlists".
      *
      * @param rootDictionary the root dictionary of the library file
      */
@@ -512,7 +583,7 @@ public class LibraryParser
             PlaylistBuilder playlistBuilder = playlistParser.parse();
 
             // we add it to the library builder object
-            libraryBuilder.getPlaylistBuilders().add(playlistBuilder);
+            playlistBuilders.add(playlistBuilder);
 
             // converting it into an actual Playlist will be done later
             // to this end, we will need the persistent id of the playlist
@@ -522,8 +593,85 @@ public class LibraryParser
                 continue;
             }
 
-            libraryBuilder.getPlaylistsBuildersByPersistentId().put(playlistBuilder.getPlaylistPersistentId(), playlistBuilder);
+            playlistsBuildersByPersistentId.put(playlistBuilder.getPlaylistPersistentId(), playlistBuilder);
         }
+    }
+
+    /**
+     * Check if the playlist associated to the given builder should be ignored.
+     *
+     * @param builder the builder
+     * @return true iff it should be ignored
+     */
+    private boolean shouldBeIgnored (PlaylistBuilder builder)
+    {
+        // We have already determined that this playlist should be ignored
+        if (builder.getPlaylistPersistentId() != null && ignoredPlaylistPersistentIds.contains(builder.getPlaylistPersistentId()))
+        {
+            return true;
+        }
+
+        // If parsing.ignoreEmptyPlaylists is set to true, ignore playlists with empty track list
+        if (parsingSettings.getSettingIgnoreEmptyPlaylists())
+        {
+            if (builder.getTrackIds() == null || builder.getTrackIds().size() == 0)
+            {
+                Logging.getLogger().info(this.getClass() +
+                        ": Ignoring empty playlist " + builder + " because parsing.ignoreEmptyPlaylists is set");
+                return true;
+            }
+        }
+
+        // If parsing.ignoreNonMusicPlaylists is set to true,
+        // ignore playlists that have audiobooks, tvShows, or movies set to true
+        if (parsingSettings.getSettingIgnoreNonMusicPlaylists())
+        {
+            if ((builder.getAudiobooks() != null && builder.getAudiobooks())
+                    || (builder.getMovies() != null && builder.getMovies())
+                    || (builder.getTvShows() != null && builder.getTvShows()))
+            {
+                Logging.getLogger().info(this.getClass() +
+                        ": Ignoring special playlist " + builder + " because parsing.ignoreNonMusicPlaylists is set");
+                return true;
+            }
+        }
+
+        // If parsing.ignoreDistinguishedPlaylists is set to true,
+        // ignore playlists that have a distinguishedKind set
+        // ("Downloaded", ...)
+        if (parsingSettings.getSettingIgnoreDistinguishedPlaylists())
+        {
+            if (builder.getDistinguishedKind() != null)
+            {
+                Logging.getLogger().info(this.getClass()
+                        + ": Ignoring distinguished playlist " + builder + " because parsing.ignoreNonMusicPlaylists is set");
+                return true;
+            }
+        }
+
+        // If parsing.ignoreMaster is set to true,
+        // ignore playlists that have the master flag
+        // (playlist "Library")
+        if (parsingSettings.getSettingsIgnoreMaster())
+        {
+            if (builder.getMaster() != null && builder.getMaster())
+            {
+                Logging.getLogger().info(this.getClass() +
+                        ": Ignoring master playlist " + builder + " because parsing.ignoreNonMusicPlaylists is set");
+                return true;
+            }
+        }
+
+        // Ignore playlists whose name is in parsing.ignorePlaylistsByName
+        if (builder.getName() != null && parsingSettings.getSettingIgnoredPlaylistNames().contains(builder.getName()))
+        {
+            Logging.getLogger().info(this.getClass() +
+                    " Ignoring playlist " + builder + " because its name is in parsing.ignorePlaylistsByName "
+                    + "(" + parsingSettings.getSettingIgnoredPlaylistNames() + ")");
+            return true;
+        }
+
+        return false;
     }
 
 }
