@@ -47,10 +47,10 @@ public class StdoutLogger extends Logger
 
     static
     {
-        PREFIXES.put(LogLevel.DEBUG, "//");
-//        PREFIXES.put(LogLevel.INFO, "//");
-//        PREFIXES.put(LogLevel.NORMAL, "> ");
-//        PREFIXES.put(LogLevel.IMPORTANT, "! ");
+        PREFIXES.put(LogLevel.DEBUG, "DEBUG: ");
+        PREFIXES.put(LogLevel.INFO, "INFO: ");
+        PREFIXES.put(LogLevel.NORMAL, "");
+        PREFIXES.put(LogLevel.IMPORTANT, "WARNING: ");
     }
 
     /**
