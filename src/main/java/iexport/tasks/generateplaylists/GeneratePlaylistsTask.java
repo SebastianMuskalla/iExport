@@ -18,9 +18,6 @@
 package iexport.tasks.generateplaylists;
 
 import iexport.itunes.Library;
-import iexport.itunes.Playlist;
-import iexport.itunes.Track;
-import iexport.logging.Logging;
 import iexport.settings.RawTaskSettings;
 import iexport.tasks.Task;
 
@@ -42,69 +39,12 @@ public class GeneratePlaylistsTask implements Task
     @Override
     public void run (Library library, RawTaskSettings rawTaskSettings)
     {
-        Logging.getLogger().message("Library");
-        Logging.getLogger().message("-------");
-        Logging.getLogger().message("");
-        Logging.getLogger().message(library.toString());
-        Logging.getLogger().message("");
-        Logging.getLogger().message("");
-
-        Logging.getLogger().message("Playlists");
-        Logging.getLogger().message("---------");
-        Logging.getLogger().message("");
-
-        for (Playlist playlist : library.playlists())
-        {
-            String res = "";
-            res += "|   ".repeat(playlist.depth());
-            res += playlist;
-            Logging.getLogger().message(res);
-        }
-        Logging.getLogger().message("");
-        Logging.getLogger().message("");
-
-        Logging.getLogger().message("Tracks");
-        Logging.getLogger().message("------");
-        Logging.getLogger().message("");
-
-        for (Track track : library.tracks())
-        {
-            Logging.getLogger().message(track.toString());
-
-            for (Playlist playlist : track.inPlaylists())
-            {
-                Logging.getLogger().message(1, playlist.toString());
-            }
-        }
-        Logging.getLogger().message("");
-
+        GeneratePlaylistsTaskSettings settings = new GeneratePlaylistsTaskSettings(rawTaskSettings);
     }
 
 }
 
 
-//import iexport.itunes.Library;
-//import iexport.itunes.Playlist;
-//import iexport.itunes.Track;
-//import iexport.logging.Logging;
-//import iexport.tasks.Task;
-//import iexport.util.FolderDeleter;
-//
-//import java.io.BufferedWriter;
-//import java.io.File;
-//import java.io.IOException;
-//import java.net.URI;
-//import java.net.URISyntaxException;
-//import java.nio.charset.StandardCharsets;
-//import java.nio.file.Files;
-//import java.nio.file.Path;
-//import java.nio.file.Paths;
-//import java.util.ArrayList;
-//import java.util.List;
-//import java.util.regex.Matcher;
-//import java.util.regex.Pattern;
-//
-//
 //public class PlaylistGenTask extends Task
 //{
 //    public static final String SHORTHAND = "playlistgen";

@@ -121,6 +121,7 @@
             #   and playlists whose name is specified below.
             {
               # tasks.printUnlistedTracks.ignorePlaylists
+              # -----------------------------------------
               # Specify playlists that should be ignored,
               #   i.e. a track will be counted as unlisted even if it is contained in one of these playlists.
               # Default value: []
@@ -136,6 +137,7 @@
             #   playlist folders, and playlists whose name is specified below.
             {
               # tasks.printMultiplyListedTracks.ignorePlaylists
+              # -----------------------------------------------
               # Specify playlists that should be ignored,
               #   i.e. they will not be counted towards the number of playlists a track is in.
               # Default value: []
@@ -145,6 +147,102 @@
                   ],
             },
 
+          "generatePlaylists" :
+            # Export the iTunes playlists by generating m3u files at a specified location.
+            {
+              # tasks.generatePlaylists.outputFolder
+              # ------------------------------------
+              # Folder at which the playlist files should be generated
+              #   Supports the %USERPROFILE% placeholder, which will typically get replaced by "C:\Users\<USERNAME>".
+              #   Note that backslashes ("\") need to be escaped as "\\".
+              # Default value: "%USERPROFILE%\\Desktop\\iExport\\Playlists"
+                "outputFolder" :           "%USERPROFILE%\\Desktop\\iExport\\Playlists",
 
+              # tasks.generatePlaylists.deleteFolder
+              # ------------------------------------
+              # If set to false, iExport will only proceed if outputFolder does not exist yet.
+              # If set to true, the folder will be deleted if it already exists.
+              # Default value: false
+                "deleteFolder" :           false,
+
+              # tasks.generatePlaylists.organizeInFolders
+              # -----------------------------------------
+              # If set to true, the playlists will be organized in folders.
+              #   e.g. an iTunes folder "POP" containing a playlist "80s" will lead to the file "POP/80s.m3u"
+              # If set to false, all playlists will be exported into the same folder.
+              #   Note that file name conflicts may arise if multiple playlists of the same name exist.
+              # Default value: true
+                "organizeInFolders" :      true,
+
+              # tasks.generatePlaylists.hierarchicalNames
+              # -----------------------------------------
+              # Consider an iTunes folder "POP" containing a playlist "80s".
+              # If set to false, the playlist file will be called "80s.m3u".
+              # If set to true, the playlist file will be called "POP - 80s.m3u".
+              #   This setting may avoid naming conflicts if organizeInFolders is set to false.
+              # Default value: true
+                "hierarchicalNames" :      true,
+
+              # tasks.generatePlaylists.onlyActualPlaylists
+              # -------------------------------------------
+              # If set to true, we will only export "actual" playlists (but not folders).
+              # If set to false, we will export all types of playlists including folders.
+              # Default value: false
+                "onlyActualPlaylists" :    false,
+
+              # tasks.generatePlaylists.playlistExtension
+              # -----------------------------------------
+              # The extension (e.g. ".m3u", ".m3u8") of the generated playlist files.
+              #   We recommend using ".m3u8" to signal that the paths inside the playlist may contain unicode.
+              # Default value: ".m3u8"
+                "playlistExtension" :      ".m3u8",
+
+              # tasks.generatePlaylists.useRelativePaths
+              # ----------------------------------------
+              # If set to false, the generated playlist files will contain absolute paths to the tracks.
+              # If set to false, the generated playlist files will contain relative paths.
+              #   Consider a track stored at "C:\Music\Tracks\Track.mp3"
+              #   and assume we export the playlists to "C:\Music\Playlists\" (outputFolder).
+              #   If relative paths are enabled, a playlist containing that track will
+              #   contain "..\Tracks\Track.mp3" instead of "C:\Music\Tracks\Track.mp3".
+              # Advantage: The whole folder containing tracks and playlists can be copied to
+              #   another device (e.g. an android phone) and it will still work.
+              # Disadvantage: If the folder containing the playlists is moved,
+              #   they will stop working.
+              # Default value: false
+                "useRelativePaths" :       true,
+
+              # tasks.generatePlaylists.warnSquareBrackets
+              # ------------------------------------------
+              # If set to true, iExport will print a warning if a file path inside a playlist
+              # contains square brackets ('[' or ']').
+              #   This is useful because some players require these to be escaped (e.g. VLC)
+              #   while others cannot deal with escaped brackets (e.g. Poweramp).
+              # Default value: true
+                "warnSquareBrackets" :     true,
+
+              # tasks.generatePlaylists.ignorePlaylists
+              # ---------------------------------------
+              # Specify playlist names that should be ignored, i.e. they will not be exported.
+              #   Note that if a folder is ignored, the playlists in it will still be exported.
+              # Default value: []
+                "ignorePlaylists" :
+                  [
+                      "SKETCHES",
+                  ],
+
+              # tasks.generatePlaylists.showContinuousProgress
+              # ----------------------------------------------
+              # Whether to show a continuously updating progress bar while exporting
+              # Default value: true
+                "showContinuousProgress" : true,
+
+              # tasks.generatePlaylists.slashAsSeparator
+              # ----------------------------------------------
+              # If set to false, use Backslash ('\', Windows notation) in file paths inside the playlist files.
+              # If set to true, use Slash ('/', Unix/Linux/Mac notation) in file paths inside the playlist files.
+              # Default value: false
+                "slashAsSeparator" :       true,
+            },
       },
 }
