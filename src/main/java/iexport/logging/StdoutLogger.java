@@ -121,6 +121,12 @@ public class StdoutLogger extends Logger
     }
 
     @Override
+    public LogLevel getLogLevel ()
+    {
+        return verbosity;
+    }
+
+    @Override
     public void setLogLevel (LogLevel logLevel)
     {
         verbosity = logLevel;
@@ -134,7 +140,6 @@ public class StdoutLogger extends Logger
      */
     private boolean accepts (LogLevel logLevel)
     {
-        return (logLevel.getValue() <= verbosity.getValue());
+        return logLevel.lessVerbose(verbosity);
     }
-
 }

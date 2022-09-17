@@ -402,6 +402,7 @@ public record Track
                 + " {"
                 + ((trackId != null) ? "trackId=" + trackId : "")
                 + ((persistentId != null) ? ", persistentId=" + persistentId : "")
+                + ((location != null) ? ", " + location : "")
                 + '}';
     }
 
@@ -416,5 +417,6 @@ public record Track
     {
         inPlaylists.add(playlist);
     }
+
 }
 

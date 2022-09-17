@@ -31,6 +31,12 @@ public class NullLogger extends Logger
     }
 
     @Override
+    public LogLevel getLogLevel ()
+    {
+        return LogLevel.ERROR;
+    }
+
+    @Override
     public void setLogLevel (LogLevel logLevel)
     {
 

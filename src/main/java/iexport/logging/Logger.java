@@ -40,10 +40,19 @@ public abstract class Logger
     public abstract void log (LogLevel logLevel, int indentation, String message);
 
     /**
+     * Get the maximum log level that this locker will track.
+     * <p>
+     * The expectation is that the logger will discard all messages that are more verbose than specified
+     * by the return value of this function,
+     * but the details are up to the implementation.
+     */
+    public abstract LogLevel getLogLevel ();
+
+    /**
      * Set the maximum log level that this locker should track.
      * <p>
      * The expectation is that the logger will discard all messages that are more verbose than specified by {@code logLevel},
-     * but the details are up to the implemenation.
+     * but the details are up to the implementation.
      *
      * @param logLevel the log level
      */

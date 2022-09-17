@@ -44,8 +44,11 @@ public class PrintLibraryTask implements Task
     public void run (Library library, RawTaskSettings rawTaskSettings)
     {
         // It would be pretty silly to call this task but then hide the output
-        Logging.getLogger().setLogLevel(LogLevel.NORMAL);
-
+        if (Logging.getLogger().getLogLevel().lessVerbose(LogLevel.NORMAL))
+        {
+            Logging.getLogger().setLogLevel(LogLevel.NORMAL);
+        }
+        
         Logging.getLogger().message("Library");
         Logging.getLogger().message("-------");
         Logging.getLogger().message("");

@@ -16,6 +16,7 @@
  */
 
 /**
- * This package contains record classes whose instances represent a iTunes library, including the playlists and tracks contained in it.
+ * This package contains record classes whose instances represent a iTunes library,
+ * including the playlists and tracks contained in it.
  */
 package iexport.itunes;

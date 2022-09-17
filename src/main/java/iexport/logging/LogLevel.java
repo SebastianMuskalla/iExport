@@ -58,10 +58,20 @@ public enum LogLevel
     }
 
     /**
+     * @param other another log level
+     * @return true iff this log level is at most as verbose as the other
+     */
+    public boolean lessVerbose (LogLevel other)
+    {
+        return this.getValue() <= other.getValue();
+    }
+
+    /**
      * @return the internal value
      */
-    public int getValue ()
+    private int getValue ()
     {
         return value;
     }
+
 }

@@ -23,7 +23,7 @@
     #   "WARNING" - hide regular output, but show warnings
     #   "ERROR"   - hide warnings, only show error messages
     # Default value: "NORMAL"
-      "logLevel" : "NORMAL",
+      "logLevel" : "DEBUG",
 
     # task
     # ----

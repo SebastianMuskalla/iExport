@@ -65,7 +65,7 @@ public class ExportFilesTask implements Task
     @Override
     public String getDescription ()
     {
-        return "export playlists as m3u";
+        return "export files in playlist into folders";
     }
 
     @Override
@@ -79,7 +79,7 @@ public class ExportFilesTask implements Task
         List<Playlist> playlistsToProcess = library.playlists().stream().filter(Predicate.not(this::isIgnored)).toList();
 
         tracksProcessed = 0;
-        totalTrackNumber = (int) playlistsToProcess.stream().mapToLong((playlist) -> playlist.tracks().size()).sum();
+        totalTrackNumber = (int) playlistsToProcess.stream().mapToLong(Playlist::getNumberOfTracks).sum();
         nextFolderNumber = settings.getSettingInitialNumber();
         toRootFolder.clear();
         totalFolderNumber = playlistsToProcess.size();
