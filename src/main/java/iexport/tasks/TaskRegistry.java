@@ -78,8 +78,6 @@ public class TaskRegistry
         registerTask(helpTask);
         theHelpTask = helpTask;
 
-        registerTask(new QuitTask());
-
         registerTask(new PrintLibraryTask());
 
         registerTask(new PrintPlaylistsTask());

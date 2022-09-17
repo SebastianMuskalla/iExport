@@ -216,6 +216,11 @@ public class SettingsParser
     private RawTaskSettings parseTaskSettings (String taskName, Object taskMapObject)
             throws SettingsParsingException
     {
+        if (taskMapObject == null)
+        {
+            return new RawTaskSettings(taskName);
+        }
+        
         // The settings for the key"tasks.taskName" should be a dictionary (i.e. a Map<String,Object>)
         if (!(taskMapObject instanceof Map))
         {

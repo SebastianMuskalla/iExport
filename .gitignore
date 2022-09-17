@@ -15,7 +15,8 @@ gradlew.bat
 # ignore all .yaml files but !iExportDefaultSettings.yaml
 *.yml
 *.yaml
-!iExportDefaultSettings.yaml
+!defaultSettings.yaml
+!defaultSettingsCompact.yaml
 
 # .xml files (iTunes Library)
 /*.xml
