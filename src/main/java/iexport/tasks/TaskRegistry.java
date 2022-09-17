@@ -17,6 +17,7 @@
 
 package iexport.tasks;
 
+import iexport.tasks.fileexport.ExportFilesTask;
 import iexport.tasks.generateplaylists.GeneratePlaylistsTask;
 import iexport.tasks.printing.PrintLibraryTask;
 import iexport.tasks.printing.PrintMultiplyListedTracksTask;
@@ -88,6 +89,8 @@ public class TaskRegistry
         registerTask(new PrintMultiplyListedTracksTask());
 
         registerTask(new GeneratePlaylistsTask());
+
+        registerTask(new ExportFilesTask());
 
         registerTask(new QuitTask());
     }

@@ -74,7 +74,6 @@ public class GeneratePlaylistsTask implements Task
         // Prepare the output folder
         prepareOutputFolder();
 
-
         playlistsToProcess = library.numberOfPlaylists();
 
         Logging.getLogger().message("Exporting " + playlistsToProcess + " playlists.");
@@ -88,6 +87,7 @@ public class GeneratePlaylistsTask implements Task
     private void reset ()
     {
         playlistsProcessed = 0;
+        playlistsToProcess = 0;
         settings = null;
     }
 
@@ -184,12 +184,16 @@ public class GeneratePlaylistsTask implements Task
 
         // We can now actually write the file
         writePlaylist(destination, content);
+
+        playlistsProcessed++;
+        if (settings.getSettingShowContinuousProgress())
+        {
+            printProgress(playlist);
+        }
     }
 
     private void printProgress (Playlist playlist)
     {
-        playlistsProcessed++;
-
         double ratio = (double) playlistsProcessed / (double) playlistsToProcess;
 
         int percent = (int) Math.round(ratio * 100);
@@ -204,11 +208,11 @@ public class GeneratePlaylistsTask implements Task
         String progress = "\r" + "[";
         for (int i = 0; i < filledSegments; i++)
         {
-            progress += '█';
+            progress += '\u2588';
         }
         for (int i = filledSegments; i < totalSegments; i++)
         {
-            progress += '·';
+            progress += '\u00B7';
         }
         progress += "] " + percentString + "% " + " Exporting " + playlist.name();
 
@@ -275,7 +279,7 @@ public class GeneratePlaylistsTask implements Task
         }
 
         // Compute the file name
-        String fileName = "";
+        String fileName;
         if (settings.getSettingHierarchicalNames() && playlist.ancestry() != null)
         {
             // If tasks.generatePlaylists.hierarchicalNames is set, the file name is composed of the ancestry
@@ -331,7 +335,7 @@ public class GeneratePlaylistsTask implements Task
         // This may be slow!
         if (settings.getSettingTrackVerification() && !Files.exists(path))
         {
-            Logging.getLogger().important("File for track " + track + "  at remote location " + pathString + " does not exist; skipping this track.");
+            Logging.getLogger().important("File for track " + track + "  at location " + pathString + " does not exist; skipping this track.");
             return "";
         }
 

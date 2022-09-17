@@ -17,9 +17,9 @@
 
 package iexport.utils;
 
-public class IntegerFormatter
+public interface IntegerFormatter
 {
-    public String toStringOfSize (int i, int digits)
+    static String toStringOfSize (int i, int digits)
     {
         String res = Integer.toString(i);
 
@@ -33,7 +33,7 @@ public class IntegerFormatter
         return res;
     }
 
-    public int digits (int i)
+    static int digits (int i)
     {
         if (i < 0)
         {
