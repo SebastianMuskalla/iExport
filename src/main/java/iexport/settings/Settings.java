@@ -22,7 +22,7 @@ import iexport.logging.Logging;
 import java.util.Set;
 
 /**
- * A general object that stores a collection of settings (e.g. for parsing).
+ * An interface that stores a collection of settings (e.g. for parsing).
  * <p>
  * Intuitively, each {@code Settings} object consists of two layers:
  * <ol>
@@ -32,7 +32,7 @@ import java.util.Set;
  * </ol>
  * {@link SettingsImpl#getValueFor(String)} will prefer user-defined values and fall back on the default values if values are not set
  * <p>
- * This class stores treats settings as objects.
+ * This class stores settings as {@link Object}.
  * Its child classes should provide wrappers around {@link SettingsImpl#getValueFor(String)} that do checked casts.
  */
 public interface Settings
@@ -40,7 +40,7 @@ public interface Settings
     /**
      * Replaces %USERPROFILE% in a string by the value of the environment variable USERPROFILE.
      * <p>
-     * Under Windows, this is typically set to "C:\Users\YourUserName".
+     * Under Windows, this is typically set to "C:\\Users\\YourUserName".
      * <p>
      * Depending on security settings and the environment, getting the value of the environment variable may fail.
      * In this case, the method will generate log output and return an unmodified string,
@@ -56,6 +56,7 @@ public interface Settings
 
         try
         {
+            // Try to get the value of the environment variable
             String userProfileValue = System.getenv(userProfileEnvironmentVariable);
             if (userProfileValue != null)
             {
@@ -70,6 +71,18 @@ public interface Settings
         }
         return pathString;
     }
+
+    /**
+     * Gets the location of the dictionary this settings object represents in the settings .yaml file
+     * <p>
+     * e.g. called on {@link ParsingSettings}, this should return {@code "parsing"}.
+     * <p>
+     * e.g. called on {@link GeneralSettings} for , this should return {@code ""}.
+     *
+     * @return the yaml prefix
+     */
+    String getYamlPrefix ();
+
 
     /**
      * Returns the .yaml path for a specific setting.
@@ -96,15 +109,11 @@ public interface Settings
      */
     Set<String> unusedSettings ();
 
+    /**
+     * @return true iff the settings were not created from the user-provided .yaml,
+     * but initialized with default settings.
+     */
     boolean isDefault ();
 
-    /**
-     * Gets the location of the dictionary this settings object represents in the settings .yaml file
-     * <p>
-     * (e.g.
-     *
-     * @return the path
-     */
-    String getYamlPrefix ();
 
 }

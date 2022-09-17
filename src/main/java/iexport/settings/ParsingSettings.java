@@ -25,7 +25,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * General settings for iExport that do not just affect parsing or a specific task.
+ * Settings for iExport that affect parsing the library.
  * <p>
  * These settings correspond to the dictionary under the key "parsing" in the root dictionary of the .yaml file.
  */
@@ -35,38 +35,85 @@ public class ParsingSettings extends SettingsImpl
      * Map holding the default settings for parsing
      */
     private static final Map<String, Object> PARSING_DEFAULT_SETTINGS = new HashMap<>();
+
     /**
-     * Setting for the location of the {@code iTunes Music Library.xml} file
+     * parsing.xmlFilePath
+     * -------------------
+     * Path to "iTunes Music Library.xml".
+     * Supports the %USERPROFILE% placeholder, which will typically get replaced by "C:\Users\<USERNAME>".
      */
     private static final String SETTING_XML_FILE_PATH = "xmlFilePath";
 
     /**
-     * Default location of the {@code iTunes Music Library.xml} file:
-     * {@code %USERPROFILE%/Music/iTunes/iTunes Music Library.xml}
-     * (typically evaluates to {@code C:\Users\YourUserName/Music/iTunes/iTunes Music Library.xml}
-     * after using {@link Settings#applyUserProfileReplacement(String)} to replace {@code %USERPROFILE%}).
+     * Default value for "parsing.xmlFilePath".
      */
-    private static final String SETTING_XML_FILE_PATH_DEFAULT_VALUE = "%USERPROFILE%/Music/iTunes/iTunes Music Library.xml";
+    private static final String SETTING_XML_FILE_PATH_DEFAULT_VALUE = "%USERPROFILE%\\Music\\iTunes\\iTunes Music Library.xml";
 
+    /**
+     * parsing.ignoreEmptyPlaylists
+     * ----------------------------
+     * Set to true to ignore playlists that contain no tracks
+     */
     private static final String SETTING_IGNORE_EMPTY_PLAYLISTS = "ignoreEmptyPlaylists";
+
+    /**
+     * Default value for "parsing.ignoreEmptyPlaylists".
+     */
     private static final Boolean SETTING_IGNORE_EMPTY_PLAYLISTS_DEFAULT_VALUE = true;
 
+    /**
+     * parsing.ignoreNonMusicPlaylists
+     * -------------------------------
+     * Set to true to ignore playlists for movies, tvShows, audiobooks.
+     */
     private static final String SETTING_IGNORE_NON_MUSIC_PLAYLISTS = "ignoreNonMusicPlaylists";
+
+    /**
+     * Default value for "parsing.ignoreNonMusicPlaylists".
+     */
     private static final Boolean SETTING_IGNORE_NON_MUSIC_PLAYLISTS_DEFAULT_VALUE = true;
 
+    /**
+     * parsing.ignoreDistinguishedPlaylists
+     * ------------------------------------
+     * Set to true to ignore distinguished playlists.
+     * This includes playlists like "Music" (the entire music library), "Downloaded", and non-music libraries.
+     */
     private static final String SETTING_IGNORE_DISTINGUISHED_PLAYLISTS = "ignoreDistinguishedPlaylists";
+
+    /**
+     * Default value for "parsing.ignoreDistinguishedPlaylists".
+     */
     private static final Boolean SETTING_IGNORE_DISTINGUISHED_PLAYLISTS_DEFAULT_VALUE = false;
 
+    /**
+     * parsing.ignoreMaster
+     * --------------------
+     * Set to true to ignore the playlist "Library" with the "master" flag
+     */
     private static final String SETTING_IGNORE_MASTER = "ignoreMaster";
+
+    /**
+     * Default value for "parsing.ignoreMaster".
+     */
     private static final Boolean SETTING_IGNORE_MASTER_DEFAULT_VALUE = true;
 
+    /**
+     * parsing.ignorePlaylistsByName
+     * -----------------------------
+     * Specify an array of playlist names that should be ignored
+     */
     private static final String SETTING_IGNORE_PLAYLISTS_BY_NAME = "ignorePlaylistsByName";
-    private static final List<String> SETTING_IGNORE_PLAYLISTS_BY_NAME_DEFAULT_VALUE = List.of();
+
+    /**
+     * Default value for "parsing.ignorePlaylistsByName".
+     */
+    private static final List<String> SETTING_IGNORE_PLAYLISTS_BY_NAME_DEFAULT_VALUE = List.of(); // empty List
 
     static
     {
+        // Set the default values.
         PARSING_DEFAULT_SETTINGS.put(SETTING_XML_FILE_PATH, SETTING_XML_FILE_PATH_DEFAULT_VALUE);
-
         PARSING_DEFAULT_SETTINGS.put(SETTING_IGNORE_EMPTY_PLAYLISTS, SETTING_IGNORE_EMPTY_PLAYLISTS_DEFAULT_VALUE);
         PARSING_DEFAULT_SETTINGS.put(SETTING_IGNORE_NON_MUSIC_PLAYLISTS, SETTING_IGNORE_NON_MUSIC_PLAYLISTS_DEFAULT_VALUE);
         PARSING_DEFAULT_SETTINGS.put(SETTING_IGNORE_DISTINGUISHED_PLAYLISTS, SETTING_IGNORE_DISTINGUISHED_PLAYLISTS_DEFAULT_VALUE);
@@ -74,17 +121,28 @@ public class ParsingSettings extends SettingsImpl
         PARSING_DEFAULT_SETTINGS.put(SETTING_IGNORE_PLAYLISTS_BY_NAME, SETTING_IGNORE_PLAYLISTS_BY_NAME_DEFAULT_VALUE);
     }
 
+    /**
+     * Construct parsing settings from user-specified values.
+     *
+     * @param yamlParsingMap the parsed user-specified values.
+     */
     public ParsingSettings (Map<String, Object> yamlParsingMap)
     {
         super(yamlParsingMap);
     }
 
+    /**
+     * Construct parsing settings with the default values.
+     */
     public ParsingSettings ()
     {
         super();
     }
 
-    public String getSettingLibraryXmlFilePathString ()
+    /**
+     * @return parsing.xmlFilePath
+     */
+    public String getXmlFilePathString ()
     {
         Object result = getValueFor(SETTING_XML_FILE_PATH);
 
@@ -100,7 +158,10 @@ public class ParsingSettings extends SettingsImpl
         }
     }
 
-    public boolean getSettingIgnoreEmptyPlaylists ()
+    /**
+     * @return parsing.ignoreEmptyPlaylists
+     */
+    public boolean getIgnoreEmptyPlaylists ()
     {
         String key = SETTING_IGNORE_EMPTY_PLAYLISTS;
         Object result = getValueFor(key);
@@ -121,7 +182,10 @@ public class ParsingSettings extends SettingsImpl
         }
     }
 
-    public boolean getSettingIgnoreNonMusicPlaylists ()
+    /**
+     * @return parsing.ignoreNonMusicPlaylists
+     */
+    public boolean getIgnoreNonMusicPlaylists ()
     {
         String key = SETTING_IGNORE_NON_MUSIC_PLAYLISTS;
         Object result = getValueFor(key);
@@ -142,7 +206,10 @@ public class ParsingSettings extends SettingsImpl
         }
     }
 
-    public boolean getSettingIgnoreDistinguishedPlaylists ()
+    /**
+     * @return parsing.ignoreDistinguishedPlaylists
+     */
+    public boolean getIgnoreDistinguishedPlaylists ()
     {
         String key = SETTING_IGNORE_DISTINGUISHED_PLAYLISTS;
         Object result = getValueFor(key);
@@ -163,7 +230,10 @@ public class ParsingSettings extends SettingsImpl
         }
     }
 
-    public List<String> getSettingIgnorePlaylistNames ()
+    /**
+     * @return parsing.ignorePlaylistsByName
+     */
+    public List<String> getIgnorePlaylistNames ()
     {
         String key = SETTING_IGNORE_PLAYLISTS_BY_NAME;
         Object result = getValueFor(key);
@@ -187,7 +257,11 @@ public class ParsingSettings extends SettingsImpl
         }
     }
 
-    public boolean getSettingsIgnoreMaster ()
+
+    /**
+     * @return parsing.ignoreMaster
+     */
+    public boolean getIgnoreMaster ()
     {
         String key = SETTING_IGNORE_MASTER;
         Object result = getValueFor(key);
@@ -209,15 +283,15 @@ public class ParsingSettings extends SettingsImpl
     }
 
     @Override
-    public Set<String> unusedSettings ()
+    public String getYamlPrefix ()
     {
-        return getUserSpecifiedKeys().stream().filter(Predicate.not(PARSING_DEFAULT_SETTINGS::containsKey)).collect(Collectors.toSet());
+        return "parsing";
     }
 
     @Override
-    public String getYamlPrefix ()
+    public Set<String> unusedSettings ()
     {
-        return "parsing.";
+        return getUserSpecifiedKeys().stream().filter(Predicate.not(PARSING_DEFAULT_SETTINGS::containsKey)).collect(Collectors.toSet());
     }
 
     @Override

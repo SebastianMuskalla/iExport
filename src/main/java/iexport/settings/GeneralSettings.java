@@ -31,53 +31,64 @@ import java.util.stream.Collectors;
  * General settings for iExport that do not just affect parsing or a specific task.
  * <p>
  * These settings correspond to the root dictionary of the settings .yaml file
- * minus the keys "parsing" and tasks.
+ * minus the keys "parsing" and "tasks".
  */
 public class GeneralSettings extends SettingsImpl
 {
     /**
-     * Map holding the default general settings
+     * Map holding the default general settings.
      */
     protected static final Map<String, Object> GENERAL_DEFAULT_SETTINGS = new HashMap<>();
 
     /**
-     * Setting for the log level.
+     * logLevel
+     * --------
+     * How much output to do you want?
+     * Options:
+     * "DEBUG"   - full output for debugging                (alias "VERYVERBOSE")
+     * "NORMAL"  - regular output                           (alias "VERBOSE")
+     * "WARNING" - hide regular output, but show warnings   (alias "QUIET")
+     * "ERROR"   - hide warnings, only show error messages  (alias "VERYQUIET")
      */
     private static final String SETTING_LOG_LEVEL = "logLevel";
 
     /**
-     * Setting for the task.
+     * task
+     * ----
+     * Which task should be executed after parsing the library?
+     * Options: see list of tasks below.
+     * If a task is specified as a command-line argument, it will override this settings.
      */
     private static final String SETTING_TASK = "task";
 
     /**
-     * Default value for the setting task, which is "interactive"
+     * Default value for "task".
      */
-    private static final String SETTING_TASK_DEFAULT_VALUE = IExport.INTERACTIVE_MODE_NAMES.get(0);
+    private static final String SETTING_TASK_DEFAULT_VALUE = IExport.INTERACTIVE_MODE_NAMES.get(0); // "interactive"
 
     /**
-     * Values for the setting "logLevel" that are associated to each log level;
+     * Strings for the setting "logLevel" that are associated to each log level.
      */
     private static final Map<LogLevel, List<String>> SETTING_LOG_LEVEL_STRINGS;
 
     /**
-     * Default value for log level: {@link iexport.logging.LogLevel#NORMAL}, taken from {@link #SETTING_LOG_LEVEL_STRINGS};
+     * Default value for logLevel.
      */
-    private static final String SETTING_LOG_LEVEL_DEFAULT_VALUE;
+    private static final String SETTING_LOG_LEVEL_DEFAULT_VALUE; // NORMAL
 
     static
     {
-        // Initialize SETTING_LOG_LEVEL_STRINGS
+        // Initialize SETTING_LOG_LEVEL_STRINGS.
         SETTING_LOG_LEVEL_STRINGS = new HashMap<>();
-        SETTING_LOG_LEVEL_STRINGS.put(LogLevel.ERROR, List.of("ERROR", "SUPERQUIET"));
+        SETTING_LOG_LEVEL_STRINGS.put(LogLevel.ERROR, List.of("ERROR", "VERYQUIET"));
         SETTING_LOG_LEVEL_STRINGS.put(LogLevel.NORMAL, List.of("NORMAL", "VERBOSE"));
         SETTING_LOG_LEVEL_STRINGS.put(LogLevel.WARNING, List.of("WARNING", "QUIET"));
         SETTING_LOG_LEVEL_STRINGS.put(LogLevel.DEBUG, List.of("DEBUG", "VERYVERBOSE"));
 
-        // we can now get the default value for the log Level
+        // We can now get the default value for the log Level.
         SETTING_LOG_LEVEL_DEFAULT_VALUE = SETTING_LOG_LEVEL_STRINGS.get(LogLevel.NORMAL).get(0);
 
-        // add the default settings
+        // Add the default settings.
         GENERAL_DEFAULT_SETTINGS.put(SETTING_LOG_LEVEL, SETTING_LOG_LEVEL_DEFAULT_VALUE);
         GENERAL_DEFAULT_SETTINGS.put(SETTING_TASK, SETTING_TASK_DEFAULT_VALUE);
     }
@@ -105,6 +116,9 @@ public class GeneralSettings extends SettingsImpl
         super(settings);
     }
 
+    /**
+     * @return task
+     */
     public String getTaskName ()
     {
         Object result = getValueFor(SETTING_TASK);
@@ -120,9 +134,7 @@ public class GeneralSettings extends SettingsImpl
     }
 
     /**
-     * Get the log level from the "logLevel" key (or the default value)
-     *
-     * @return the log level
+     * @return logLevel
      */
     public LogLevel getLogLevel ()
     {
@@ -158,15 +170,19 @@ public class GeneralSettings extends SettingsImpl
     }
 
     @Override
-    public Set<String> unusedSettings ()
-    {
-        return getUserSpecifiedKeys().stream().filter(Predicate.not(GENERAL_DEFAULT_SETTINGS::containsKey)).collect(Collectors.toSet());
-    }
-
-    @Override
     public String getYamlPrefix ()
     {
         return "";
+    }
+
+    @Override
+    public Set<String> unusedSettings ()
+    {
+        // Compute all settings that are contained in settings but don't have a default value
+        return getUserSpecifiedKeys()
+                .stream()
+                .filter(Predicate.not(GENERAL_DEFAULT_SETTINGS::containsKey))
+                .collect(Collectors.toSet());
     }
 
     @Override

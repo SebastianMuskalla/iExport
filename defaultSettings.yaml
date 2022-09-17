@@ -23,7 +23,7 @@
     #   "WARNING" - hide regular output, but show warnings
     #   "ERROR"   - hide warnings, only show error messages
     # Default value: "NORMAL"
-      "logLevel" : "DEBUG",
+      "logLevel" : "NORMAL",
 
     # task
     # ----
@@ -41,7 +41,7 @@
         {
 
           # parsing.xmlFilePath
-          # -----------
+          # -------------------
           # Path to "iTunes Music Library.xml".
           #   Supports the %USERPROFILE% placeholder, which will typically get replaced by "C:\Users\<USERNAME>".
           #   Note that backslashes ("\") need to be escaped as "\\".
@@ -54,32 +54,37 @@
           #   Note that if an ignored playlists is a folder, its contents will be ignored too.
 
           # parsing.ignoreEmptyPlaylists
+          # ----------------------------
           # Set to true to ignore playlists that contain no tracks
           # Default value: true
             "ignoreEmptyPlaylists" :         true,
 
           # parsing.ignoreNonMusicPlaylists
+          # -------------------------------
           # Set to true to ignore playlists for movies, tvShows, audiobooks.
           # Default value: true
             "ignoreNonMusicPlaylists" :      true,
 
           # parsing.ignoreDistinguishedPlaylists
+          # ------------------------------------
           # Set to true to ignore distinguished playlists.
           #   This includes playlists like "Music" (the entire music library), "Downloaded", and non-music libraries.
           # Default value: false
             "ignoreDistinguishedPlaylists" : false,
 
           # parsing.ignoreMaster
+          # --------------------
           # Set to true to ignore the playlist "Library" with the "master" flag
           # Default value: false
             "ignoreMaster" :                 true,
 
           # parsing.ignorePlaylistsByName
+          # -----------------------------
           # Specify an array of playlist names that should be ignored
-          # Default value: ["Downloaded"]
+          # Default value: [] (empty list)
             "ignorePlaylistsByName" :
               [
-                  "Downloaded",
+                # "SomePlaylistName",
               ],
         }, # end of parsing
 

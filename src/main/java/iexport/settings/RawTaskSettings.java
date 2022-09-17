@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A class for the settings used by each task
+ * A class for the settings used by each task.
  * <p>
  * For some task named TASK, these settings correspond to the dictionary
  * under the key "tasks.TASK" in the root dictionary of the .yaml file.
@@ -65,20 +65,20 @@ public class RawTaskSettings extends SettingsImpl
     }
 
     @Override
+    public String getYamlPrefix ()
+    {
+        return "tasks" + "." + getTaskName();
+    }
+
+    @Override
     public Set<String> unusedSettings ()
     {
         return Set.of();
     }
 
     @Override
-    public String getYamlPrefix ()
-    {
-        return "tasks" + "." + getTaskName() + ".";
-    }
-
-    @Override
     protected Object getDefaultValueFor (String key)
     {
-        throw new RuntimeException("You cannot call getDefaultValueFor on RawTaskSettings (for task " + taskName + ")");
+        throw new RuntimeException("You should not call getDefaultValueFor on RawTaskSettings (for task " + taskName + ")");
     }
 }

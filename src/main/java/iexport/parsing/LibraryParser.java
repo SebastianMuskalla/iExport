@@ -625,7 +625,7 @@ public class LibraryParser
         }
 
         // If parsing.ignoreEmptyPlaylists is set to true, ignore playlists with empty track list
-        if (parsingSettings.getSettingIgnoreEmptyPlaylists())
+        if (parsingSettings.getIgnoreEmptyPlaylists())
         {
             if (builder.getTrackIds() == null || builder.getTrackIds().size() == 0)
             {
@@ -636,7 +636,7 @@ public class LibraryParser
 
         // If parsing.ignoreNonMusicPlaylists is set to true,
         // ignore playlists that have audiobooks, tvShows, or movies set to true
-        if (parsingSettings.getSettingIgnoreNonMusicPlaylists())
+        if (parsingSettings.getIgnoreNonMusicPlaylists())
         {
             if ((builder.getAudiobooks() != null && builder.getAudiobooks())
                     || (builder.getMovies() != null && builder.getMovies())
@@ -650,7 +650,7 @@ public class LibraryParser
         // If parsing.ignoreDistinguishedPlaylists is set to true,
         // ignore playlists that have a distinguishedKind set
         // ("Downloaded", ...)
-        if (parsingSettings.getSettingIgnoreDistinguishedPlaylists())
+        if (parsingSettings.getIgnoreDistinguishedPlaylists())
         {
             if (builder.getDistinguishedKind() != null)
             {
@@ -662,7 +662,7 @@ public class LibraryParser
         // If parsing.ignoreMaster is set to true,
         // ignore playlists that have the master flag
         // (playlist "Library")
-        if (parsingSettings.getSettingsIgnoreMaster())
+        if (parsingSettings.getIgnoreMaster())
         {
             if (builder.getMaster() != null && builder.getMaster())
             {
@@ -672,9 +672,9 @@ public class LibraryParser
         }
 
         // Ignore playlists whose name is in parsing.ignorePlaylistsByName
-        if (builder.getName() != null && parsingSettings.getSettingIgnorePlaylistNames().contains(builder.getName()))
+        if (builder.getName() != null && parsingSettings.getIgnorePlaylistNames().contains(builder.getName()))
         {
-            Logging.getLogger().debug("Ignoring playlist " + builder + " because its name is in parsing.ignorePlaylistsByName " + "(" + parsingSettings.getSettingIgnorePlaylistNames() + ")");
+            Logging.getLogger().debug("Ignoring playlist " + builder + " because its name is in parsing.ignorePlaylistsByName " + "(" + parsingSettings.getIgnorePlaylistNames() + ")");
             return true;
         }
 

@@ -167,7 +167,7 @@ public class IExport
      */
     private static Library parseLibrary (SettingsTriple settingsTriple)
     {
-        String libraryXmlFilePathString = settingsTriple.parsingSettings().getSettingLibraryXmlFilePathString();
+        String libraryXmlFilePathString = settingsTriple.parsingSettings().getXmlFilePathString();
 
         Logging.getLogger().message("");
         Logging.getLogger().message("Trying to parse the iTunes library .xml file at " + libraryXmlFilePathString);

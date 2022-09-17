@@ -24,25 +24,21 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A general object that stores a collection of settings (e.g. for parsing).
+ * A semi-abstract implementation of {@link Settings} that has methods to access settings via their keys.
  * <p>
- * Intuitively, each {@code Settings} object consists of two layers:
- * <ol>
- *     <li> default values that are set in the {@code static} block of each class
- *     and that can be accessed using {@link #getDefaultValueFor(String)}
- *     <li> user-provided values that have been parsed from the settings .yaml file
- * </ol>
- * {@link #getValueFor(String)} will prefer user-defined values and fall back on the default values if values are not set
+ * The default values for the settings can be accessed using {@link #getDefaultValueFor(String)}.
+ * Any non-abstract child class should implement this method
+ * e.g. by accessing the default values stored in a static member.
  * <p>
- * This class stores treats settings as objects.
- * Its child classes should provide wrappers around {@link #getValueFor(String)} that do checked casts.
+ * It is also highly recommend to provide wrapper methods for type safety.
  */
 public abstract class SettingsImpl implements Settings
 {
     /**
      * Has this object been initialized with user-defined settings?
      */
-    private final boolean defaultSettings;
+    private final boolean useAllDefaultSettings;
+
     /**
      * Stores for each key the settings.
      */
@@ -54,7 +50,7 @@ public abstract class SettingsImpl implements Settings
      */
     protected SettingsImpl ()
     {
-        defaultSettings = true;
+        useAllDefaultSettings = true;
         settings = new HashMap<>();
     }
 
@@ -65,28 +61,28 @@ public abstract class SettingsImpl implements Settings
      */
     protected SettingsImpl (Map<String, Object> settings)
     {
-        defaultSettings = false;
+        useAllDefaultSettings = false;
         this.settings = settings;
     }
 
     @Override
     public String getYamlPath (String key)
     {
-        return getYamlPrefix() + key;
+        return (getYamlPrefix() == null || getYamlPrefix().isEmpty()) ? key : getYamlPrefix() + "." + key;
     }
-
-    @Override
-    abstract public Set<String> unusedSettings ();
 
     @Override
     public boolean isDefault ()
     {
-        return defaultSettings;
+        return useAllDefaultSettings;
     }
 
-    @Override
-    public abstract String getYamlPrefix ();
-
+    /**
+     * Access the setting value for the given key provided by the user
+     *
+     * @param key the key
+     * @return the stored setting value
+     */
     protected Object getUserSpecifiedValueFor (String key)
     {
         return settings.get(key);
@@ -96,6 +92,8 @@ public abstract class SettingsImpl implements Settings
      * Tries to obtain the user-defined setting for a given {@code key}, and otherwise falls back to the default value.
      * <p>
      * If no default value exists in the latter case, we throw a {@link RuntimeException}.
+     * <p>
+     * We notify the user the first time we use a default-value instead of a user-provided one.
      *
      * @param key the key
      * @return the setting for the key as defined by the user or its default value
@@ -105,18 +103,19 @@ public abstract class SettingsImpl implements Settings
         Object value = getUserSpecifiedValueFor(key);
         if (value != null)
         {
-            // Value has been specified by the user
+            // Value has been specified by the user.
             return value;
         }
 
-        // Value has not been specified by the user, fall back to the default
+        // Value has not been specified by the user, fall back to the default.
         value = getDefaultValueFor(key);
         if (value != null)
         {
-            // We should notify the user that we use this default setting (unless this whole object just contains default Settings)
+            // We should notify the user that we use this default setting
+            // unless this whole object just contains default settings.
             if (!isDefault())
             {
-                Logging.getLogger().message("No user-provided setting for key \"" + getYamlPath(key) + "\", using default value \"" + value + "\" from now on");
+                Logging.getLogger().warning("No user-provided setting for key \"" + getYamlPath(key) + "\", using default value \"" + value + "\" from now on");
             }
 
             settings.put(key, value);

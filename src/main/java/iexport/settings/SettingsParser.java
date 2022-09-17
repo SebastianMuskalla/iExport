@@ -30,9 +30,9 @@ import java.util.Map;
 /**
  * A parser for converting a settings .yaml file into a {@link SettingsTriple} object containing
  * <ul>
- *     <li> {@link GeneralSettings}, the generating settings for iExport
- *     <li> {@link ParsingSettings}, the settings for parsing the library
- *     <li> for each task the corresponding {@link RawTaskSettings}
+ *     <li> {@link GeneralSettings}, the generating settings for iExport,
+ *     <li> {@link ParsingSettings}, the settings for parsing the library,
+ *     <li> for each task the corresponding {@link RawTaskSettings}.
  * </ol>
  * <p>
  * This class relies on {@link org.snakeyaml.engine.v2.api.Load} and the other classes from {@link org.snakeyaml.engine.v2}
@@ -44,18 +44,19 @@ public class SettingsParser
      * The key of the root dictionary that contains the settings for parsing.
      */
     private static final String SETTINGS_KEY_PARSING = "parsing";
+
     /**
      * The key of the root dictionary that contains the settings for each task (as a dictionary).
      */
     private static final String SETTINGS_KEY_TASKS = "tasks";
 
     /**
-     * The location of the .yaml file, e.g. {@code %USERPROFILE%/Desktop/iExportSettings.yaml}.
+     * The location of the .yaml file, e.g. {@code %USERPROFILE%\\Desktop\\defaultSettings.yaml}.
      */
     private final String pathToYamlFileAsString;
 
     /**
-     * Constract a {@code SettingsParser} for the specified file location
+     * Construct a {@code SettingsParser} for the specified file location
      *
      * @param pathToYamlFileAsString the file location
      */
@@ -65,7 +66,7 @@ public class SettingsParser
     }
 
     /**
-     * Try to parse the .yaml file
+     * Try to parse the .yaml file.
      *
      * @return the parsed settings
      * @throws SettingsParsingException if parsing fails in a non-recoverable way
@@ -168,25 +169,24 @@ public class SettingsParser
     private Map<String, RawTaskSettings> parseTasksSettings (Object yamlTasksObject)
             throws SettingsParsingException
     {
-
         if (yamlTasksObject == null)
         {
-            // If "tasks" settings is unspecified, just use an empty map
+            // If "tasks" settings is unspecified, just use an empty map.
             return new HashMap<>();
         }
 
         Map<String, RawTaskSettings> taskSettingsMap = new HashMap<>();
 
-        // Same thing with type erasure as before
+        // Same thing with type erasure as before.
         if (!(yamlTasksObject instanceof Map<?, ?> yamlTasksMap))
         {
             throw new SettingsParsingException("Expected the value for the key " + SETTINGS_KEY_TASKS + "key to be a a dictionary with strings as keys, found  " + yamlTasksObject + " of type " + yamlTasksObject.getClass().getSimpleName() + " instead");
         }
 
-        // Go through all keys and construct the corresponding task settings
+        // Go through all keys and construct the corresponding task settings.
         for (var entry : yamlTasksMap.entrySet())
         {
-            // The keys of the dictionary should be strings containing the task name
+            // The keys of the dictionary should be strings containing the task name.
             Object taskNameObject = entry.getKey();
 
             if (!(taskNameObject instanceof String taskName))
@@ -194,7 +194,7 @@ public class SettingsParser
                 throw new SettingsParsingException("Expected they keys inside the \"tasks\" dictionary to be strings, found " + taskNameObject + " of type " + taskNameObject.getClass().getSimpleName() + " instead");
             }
 
-            // Transform the value for each such key into TaskSettings
+            // Transform the value for each such key into TaskSettings.
             RawTaskSettings taskSettings = parseTaskSettings(taskName, entry.getValue());
 
             taskSettingsMap.put(taskName, taskSettings);
@@ -206,7 +206,8 @@ public class SettingsParser
     /**
      * Parse an entry of the dictionary for  the "tasks" key of the .yaml file into a {@link RawTaskSettings}.
      * <p>
-     * e.g. the dictionary at the key "tasks.printLibrary" should be parsed into {@link RawTaskSettings} for {@link LibraryPrinter}
+     * e.g. the dictionary at the key "tasks.printLibrary" should be parsed into {@link RawTaskSettings}
+     * for {@link iexport.tasks.printing.PrintLibraryTask}
      *
      * @param taskName      the name of the task (from the key)
      * @param taskMapObject the java object for the key "tasks.taskName"
@@ -220,7 +221,7 @@ public class SettingsParser
         {
             return new RawTaskSettings(taskName);
         }
-        
+
         // The settings for the key"tasks.taskName" should be a dictionary (i.e. a Map<String,Object>)
         if (!(taskMapObject instanceof Map))
         {
