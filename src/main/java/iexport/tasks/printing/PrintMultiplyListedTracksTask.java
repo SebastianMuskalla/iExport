@@ -17,19 +17,17 @@
 
 package iexport.tasks.printing;
 
-import iexport.itunes.Library;
 import iexport.itunes.Playlist;
 import iexport.itunes.Track;
 import iexport.logging.LogLevel;
 import iexport.logging.Logging;
-import iexport.settings.RawTaskSettings;
 import iexport.tasks.Task;
 
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 
-public class PrintMultiplyListedTracksTask implements Task
+public class PrintMultiplyListedTracksTask extends Task
 {
     @Override
     public String getTaskName ()
@@ -44,14 +42,14 @@ public class PrintMultiplyListedTracksTask implements Task
     }
 
     @Override
-    public void run (Library library, RawTaskSettings rawTaskSettings)
+    public void run ()
     {
         // It would be pretty silly to call this task but then hide the output
         if (Logging.getLogger().getLogLevel().lessVerbose(LogLevel.NORMAL))
         {
             Logging.getLogger().setLogLevel(LogLevel.NORMAL);
         }
-        
+
         PrintMultiplyListedTracksTaskSettings settings = new PrintMultiplyListedTracksTaskSettings(rawTaskSettings);
 
         Logging.getLogger().message("Tracks that are contained in multiple playlists");

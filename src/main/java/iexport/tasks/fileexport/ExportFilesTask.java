@@ -17,12 +17,10 @@
 
 package iexport.tasks.fileexport;
 
-import iexport.itunes.Library;
 import iexport.itunes.Playlist;
 import iexport.itunes.Track;
 import iexport.logging.Logging;
 import iexport.parsing.sorting.TrackComparator;
-import iexport.settings.RawTaskSettings;
 import iexport.tasks.Task;
 import iexport.utils.FolderDeleter;
 import iexport.utils.IntegerFormatter;
@@ -44,7 +42,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 
-public class ExportFilesTask implements Task
+public class ExportFilesTask extends Task
 {
 
     private static final PrintStream OUT = new PrintStream(System.out, true, UTF_8);
@@ -69,7 +67,7 @@ public class ExportFilesTask implements Task
     }
 
     @Override
-    public void run (Library library, RawTaskSettings rawTaskSettings)
+    public void run ()
     {
         settings = new ExportFilesTaskSettings(rawTaskSettings);
 

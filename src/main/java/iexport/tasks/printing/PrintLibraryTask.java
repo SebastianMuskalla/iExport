@@ -17,16 +17,14 @@
 
 package iexport.tasks.printing;
 
-import iexport.itunes.Library;
 import iexport.itunes.Playlist;
 import iexport.itunes.Track;
 import iexport.logging.LogLevel;
 import iexport.logging.Logging;
-import iexport.settings.RawTaskSettings;
 import iexport.tasks.Task;
 
 
-public class PrintLibraryTask implements Task
+public class PrintLibraryTask extends Task
 {
     @Override
     public String getTaskName ()
@@ -41,14 +39,14 @@ public class PrintLibraryTask implements Task
     }
 
     @Override
-    public void run (Library library, RawTaskSettings rawTaskSettings)
+    public void run ()
     {
         // It would be pretty silly to call this task but then hide the output
         if (Logging.getLogger().getLogLevel().lessVerbose(LogLevel.NORMAL))
         {
             Logging.getLogger().setLogLevel(LogLevel.NORMAL);
         }
-        
+
         Logging.getLogger().message("Library");
         Logging.getLogger().message("-------");
         Logging.getLogger().message("");

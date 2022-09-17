@@ -18,16 +18,14 @@
 package iexport.tasks;
 
 import iexport.IExport;
-import iexport.itunes.Library;
 import iexport.logging.Logging;
-import iexport.settings.RawTaskSettings;
 
 import java.util.Collection;
 
 /**
- * A simple task that just prints usage instructions for iExport
+ * A simple task that prints usage instructions for iExport.
  */
-public class HelpTask implements Task
+public class HelpTask extends Task
 {
     @Override
     public String getTaskName ()
@@ -42,16 +40,23 @@ public class HelpTask implements Task
     }
 
     @Override
-    public void run (Library library, RawTaskSettings rawTaskSettings)
+    public void execute ()
     {
-        Logging.getLogger().message("Usage: gradle run --args=\"[PATH_TO_YAML_FILE] [TASK]\" run -q --console plain");
+        // This task needs no initialization and can be run multiple times
+        run();
+    }
+
+    @Override
+    public void run ()
+    {
+        Logging.getLogger().message("Usage: gradle :run --quiet --console=plain --args=\"[PATH_TO_YAML_FILE] [TASK]\"");
         Logging.getLogger().message(1, "where");
-        Logging.getLogger().message(1, "[PATH_TO_YAML_FILE] is the path to a YAML file with the settings that should be used");
+        Logging.getLogger().message(1, "[PATH_TO_YAML_FILE] is the path to a YAML file with the settings that should be used.");
         Logging.getLogger().message(2, "(e.g. '%USERPROFILE%\\Desktop\\iExportSettings.yaml')");
-        Logging.getLogger().message(2, "See the provided iExportDefaultSettings.yaml for the available settings");
+        Logging.getLogger().message(2, "See the 'defaultSettings.yaml' for the available settings.");
         Logging.getLogger().message(2, "If omitted, default values will be used.");
-        Logging.getLogger().message(1, "[TASK] is the task that should be performed after parsing the library");
-        Logging.getLogger().message(2, "If specified, it will overwrite the \"task\" field from the settings.");
+        Logging.getLogger().message(1, "[TASK] is the task that should be performed after parsing the library.");
+        Logging.getLogger().message(2, "If specified, it will overwrite the \"task\" field from the settings file.");
         Logging.getLogger().message(2, "If not specified at all, interactive mode will be used.");
         printListOfTasks(true);
     }
@@ -63,28 +68,26 @@ public class HelpTask implements Task
      */
     public void printListOfTasks (boolean includeInteractive)
     {
-        final int INDENTATION = 1;
-
         Logging.getLogger().message("Available tasks:");
 
         Collection<Task> tasks = TaskRegistry.getTaskList();
 
-        // Find the longest task name, which we need for formatting
+        // Find the longest task name, which we need for formatting.
         int maxTaskNameLength = tasks.stream().map(Task::getTaskName).mapToInt(String::length).max().orElse(0);
 
-        // If includeInteractive is set, we also print a line for interactive
+        // If includeInteractive is set, we also print a line for interactive.
         if (includeInteractive)
         {
             String interactiveString = IExport.INTERACTIVE_MODE_NAMES.get(0);
             maxTaskNameLength = Integer.max(maxTaskNameLength, interactiveString.length());
-            Logging.getLogger().message(INDENTATION,
+            Logging.getLogger().message(1,
                     padWithSpaces(interactiveString, maxTaskNameLength) + " - " + "specify task on STDIN");
         }
 
-        // Print name and description for each task
+        // Print name and description for each task.
         for (Task task : tasks)
         {
-            Logging.getLogger().message(INDENTATION,
+            Logging.getLogger().message(1,
                     padWithSpaces(task.getTaskName(), maxTaskNameLength) + " - " + task.getDescription());
         }
     }

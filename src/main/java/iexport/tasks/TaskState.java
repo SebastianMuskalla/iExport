@@ -17,29 +17,31 @@
 
 package iexport.tasks;
 
-import iexport.logging.Logging;
-
 /**
- * A very simple task that exits iExport with exit code 0.
+ * Represents the state a {@link Task} is in.
+ * <p>
+ * When a task is created, it will be {@link #UNINITIALIZED}.
+ * <p>
+ * It should then be initialized by providing the settings etc.
+ * It will change to {@link #READY}.
+ * In this state, it can be queried e.g. for errors in the settings.
+ * <p>
+ * Finally, a task can be executed once, which will make it switch to state {@link #DONE}.
  */
-public class QuitTask extends Task
+public enum TaskState
 {
-    @Override
-    public String getTaskName ()
-    {
-        return "quit";
-    }
+    /**
+     * The task has not been initialized and cannot be used.
+     */
+    UNINITIALIZED,
 
-    @Override
-    public String getDescription ()
-    {
-        return "exit iExport";
-    }
+    /**
+     * The task is ready to be executed.
+     */
+    READY,
 
-    @Override
-    public void run ()
-    {
-        Logging.getLogger().message("Bye!");
-        System.exit(0);
-    }
+    /**
+     * The task has been executed once and cannot be executed again.
+     */
+    DONE;
 }

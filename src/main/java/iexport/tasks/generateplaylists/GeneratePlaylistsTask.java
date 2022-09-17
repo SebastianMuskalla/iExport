@@ -17,11 +17,9 @@
 
 package iexport.tasks.generateplaylists;
 
-import iexport.itunes.Library;
 import iexport.itunes.Playlist;
 import iexport.itunes.Track;
 import iexport.logging.Logging;
-import iexport.settings.RawTaskSettings;
 import iexport.tasks.Task;
 import iexport.utils.FolderDeleter;
 
@@ -41,7 +39,7 @@ import java.util.regex.Pattern;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 
-public class GeneratePlaylistsTask implements Task
+public class GeneratePlaylistsTask extends Task
 {
 
     private static final PrintStream OUT = new PrintStream(System.out, true, UTF_8);
@@ -67,7 +65,7 @@ public class GeneratePlaylistsTask implements Task
     }
 
     @Override
-    public void run (Library library, RawTaskSettings rawTaskSettings)
+    public void run ()
     {
         settings = new GeneratePlaylistsTaskSettings(rawTaskSettings);
 

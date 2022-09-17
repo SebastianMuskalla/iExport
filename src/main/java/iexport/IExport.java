@@ -62,7 +62,7 @@ public class IExport
         {
             // Print usage instructions
             Logging.getLogger().error("Expected 0-2 additional arguments, got " + args.length + ":\n" + Arrays.toString(args));
-            TaskRegistry.getHelpTask().run(null, null);
+            TaskRegistry.getHelpTask().run();
             System.exit(1);
         }
 
@@ -70,7 +70,7 @@ public class IExport
         // In this case, we can print usage instructions and don't even have to parse the settings
         if (Arrays.stream(args).anyMatch((s) -> HELP_TASK_NAMES.stream().anyMatch(s::equalsIgnoreCase)))
         {
-            TaskRegistry.getHelpTask().run(null, null);
+            TaskRegistry.getHelpTask().run();
             System.exit(0);
         }
 
@@ -346,7 +346,8 @@ public class IExport
 
         try
         {
-            task.run(library, taskSettings);
+            task.initialize(library, taskSettings);
+            task.execute();
         }
         catch (Exception e)
         {

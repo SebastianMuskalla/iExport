@@ -17,20 +17,17 @@
 
 package iexport.tasks.printing;
 
-import iexport.itunes.Library;
 import iexport.itunes.Playlist;
 import iexport.itunes.Track;
 import iexport.logging.LogLevel;
 import iexport.logging.Logging;
-import iexport.settings.RawTaskSettings;
 import iexport.tasks.Task;
 
 import java.util.function.Predicate;
 
 
-public class PrintUnlistedTracksTask implements Task
+public class PrintUnlistedTracksTask extends Task
 {
-
 
     @Override
     public String getTaskName ()
@@ -45,14 +42,14 @@ public class PrintUnlistedTracksTask implements Task
     }
 
     @Override
-    public void run (Library library, RawTaskSettings rawTaskSettings)
+    public void run ()
     {
         // It would be pretty silly to call this task but then hide the output
         if (Logging.getLogger().getLogLevel().lessVerbose(LogLevel.NORMAL))
         {
             Logging.getLogger().setLogLevel(LogLevel.NORMAL);
         }
-        
+
         PrintUnlistedTracksTaskSettings settings = new PrintUnlistedTracksTaskSettings(rawTaskSettings);
 
         final Predicate<Playlist> IGNORE_PLAYLISTS =

@@ -17,15 +17,13 @@
 
 package iexport.tasks.printing;
 
-import iexport.itunes.Library;
 import iexport.itunes.Playlist;
 import iexport.logging.LogLevel;
 import iexport.logging.Logging;
-import iexport.settings.RawTaskSettings;
 import iexport.tasks.Task;
 
 
-public class PrintPlaylistsTask implements Task
+public class PrintPlaylistsTask extends Task
 {
     @Override
     public String getTaskName ()
@@ -40,14 +38,14 @@ public class PrintPlaylistsTask implements Task
     }
 
     @Override
-    public void run (Library library, RawTaskSettings rawTaskSettings)
+    public void run ()
     {
         // It would be pretty silly to call this task but then hide the output
         if (Logging.getLogger().getLogLevel().lessVerbose(LogLevel.NORMAL))
         {
             Logging.getLogger().setLogLevel(LogLevel.NORMAL);
         }
-        
+
         final int numberPlaylists = library.playlists().size();
         final int numberTopLevelPlaylists = library.playlistsAtTopLevel().size();
         final int numberFolders = (int) library.playlists().stream().filter((p) -> p.children() != null && p.children().size() > 0).count();

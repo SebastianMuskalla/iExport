@@ -34,35 +34,49 @@ public class TaskRegistry
     /**
      * A map in which the existing tasks are registered.
      */
-    private static final Map<String, Task> tasksByName;
+    private static final Map<String, Task> tasksByName = new HashMap<>();
 
     /**
      * A list in which the existing tasks are registered.
      * <p>
-     * We maintain this list in addition to {@link #tasksByName} to maintain the order
+     * We maintain this list in addition to {@link #tasksByName} to maintain the order.
      */
-    private static final List<Task> tasks;
+    private static final List<Task> tasks = new ArrayList<>();
 
     /**
      * The special help task that prints usage instructions.
      */
-    private static final HelpTask theHelpTask;
+    private static final HelpTask HELP_TASK;
 
     public static HelpTask getHelpTask ()
     {
-        return theHelpTask;
+        return HELP_TASK;
     }
 
+    /**
+     * Get the task with the specified name
+     *
+     * @param taskName the name
+     * @return the task
+     */
     public static Task getTask (String taskName)
     {
         return tasksByName.get(taskName);
     }
 
+    /**
+     * @return the list of registered task
+     */
     static Collection<Task> getTaskList ()
     {
         return tasks;
     }
 
+    /**
+     * Register the given task.
+     *
+     * @param task the task
+     */
     private static void registerTask (Task task)
     {
         tasks.add(task);
@@ -71,12 +85,10 @@ public class TaskRegistry
 
     static
     {
-        tasksByName = new HashMap<>();
-        tasks = new ArrayList<>();
-
         HelpTask helpTask = new HelpTask();
+        HELP_TASK = helpTask;
+
         registerTask(helpTask);
-        theHelpTask = helpTask;
 
         registerTask(new PrintLibraryTask());
 
@@ -91,5 +103,13 @@ public class TaskRegistry
         registerTask(new ExportFilesTask());
 
         registerTask(new QuitTask());
+    }
+
+    /**
+     * This class should not be instantiated.
+     */
+    private TaskRegistry ()
+    {
+
     }
 }
