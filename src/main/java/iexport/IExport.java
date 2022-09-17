@@ -57,14 +57,11 @@ public class IExport
      */
     public static void main (String[] args)
     {
-        // Initialize the global logger
-        Logging.getLogger().setLogLevel(LogLevel.NORMAL);
-
         // An invalid number of arguments has been specified.
         if (args.length > 2)
         {
             // Print usage instructions
-            Logging.getLogger().important("Expected 0-2 additional arguments, got " + args.length + ":\n" + Arrays.toString(args));
+            Logging.getLogger().error("Expected 0-2 additional arguments, got " + args.length + ":\n" + Arrays.toString(args));
             TaskRegistry.getHelpTask().run(null, null);
             System.exit(1);
         }
@@ -82,7 +79,7 @@ public class IExport
         if (args.length == 0)
         {
             // No argument has been specified, use default settings
-            Logging.getLogger().important("No .yaml file provided, using all default settings");
+            Logging.getLogger().message("No .yaml file provided, using all default settings");
             settingsTriple = new SettingsTriple(new GeneralSettings(), new ParsingSettings(), new HashMap<>());
         }
         else
@@ -98,7 +95,7 @@ public class IExport
         // We can now get the log level that should be used for the rest of the execution
         LogLevel logLevel = generalSettings.getLogLevel();
         Logging.getLogger().setLogLevel(logLevel);
-        Logging.getLogger().info("Using logLevel " + logLevel);
+        Logging.getLogger().debug("Using logLevel " + logLevel);
 
         // Notify the user of any settings that have been set in the .yaml file but that actually do not exist
         reportPotentialMistakesInSettings(settingsTriple);
@@ -155,8 +152,8 @@ public class IExport
         }
         catch (Exception e)
         {
-            Logging.getLogger().important("Parsing the .yaml file at the specified location \"" + yamlFilePathAsString + "\" has failed");
-            Logging.getLogger().message("Because of: " + e.getMessage());
+            Logging.getLogger().error("Parsing the .yaml file at the specified location \"" + yamlFilePathAsString + "\" has failed");
+            Logging.getLogger().debug("Because of: " + e.getMessage());
             System.exit(1);
             return null; // Unreachable
         }
@@ -194,10 +191,8 @@ public class IExport
 
         long endParsing = System.nanoTime();
         double parsingDurationInSeconds = ((double) ((endParsing - startParsing) / 1000000)) / 1000; // with 3 decimal digits
-        Logging.getLogger().message("Successfully parsed the iTunes library");
-        Logging.getLogger().info("Parsing took " + parsingDurationInSeconds + "s");
+        Logging.getLogger().message("Successfully parsed the iTunes library (took " + parsingDurationInSeconds + "s).");
         Logging.getLogger().message("");
-
         return library;
     }
 
@@ -218,13 +213,13 @@ public class IExport
         GeneralSettings generalSettings = settingsTriple.generalSettings();
         if (generalSettings.isDefault())
         {
-            Logging.getLogger().info("No general settings have been specified in the .yaml file, using all default settings from now on");
+            Logging.getLogger().message("No general settings have been specified in the .yaml file, using all default settings from now on");
         }
         else
         {
             for (String key : generalSettings.unusedSettings())
             {
-                Logging.getLogger().info("Settings for key \"" + generalSettings.getYamlPath(key) + "\""
+                Logging.getLogger().message("Settings for key \"" + generalSettings.getYamlPath(key) + "\""
                         + " specified in .yaml file, but it is not used by iExport");
             }
         }
@@ -232,13 +227,13 @@ public class IExport
         ParsingSettings parsingSettings = settingsTriple.parsingSettings();
         if (generalSettings.isDefault())
         {
-            Logging.getLogger().info("No parsings settings have been specified in the .yaml file (key \"parsing\"), using all default settings from now on");
+            Logging.getLogger().message("No parsings settings have been specified in the .yaml file (key \"parsing\"), using all default settings from now on");
         }
         else
         {
             for (String key : parsingSettings.unusedSettings())
             {
-                Logging.getLogger().info("Settings for key \"" + parsingSettings.getYamlPath(key) + "\""
+                Logging.getLogger().message("Settings for key \"" + parsingSettings.getYamlPath(key) + "\""
                         + " specified in .yaml file, but it is not used by iExport");
             }
         }
@@ -257,7 +252,7 @@ public class IExport
         if (task == null)
         {
             // The task with this name does not exist
-            Logging.getLogger().important("No task with the name \"" + taskName + "\" exists.");
+            Logging.getLogger().error("No task with the name \"" + taskName + "\" exists.");
             // Otherwise we print the list of available tasks once again and crash
             TaskRegistry.getHelpTask().printListOfTasks(false);
             System.exit(1);
@@ -286,10 +281,15 @@ public class IExport
             {
                 easterEgg();
             }
+            if (iterations > 1)
+            {
+                Logging.getLogger().message("Try again.");
+            }
 
             // Print the available tasks
             TaskRegistry.getHelpTask().printListOfTasks(false);
 
+            Logging.getLogger().message("");
             System.out.print("Type a task name: ");
             Scanner scanner = new Scanner(System.in);
             String taskName = scanner.next();
@@ -306,12 +306,13 @@ public class IExport
             if (task == null)
             {
                 // The task specified by the user does not exist
-                Logging.getLogger().important("No task with the name \"" + taskName + "\" exists.");
-                Logging.getLogger().message("Try again.");
+                Logging.getLogger().error("No task with the name \"" + taskName + "\" exists.");
 
                 // Let them try again
                 continue;
             }
+
+            Logging.getLogger().message("");
 
             return task;
         }
@@ -349,34 +350,35 @@ public class IExport
         }
         catch (Exception e)
         {
-            Logging.getLogger().important("Running task " + task.getTaskName() + " failed");
-            Logging.getLogger().important("ERROR " + e + " (" + e.getMessage() + ")");
+            Logging.getLogger().error("Running task " + task.getTaskName() + " failed");
+            Logging.getLogger().error(1, e + " (" + e.getMessage() + ")");
             e.printStackTrace();
             System.exit(1);
         }
-        
+
         long endTask = System.nanoTime();
         double taskDurationInSeconds = ((double) ((endTask - startTask) / 1000000)) / 1000; // with 3 decimal digits
 
         Logging.getLogger().message("");
-        Logging.getLogger().message("Successfully executed task " + task.getTaskName());
-        Logging.getLogger().info("Executing task took " + taskDurationInSeconds + "s");
+        Logging.getLogger().message("Successfully executed task " + task.getTaskName() + " (took " + taskDurationInSeconds + "s).");
         Logging.getLogger().message("");
     }
 
-
     /**
-     * HMPH, you're a big baka!
+     * Tsundere-mode activated.
+     * <p>
+     * Please don't treat iExport-chan like that.
      */
     private static void easterEgg ()
     {
-        Logging.getLogger().message("########     ###    ##    ##    ###    #### #### ####");
-        Logging.getLogger().message("##     ##   ## ##   ##   ##    ## ##   #### #### ####");
-        Logging.getLogger().message("##     ##  ##   ##  ##  ##    ##   ##  #### #### ####");
-        Logging.getLogger().message("########  ##     ## #####    ##     ##  ##   ##   ## ");
-        Logging.getLogger().message("##     ## ######### ##  ##   #########               ");
-        Logging.getLogger().message("##     ## ##     ## ##   ##  ##     ## #### #### ####");
-        Logging.getLogger().message("########  ##     ## ##    ## ##     ## #### #### ####");
+        Logging.getLogger().error("HMPH!!! You are a big");
+        Logging.getLogger().error("########     ###    ##    ##    ###    #### #### ####");
+        Logging.getLogger().error("##     ##   ## ##   ##   ##    ## ##   #### #### ####");
+        Logging.getLogger().error("##     ##  ##   ##  ##  ##    ##   ##  #### #### ####");
+        Logging.getLogger().error("########  ##     ## #####    ##     ##  ##   ##   ## ");
+        Logging.getLogger().error("##     ## ######### ##  ##   #########               ");
+        Logging.getLogger().error("##     ## ##     ## ##   ##  ##     ## #### #### ####");
+        Logging.getLogger().error("########  ##     ## ##    ## ##     ## #### #### ####");
         System.exit(1337 % 167);
     }
 }

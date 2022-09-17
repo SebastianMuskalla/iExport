@@ -39,7 +39,7 @@ public class TrackParser
     private TrackBuilder trackBuilder;
 
     /**
-     * @param trackDictionary The dictionary of parsed key-value pairs for this track.
+     * @param trackDictionary the dictionary of parsed key-value pairs for this track
      */
     public TrackParser (NSDictionary trackDictionary)
     {
@@ -63,22 +63,25 @@ public class TrackParser
             String key = keyValuePair.getKey();
             Object value = keyValuePair.getValue().toJavaObject();
 
-            var handler = TrackKeys.getHandlerFor(key);
+            if (value != null)
+            {
+                var handler = TrackKeys.getHandlerFor(key);
 
-            if (handler != null)
-            {
-                handler.accept(trackBuilder, value);
-            }
-            else
-            {
-                Logging.getLogger().debug(this.getClass().getSimpleName() + ": No handler for key \"" + key + "\" with value \"" + value.toString() + "\"");
+                if (handler != null)
+                {
+                    handler.accept(trackBuilder, value);
+                }
+                else
+                {
+                    Logging.getLogger().debug("DEBUG: No handler for track key \"" + key + "\" with value \"" + value + "\"");
+                }
             }
         }
 
-        // we can now build the track
+        // We can now build the track.
         Track track = trackBuilder.build();
 
-        // reset the track Builder in case someone makes the mistake of using this track builder twice
+        // Reset the track Builder in case someone makes the mistake of using this track builder twice
         trackBuilder = new TrackBuilder();
 
         return track;

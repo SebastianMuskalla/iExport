@@ -70,30 +70,37 @@ public class LibraryParser
      * The settings that will be used for parsing.
      */
     private final ParsingSettings parsingSettings;
+
     /**
-     * List of playlist persistent ids that should be ignored
+     * List of playlist persistent ids that should be ignored.
      */
     private final List<String> ignoredPlaylistPersistentIds = new ArrayList<>();
+
     /**
-     * A map that takes a Playlist Persistent ID and returns the associated {@link PlaylistBuilder}
+     * A map that takes a Playlist Persistent ID and returns the associated {@link PlaylistBuilder}.
      */
     private final Map<String, PlaylistBuilder> playlistsBuildersByPersistentId = new HashMap<>();
+
     /**
-     * A map that takes a Playlist Persistent ID and returns the associated {@link Playlist} once it has been constructed
+     * A map that takes a Playlist Persistent ID and returns the associated {@link Playlist}
+     * once it has been constructed.
      */
     private final Map<String, Playlist> playlistsByPersistentId = new HashMap<>();
+
     /**
      * The builders for the playlists in this library.
      * <p>
      * {@link iexport.parsing.LibraryParser} will convert these builders into actual playlists.
      */
     private final List<PlaylistBuilder> playlistBuilders = new ArrayList<>();
+
     /**
      * A map that maps track ids to tracks.
      * <p>
      * Will be needed for parsing playlists.
      */
     private final Map<Integer, Track> tracksById = new HashMap<>();
+
     /**
      * The builder that will be used to construct the library.
      */
@@ -107,7 +114,7 @@ public class LibraryParser
     }
 
     /**
-     * Parse the file as described above.
+     * Parse the file as described in the documation of {@link LibraryParser}.
      *
      * @return the parsed library
      * @throws ITunesParsingException if parsing fails
@@ -116,31 +123,32 @@ public class LibraryParser
             throws ITunesParsingException
     {
 
-        // The dictionary that is at the root of the parsed file;
+        // The dictionary that is at the root of the parsed file.
         NSDictionary rootDictionary = parseAndGetRootDictionary();
 
-        // Parse the keys of the root dictionary itself that are not arrays or dictionaries
+        // Parse the keys of the root dictionary itself that are not arrays or dictionaries.
         parseMetadata(rootDictionary);
 
-        // Parse the "Tracks" dictionary
+        // Parse the "Tracks" dictionary.
         parseTracks(rootDictionary);
 
-        // Parse the Playlists array
+        // Parse the Playlists array.
         parsePlaylists(rootDictionary);
 
-        // A few more steps are needed to turn PlaylistBuilders into actual Playlists:
-
-        // Set the parent-child relationships between the playlists
+        // Set the parent-child relationships between the playlists,
+        // in turn converting PlaylistBuilders into actual Playlists.
         processPlaylistBuilders();
 
-        // Turn the track ids of the playlist builders into actual tracks
+        // Turn the track ids of the playlist builders into actual tracks.
         convertPlaylistTrackIdListToTrackList();
 
-        // We can now build the library//
+        // We can now build the library.
         Library library = libraryBuilder.build();
 
+        // Reset this object in case someone uses it twice.
         reset();
 
+        // Sort tracks and playlists.
         sortLibrary(library);
 
         return library;
@@ -155,17 +163,17 @@ public class LibraryParser
      */
     void addTrackToLibrary (Track track)
     {
-        // check for a duplicate
+        // Check for a duplicate.
         Integer trackId = track.trackId();
         if (tracksById.get(trackId) != null)
         {
-            Logging.getLogger().info(this.getClass().getSimpleName() + ": Library already contains track with id " + trackId + "; Skipping new track.");
+            Logging.getLogger().warning("Library already contains track with id " + trackId + "; Skipping new track.");
             Logging.getLogger().debug(1, "Old track:" + tracksById.get(trackId));
             Logging.getLogger().debug(1, "New track:" + track);
             return;
         }
 
-        // no duplicate, we can add the track
+        // No duplicate, we can add the track.
         tracksById.put(track.trackId(), track);
         libraryBuilder.getTracks().add(track);
     }
@@ -176,11 +184,12 @@ public class LibraryParser
     private void reset ()
     {
         libraryBuilder = new LibraryBuilder();
+
         ignoredPlaylistPersistentIds.clear();
         playlistsBuildersByPersistentId.clear();
         playlistsByPersistentId.clear();
         playlistBuilders.clear();
-
+        tracksById.clear();
     }
 
     /**
@@ -197,7 +206,7 @@ public class LibraryParser
 
                 if (track == null)
                 {
-                    Logging.getLogger().info(LibraryParser.class + ": Playlist " + playlist + " should contain track with track id " + trackId + ", but this track does not exist; skipping it");
+                    Logging.getLogger().warning("Playlist " + playlist + " should contain track with track id " + trackId + ", but this track does not exist; skipping it");
                     continue;
                 }
 
@@ -207,7 +216,8 @@ public class LibraryParser
     }
 
     /**
-     * Parse {@link #libraryFile} into a property list and then get the {@link NSDictionary} at the root of the property list files.
+     * Parse {@link #libraryFile} into a property list and then get the {@link NSDictionary}
+     * at the root of the property list files.
      *
      * @return the dictionary at the root of the property list file
      * @throws ITunesParsingException if parsing fails in an non-recoverable way. Otherwise, we will just log a warning.
@@ -215,7 +225,7 @@ public class LibraryParser
     private NSDictionary parseAndGetRootDictionary ()
             throws ITunesParsingException
     {
-        // parse the file as a property list
+        // Parse the file as a property list.
         NSObject propertyList;
         try
         {
@@ -226,7 +236,7 @@ public class LibraryParser
             throw new ITunesParsingException(this.getClass().getSimpleName() + ": Parsing the library file as a property list has failed", e);
         }
 
-        // get the root dictionary
+        // Get the root dictionary.
         NSDictionary rootDictionary;
         try
         {
@@ -255,16 +265,19 @@ public class LibraryParser
             String key = keyValuePair.getKey();
             Object value = keyValuePair.getValue().toJavaObject();
 
-            var handler = LibraryKeys.getHandlerFor(key);
+            if (value != null)
+            {
+                var handler = LibraryKeys.getHandlerFor(key);
 
-            if (handler != null)
-            {
-                // a handler for this key exists
-                handler.accept(libraryBuilder, value);
-            }
-            else
-            {
-                Logging.getLogger().debug(LibraryParser.class + ": No handler for key \"" + key + "\" with value \"" + value.toString() + "\"");
+                if (handler != null)
+                {
+                    // A handler for this key exists
+                    handler.accept(libraryBuilder, value);
+                }
+                else
+                {
+                    Logging.getLogger().debug("No handler for library key \"" + key + "\" with value \"" + value + "\"");
+                }
             }
         }
     }
@@ -325,59 +338,59 @@ public class LibraryParser
         // i.e. we need numberOfPlaylists * numberOfPlaylists iterations to construct all playlists.
         int maximumNumberOfIterations = numberOfPlaylists * numberOfPlaylists + numberOfPlaylists + 1;
 
-        // copy all playlist builders into a work list
+        // Copy all playlist builders into a work list.
         List<PlaylistBuilder> workList = new ArrayList<>(playlistBuilders);
 
         while (!workList.isEmpty())
         {
             iterationCount++;
 
-            // we have exceeded the maximum number of iterations without resolving all dependencies
+            // We have exceeded the maximum number of iterations without resolving all dependencies.
             if (iterationCount > maximumNumberOfIterations)
             {
-                Logging.getLogger().important(this.getClass().getSimpleName() + ": Failed to resolve dependencies among playlists.");
-                Logging.getLogger().info(this.getClass().getSimpleName() + ": Playlists with unresolved dependencies:");
+                Logging.getLogger().error("Failed to resolve dependencies among playlists.");
+                Logging.getLogger().debug("Playlists with unresolved dependencies:");
 
                 for (PlaylistBuilder remaining : workList)
                 {
-                    Logging.getLogger().info(1, remaining.toString());
+                    Logging.getLogger().debug(1, remaining.toString());
                 }
+                Logging.getLogger().error("Continuing with the libraries that could be processed.");
                 return;
             }
 
-            // take and remove the first item from the work list
+            // Take and remove the first item from the work list.
             PlaylistBuilder playlistBuilder = workList.get(0);
             workList.remove(playlistBuilder);
 
-            // Check if we should ignore this playlist
+            // Check if we should ignore this playlist.
             if (shouldBeIgnored(playlistBuilder))
             {
                 if (playlistBuilder.getPlaylistPersistentId() != null)
                 {
-                    Logging.getLogger().debug(this.getClass().getSimpleName() + ": Adding " + playlistBuilder.getPlaylistPersistentId()
-                            + " to the list of ignored playlists.");
+                    Logging.getLogger().debug("Adding " + playlistBuilder.getPlaylistPersistentId() + " to the list of ignored playlists.");
                     ignoredPlaylistPersistentIds.add(playlistBuilder.getPlaylistPersistentId());
                 }
                 continue;
             }
 
-            // we want to compute the parent playlist and the depth
+            // We want to compute the parent playlist and the depth.
             Playlist parent = null;
             int depth;
 
-            // check if this list has a parent
+            // Check if this list has a parent.
             String parentPersistentId = playlistBuilder.getParentPersistentId();
             if (parentPersistentId != null)
             {
-                // Check if we should ignore the parent playlist
+                // Check if we should ignore the parent playlist.
                 if (ignoredPlaylistPersistentIds.contains(parentPersistentId))
                 {
-                    Logging.getLogger().info(this.getClass().getSimpleName() + ": Ignoring " + playlistBuilder
+                    Logging.getLogger().debug("Ignoring " + playlistBuilder
                             + " because its parent with persistent id " + parentPersistentId + " has been ignored.");
 
                     if (playlistBuilder.getPlaylistPersistentId() != null)
                     {
-                        Logging.getLogger().debug(this.getClass().getSimpleName() + ": Adding " + playlistBuilder.getPlaylistPersistentId()
+                        Logging.getLogger().debug("dding " + playlistBuilder.getPlaylistPersistentId()
                                 + " to the list of ignored playlists.");
                         ignoredPlaylistPersistentIds.add(playlistBuilder.getPlaylistPersistentId());
                     }
@@ -385,7 +398,7 @@ public class LibraryParser
                     continue;
                 }
 
-                // check if we have already constructed this parent playlist
+                // Check if we have already constructed this parent playlist.
                 parent = playlistsByPersistentId.get(parentPersistentId);
                 if (parent == null)
                 {
@@ -393,9 +406,9 @@ public class LibraryParser
                     // Either this is because it not yet been processed, or it does not exist at all.
                     if (playlistsBuildersByPersistentId.get(parentPersistentId) == null)
                     {
-                        // the playlist with the specified Parent Persistent ID does not exist
-                        // remove from work list and issue a warning
-                        Logging.getLogger().info(this.getClass().getSimpleName() + ": Playlist " + playlistBuilder + " specifies parent playlist with Persistent ID " + parentPersistentId + ", but no such playlist exists");
+                        // The playlist with the specified Parent Persistent ID does not exist.
+                        // Remove from work list and issue a warning.
+                        Logging.getLogger().warning("Playlist " + playlistBuilder + " specifies parent playlist with Persistent ID " + parentPersistentId + ", but no such playlist exists");
                     }
                     else
                     {
@@ -450,7 +463,7 @@ public class LibraryParser
 
         } // while !workList.isEmpty()
 
-        Logging.getLogger().info("Finished resolving all playlist dependencies within " + iterationCount + " iterations.");
+        Logging.getLogger().debug("Finished resolving all playlist dependencies within " + iterationCount + " iterations.");
     }
 
     /**
@@ -464,7 +477,7 @@ public class LibraryParser
         Object tracksObject = rootDictionary.get("Tracks");
         if (tracksObject == null)
         {
-            Logging.getLogger().info(this.getClass().getSimpleName() + ": Library " + libraryBuilder + " has no Tracks dictionary.");
+            Logging.getLogger().warning("Library " + libraryBuilder + " has no Tracks dictionary.");
             return;
         }
 
@@ -476,7 +489,7 @@ public class LibraryParser
         }
         catch (ClassCastException e)
         {
-            Logging.getLogger().info(this.getClass().getSimpleName() + ": Library " + libraryBuilder + " has Tracks dictionary of unexpected type " + tracksObject.getClass() + ", expected NSDictionary; skipping it");
+            Logging.getLogger().warning("Library " + libraryBuilder + " has Tracks dictionary of unexpected type " + tracksObject.getClass() + ", expected NSDictionary; skipping it");
             return;
         }
 
@@ -494,14 +507,14 @@ public class LibraryParser
         {
             // extract the Track ID from the key of the pair, and convert it to an integer
             String trackIdKey = trackIdTrackDictionaryPair.getKey();
-            Integer trackId;
+            int trackId;
             try
             {
                 trackId = Integer.parseInt(trackIdKey);
             }
             catch (Exception e)
             {
-                Logging.getLogger().info(this.getClass().getSimpleName() + ": Track with key Track ID  \"" + trackIdKey + "\" is of unexpected type " + tracksObject.getClass() + ", expected an integer; skipping it");
+                Logging.getLogger().warning("Track with key Track ID  \"" + trackIdKey + "\" is of unexpected type " + tracksObject.getClass() + ", expected an integer; skipping it");
                 continue;
             }
 
@@ -513,7 +526,7 @@ public class LibraryParser
             }
             catch (ClassCastException e)
             {
-                Logging.getLogger().info(this.getClass().getSimpleName() + ": Track with id \"" + trackId + "\" has track dictionary of unexpected type " + tracksObject.getClass() + ", expected NSDictionary; skipping it");
+                Logging.getLogger().warning("Track with id \"" + trackId + "\" has track dictionary of unexpected type " + tracksObject.getClass() + ", expected NSDictionary; skipping it");
                 continue;
             }
 
@@ -528,7 +541,7 @@ public class LibraryParser
              */
             if (!track.trackId().equals(trackId))
             {
-                Logging.getLogger().info(this.getClass().getSimpleName() + ": For track " + track + ", Track ID  " + trackId + " from key does not match internal Track ID " + track.trackId() + "; skipping it");
+                Logging.getLogger().warning("For track " + track + ", Track ID  " + trackId + " from key does not match internal Track ID " + track.trackId() + "; skipping it");
                 continue;
             }
 
@@ -547,7 +560,7 @@ public class LibraryParser
         Object playlistsObject = rootDictionary.get("Playlists");
         if (playlistsObject == null)
         {
-            Logging.getLogger().info(this.getClass().getSimpleName() + ": Library " + libraryBuilder + " has no Playlists array.");
+            Logging.getLogger().warning("Library " + libraryBuilder + " has no Playlists array.");
             return;
         }
 
@@ -559,7 +572,7 @@ public class LibraryParser
         }
         catch (ClassCastException e)
         {
-            Logging.getLogger().info(this.getClass().getSimpleName() + ": Library " + libraryBuilder + " has Playlists array of unexpected type " + playlistsObject.getClass() + ", expected NSArray.");
+            Logging.getLogger().warning("Library " + libraryBuilder + " has Playlists array of unexpected type " + playlistsObject.getClass() + ", expected NSArray.");
             return;
         }
 
@@ -574,7 +587,7 @@ public class LibraryParser
             }
             catch (ClassCastException e)
             {
-                Logging.getLogger().info(": Playlist dictionary " + playlistObject + " is of unexpected type " + playlistObject.getClass().getSimpleName() + ", expected NSDictionary; skipping it");
+                Logging.getLogger().warning("Playlist dictionary " + playlistObject + " is of unexpected type " + playlistObject.getClass().getSimpleName() + ", expected NSDictionary; skipping it");
                 continue;
             }
 
@@ -589,7 +602,7 @@ public class LibraryParser
             // to this end, we will need the persistent id of the playlist
             if (playlistBuilder.getPlaylistPersistentId() == null)
             {
-                Logging.getLogger().info(this.getClass().getSimpleName() + ": Playlist " + playlistBuilder + " has no Playlist Persistent ID, resolving dependencies for this playlist will likely fail.");
+                Logging.getLogger().warning("Playlist " + playlistBuilder + " has no Playlist Persistent ID, resolving dependencies for this playlist will likely fail.");
                 continue;
             }
 
@@ -616,8 +629,7 @@ public class LibraryParser
         {
             if (builder.getTrackIds() == null || builder.getTrackIds().size() == 0)
             {
-                Logging.getLogger().info(this.getClass().getSimpleName() +
-                        ": Ignoring empty playlist " + builder + " because parsing.ignoreEmptyPlaylists is set");
+                Logging.getLogger().debug("Ignoring empty playlist " + builder + " because parsing.ignoreEmptyPlaylists is set");
                 return true;
             }
         }
@@ -630,8 +642,7 @@ public class LibraryParser
                     || (builder.getMovies() != null && builder.getMovies())
                     || (builder.getTvShows() != null && builder.getTvShows()))
             {
-                Logging.getLogger().info(this.getClass().getSimpleName() +
-                        ": Ignoring special playlist " + builder + " because parsing.ignoreNonMusicPlaylists is set");
+                Logging.getLogger().debug("Ignoring special playlist " + builder + " because parsing.ignoreNonMusicPlaylists is set");
                 return true;
             }
         }
@@ -643,8 +654,7 @@ public class LibraryParser
         {
             if (builder.getDistinguishedKind() != null)
             {
-                Logging.getLogger().info(this.getClass().getSimpleName()
-                        + ": Ignoring distinguished playlist " + builder + " because parsing.ignoreNonMusicPlaylists is set");
+                Logging.getLogger().debug("Ignoring distinguished playlist " + builder + " because parsing.ignoreNonMusicPlaylists is set");
                 return true;
             }
         }
@@ -656,8 +666,7 @@ public class LibraryParser
         {
             if (builder.getMaster() != null && builder.getMaster())
             {
-                Logging.getLogger().info(this.getClass().getSimpleName() +
-                        ": Ignoring master playlist " + builder + " because parsing.ignoreNonMusicPlaylists is set");
+                Logging.getLogger().debug("Ignoring master playlist " + builder + " because parsing.ignoreNonMusicPlaylists is set");
                 return true;
             }
         }
@@ -665,9 +674,7 @@ public class LibraryParser
         // Ignore playlists whose name is in parsing.ignorePlaylistsByName
         if (builder.getName() != null && parsingSettings.getSettingIgnorePlaylistNames().contains(builder.getName()))
         {
-            Logging.getLogger().info(this.getClass().getSimpleName() +
-                    " Ignoring playlist " + builder + " because its name is in parsing.ignorePlaylistsByName "
-                    + "(" + parsingSettings.getSettingIgnorePlaylistNames() + ")");
+            Logging.getLogger().debug("Ignoring playlist " + builder + " because its name is in parsing.ignorePlaylistsByName " + "(" + parsingSettings.getSettingIgnorePlaylistNames() + ")");
             return true;
         }
 

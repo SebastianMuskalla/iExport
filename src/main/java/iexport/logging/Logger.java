@@ -25,7 +25,6 @@ package iexport.logging;
  */
 public abstract class Logger
 {
-
     /**
      * Convenience method for logging something with a specified log level and no indentation,
      * see {@link #log}.
@@ -51,26 +50,49 @@ public abstract class Logger
     public abstract void setLogLevel (LogLevel logLevel);
 
     /**
-     * Convenience method for logging something with {@link LogLevel#IMPORTANT},
+     * Convenience method for logging something with {@link LogLevel#ERROR},
      * see {@link #log}.
      *
      * @param indentation the indentation with which the message shall be printed
      * @param message     the message
      */
-    public void important (int indentation, String message)
+    public void error (int indentation, String message)
     {
-        log(LogLevel.IMPORTANT, indentation, message);
+        log(LogLevel.ERROR, indentation, message);
     }
 
     /**
-     * Convenience method for logging something with {@link LogLevel#IMPORTANT} with no indentation,
+     * Convenience method for logging something with {@link LogLevel#ERROR} with no indentation,
      * see {@link #log}.
      *
      * @param message the message
      */
-    public void important (String message)
+    public void error (String message)
     {
-        log(LogLevel.IMPORTANT, 0, message);
+        error(0, message);
+    }
+
+    /**
+     * Convenience method for logging something with {@link LogLevel#WARNING},
+     * see {@link #log}.
+     *
+     * @param indentation the indentation with which the message shall be printed
+     * @param message     the message
+     */
+    public void warning (int indentation, String message)
+    {
+        log(LogLevel.WARNING, indentation, message);
+    }
+
+    /**
+     * Convenience method for logging something with {@link LogLevel#WARNING} with no indentation,
+     * see {@link #log}.
+     *
+     * @param message the message
+     */
+    public void warning (String message)
+    {
+        warning(0, message);
     }
 
     /**
@@ -93,30 +115,7 @@ public abstract class Logger
      */
     public void message (String message)
     {
-        log(LogLevel.NORMAL, 0, message);
-    }
-
-    /**
-     * Convenience method for logging something with {@link LogLevel#INFO},
-     * see {@link #log}.
-     *
-     * @param indentation the indentation with which the message shall be printed
-     * @param message     the message
-     */
-    public void info (int indentation, String message)
-    {
-        log(LogLevel.INFO, indentation, message);
-    }
-
-    /**
-     * Convenience method for logging something with {@link LogLevel#INFO} with no indentation,
-     * see {@link #log}.
-     *
-     * @param message the message
-     */
-    public void info (String message)
-    {
-        log(LogLevel.INFO, 0, message);
+        message(0, message);
     }
 
     /**
@@ -139,7 +138,7 @@ public abstract class Logger
      */
     public void debug (String message)
     {
-        log(LogLevel.DEBUG, 0, message);
+        debug(0, message);
     }
 
 }

@@ -18,7 +18,6 @@
 package iexport.parsing.keys;
 
 import iexport.logging.Logging;
-import iexport.parsing.PlaylistParser;
 import iexport.parsing.builders.PlaylistBuilder;
 
 import java.util.HashMap;
@@ -45,8 +44,8 @@ public class PlaylistKeys
      * <p>
      * Each handler is of type {@code BiConsumer<PlaylistBuilder, Object>}, i.e. it provides a method that takes a {@link PlaylistBuilder} and parsed value of type {@code Object} and assigns the parsed value to the {@link PlaylistBuilder} if the types match.
      *
-     * @param key the key.
-     * @return the handler.
+     * @param key the key
+     * @return the handler
      */
     public static BiConsumer<PlaylistBuilder, Object> getHandlerFor (String key)
     {
@@ -56,15 +55,15 @@ public class PlaylistKeys
     /**
      * Logs a warning if a parsed value has an unexpected type and cannot be set.
      *
-     * @param key            The key.
-     * @param value          The value.
-     * @param unexpectedType The type of the parsed value.
-     * @param expectedType   The expected type of the parsed value.
+     * @param key            The key
+     * @param value          The value
+     * @param unexpectedType The type of the parsed value
+     * @param expectedType   The expected type of the parsed value
      */
     @SuppressWarnings("rawtypes")
     private static void logUnexpectedType (String key, String value, Class unexpectedType, Class expectedType)
     {
-        Logging.getLogger().info(PlaylistParser.class.getSimpleName() + ": key \"" + key + "\" with value \"" + value + "\" is of unexpected type \"" + unexpectedType.getSimpleName() + "\" expected \"" + expectedType.getSimpleName() + "\"");
+        Logging.getLogger().warning("Key \"" + key + "\" with value \"" + value + "\" is of unexpected type \"" + unexpectedType.getSimpleName() + "\" expected \"" + expectedType.getSimpleName() + "\"");
     }
 
     static
@@ -265,20 +264,23 @@ public class PlaylistKeys
                 }
         );
 
-        // we cannot handle the raw data for "Smart Info"
+        // We cannot handle the raw data for "Smart Info".
         handlers.put("Smart Info", (PlaylistBuilder playlistBuilder, Object value) -> {
         });
 
-        // we cannot handle the raw data for "Smart Criteria"
+        // We cannot handle the raw data for "Smart Criteria".
         handlers.put("Smart Criteria", (PlaylistBuilder playlistBuilder, Object value) -> {
         });
 
-        // will be handled explicitly later
+        // Will be handled explicitly later.
         handlers.put("Playlist Items", (PlaylistBuilder playlistBuilder, Object value) -> {
         });
 
     }
 
+    /**
+     * This class should not be instantiated.
+     */
     private PlaylistKeys ()
     {
     }

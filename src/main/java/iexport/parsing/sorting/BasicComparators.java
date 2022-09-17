@@ -25,9 +25,6 @@ import java.util.Objects;
  */
 public class BasicComparators
 {
-    /**
-     * Compares two Strings by prioritizing non-null ones and otherwise using {@link String.CaseInsensitiveComparator}.
-     */
     private static final int EQUAL = 0;
     private static final int FIRST_HAS_PRIORITY = -1;
     private static final int SECOND_HAS_PRIORITY = 1;
@@ -101,5 +98,12 @@ public class BasicComparators
                     }
                     return EQUAL;
                 };
+    }
+
+    /**
+     * This class should not be instantiated.
+     */
+    private BasicComparators ()
+    {
     }
 }

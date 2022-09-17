@@ -129,7 +129,7 @@ public class GeneratePlaylistsTask implements Task
             // Now the folder definitely does not exist and we can delete it
             try
             {
-                Logging.getLogger().message("Creating empty folder " + outputFolderPathAsString + ".");
+                Logging.getLogger().debug("Creating empty folder " + outputFolderPathAsString + ".");
 
                 Files.createDirectories(outputFolderPath);
             }
@@ -156,7 +156,7 @@ public class GeneratePlaylistsTask implements Task
             return;
         }
 
-        Logging.getLogger().info("Exporting playlist " + playlist);
+        Logging.getLogger().debug("Exporting playlist " + playlist);
 
         Path destination = destinationLocation(playlist);
 
@@ -178,7 +178,7 @@ public class GeneratePlaylistsTask implements Task
 
         if (content.isEmpty())
         {
-            Logging.getLogger().info("Skipping playlist " + playlist + " with no valid tracks");
+            Logging.getLogger().debug("Skipping playlist " + playlist + " with no valid tracks.");
             return;
         }
 
@@ -308,14 +308,14 @@ public class GeneratePlaylistsTask implements Task
         }
         catch (URISyntaxException e)
         {
-            Logging.getLogger().important("Error when converting track " + track + ": Bad URI. " + e + " (" + e.getMessage() + "); skipping this track.");
+            Logging.getLogger().warning("Error when converting track " + track + ": Bad URI. " + e + " (" + e.getMessage() + "); skipping this track.");
             return "";
         }
 
         // We can only deal with local files
         if (!uri.getAuthority().equals("localhost"))
         {
-            Logging.getLogger().important("Track " + track + " is at remote location " + uriString + "; skipping this track.");
+            Logging.getLogger().warning("Track " + track + " is at remote location " + uriString + "; skipping this track.");
             return "";
         }
 
@@ -335,7 +335,7 @@ public class GeneratePlaylistsTask implements Task
         // This may be slow!
         if (settings.getSettingTrackVerification() && !Files.exists(path))
         {
-            Logging.getLogger().important("File for track " + track + "  at location " + pathString + " does not exist; skipping this track.");
+            Logging.getLogger().warning("File for track " + track + "  at location " + pathString + " does not exist; skipping this track.");
             return "";
         }
 
@@ -353,15 +353,15 @@ public class GeneratePlaylistsTask implements Task
             }
         }
 
-        String result = path.toString();
+        pathString = path.toString();
 
         // If tasks.generatePlaylists.warnSquareBrackets, is set, we should warn the user if the path contains [ or ]
         if (settings.getSettingWarnSquareBrackets())
         {
-            Matcher matcher = SQUARE_BRACKETS_PATTERN.matcher(result);
+            Matcher matcher = SQUARE_BRACKETS_PATTERN.matcher(pathString);
             if (matcher.find())
             {
-                Logging.getLogger().message("WARNING: String " + result + " for track " + track + " contains '[' or ']'.");
+                Logging.getLogger().warning("Path " + pathString + " for track " + track + " contains '[' or ']'.");
             }
         }
 
@@ -369,21 +369,21 @@ public class GeneratePlaylistsTask implements Task
         if (settings.getSettingSlashAsSeparator())
         {
             // If the path is of the shape C:\Some\Folder, we should not apply the replacement to the first backslash C:\
-            if (result.length() > 2 && result.charAt(1) == ':' && result.charAt(2) == '\\')
+            if (pathString.length() > 2 && pathString.charAt(1) == ':' && pathString.charAt(2) == '\\')
             {
-                int firstBackslashIndex = result.indexOf('\\') + 1;
-                String rootString = result.substring(0, firstBackslashIndex);
-                String remainingString = result.substring(firstBackslashIndex);
+                int firstBackslashIndex = pathString.indexOf('\\') + 1;
+                String rootString = pathString.substring(0, firstBackslashIndex);
+                String remainingString = pathString.substring(firstBackslashIndex);
                 remainingString = remainingString.replace('\\', '/');
-                result = rootString + remainingString;
+                pathString = rootString + remainingString;
             }
             else
             {
-                result = result.replace('\\', '/');
+                pathString = pathString.replace('\\', '/');
             }
         }
 
-        return result;
+        return pathString;
     }
 
     private void writePlaylist (Path destination, String content)
@@ -403,7 +403,7 @@ public class GeneratePlaylistsTask implements Task
         }
         catch (Exception e)
         {
-            Logging.getLogger().important("Writing file " + destination + " failed " + e + " (" + e.getMessage() + ").");
+            Logging.getLogger().warning("Writing file " + destination + " failed " + e + " (" + e.getMessage() + ").");
         }
     }
 }

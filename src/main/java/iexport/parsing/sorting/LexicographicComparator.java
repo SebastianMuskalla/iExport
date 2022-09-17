@@ -22,18 +22,18 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * This comparator lists a comparator on a type T to a comparator on {@link List<T>} using the lexicographic ordering.
+ * This comparator lifts a comparator on a type T to a comparator on {@link List<T>} using the lexicographic ordering.
  * <p>
  * Assume we are given lists [a1, a2, ..., an] and [b1, b2, ..., bm] with n <= m.
  * <p>
  * We find the smallest index i <= n such that
  * a1 equals b1, a2 equals b2, ... , a(i-1) equals b(i-1) (using the comparator on T)
- * and ai not equals bi.
+ * and ai does not equal bi.
  * If ai is smaller than bi, then the list of the a's is smaller than the list of b's.
  * <p>
  * If both lists coincide for all indices {1, ..., n}, then the shorter list is smaller.
  *
- * @param <T> the type of elements of a list
+ * @param <T> the type of elements of the list
  */
 public class LexicographicComparator<T> implements Comparator<List<T>>
 {
@@ -45,11 +45,11 @@ public class LexicographicComparator<T> implements Comparator<List<T>>
      * The comparator that will be used for the base class
      */
     private final Comparator<T> comparator;
-    
+
     /**
-     * Constructs a lexicographic comparator
+     * Constructs a lexicographic comparator for {@code List<T>}.
      *
-     * @param comparator the comparator for the base class
+     * @param comparator the comparator for the base class {@code T}
      */
     public LexicographicComparator (Comparator<T> comparator)
     {
@@ -100,7 +100,7 @@ public class LexicographicComparator<T> implements Comparator<List<T>>
             return SECOND_HAS_PRIORITY;
         }
 
-        // the two lists have the same length
+        // the two lists have the same length and their entries are the same
         return EQUAL;
     }
 }

@@ -149,7 +149,7 @@ public class ExportFilesTask implements Task
             // Now the folder definitely does not exist and we can delete it
             try
             {
-                Logging.getLogger().message("Creating empty folder " + outputFolderPathAsString + ".");
+                Logging.getLogger().debug("Creating empty folder " + outputFolderPathAsString + ".");
 
                 Files.createDirectories(outputFolderPath);
             }
@@ -172,7 +172,7 @@ public class ExportFilesTask implements Task
             return;
         }
 
-        Logging.getLogger().info("Exporting playlist " + playlist);
+        Logging.getLogger().debug("Exporting playlist " + playlist);
 
         // Create the folder this playlist should be exported to
         Path destination = destinationFolder(playlist);
@@ -365,14 +365,14 @@ public class ExportFilesTask implements Task
             }
             catch (URISyntaxException e)
             {
-                Logging.getLogger().important("Error when converting track " + track + ": Bad URI. " + e + " (" + e.getMessage() + "); skipping this track.");
+                Logging.getLogger().warning("Error when converting track " + track + ": Bad URI. " + e + " (" + e.getMessage() + "); skipping this track.");
                 return;
             }
 
             // We can only deal with local files
             if (!uri.getAuthority().equals("localhost"))
             {
-                Logging.getLogger().important("Track " + track + " is at remote location " + uriString + "; skipping this track.");
+                Logging.getLogger().warning("Track " + track + " is at remote location " + uriString + "; skipping this track.");
                 return;
             }
 

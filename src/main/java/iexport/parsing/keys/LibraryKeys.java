@@ -18,7 +18,6 @@
 package iexport.parsing.keys;
 
 import iexport.logging.Logging;
-import iexport.parsing.LibraryParser;
 import iexport.parsing.builders.LibraryBuilder;
 
 import java.util.Date;
@@ -46,8 +45,8 @@ public class LibraryKeys
      * <p>
      * Each handler is of type {@code BiConsumer<LibraryBuilder, Object>}, i.e. it provides a method that takes a {@link LibraryBuilder} and parsed value of type {@code Object} and assigns the parsed value to the {@link LibraryBuilder} if the types match.
      *
-     * @param key the key.
-     * @return the handler.
+     * @param key the key
+     * @return the handler
      */
     public static BiConsumer<LibraryBuilder, Object> getHandlerFor (String key)
     {
@@ -57,15 +56,15 @@ public class LibraryKeys
     /**
      * Logs a warning if a parsed value has an unexpected type and cannot be set.
      *
-     * @param key            The key.
-     * @param value          The value.
-     * @param unexpectedType The type of the parsed value.
-     * @param expectedType   The expected type of the parsed value.
+     * @param key            The key
+     * @param value          The value
+     * @param unexpectedType The type of the parsed value
+     * @param expectedType   The expected type of the parsed value
      */
     @SuppressWarnings("rawtypes")
     private static void logUnexpectedType (String key, String value, Class unexpectedType, Class expectedType)
     {
-        Logging.getLogger().info(LibraryParser.class.getSimpleName() + ": key \"" + key + "\" with value \"" + value + "\" is of unexpected type \"" + unexpectedType.getSimpleName() + "\" expected \"" + expectedType.getSimpleName() + "\"");
+        Logging.getLogger().warning("Key \"" + key + "\" with value \"" + value + "\" is of unexpected type \"" + unexpectedType.getSimpleName() + "\" expected \"" + expectedType.getSimpleName() + "\"");
     }
 
     static
@@ -187,6 +186,9 @@ public class LibraryKeys
 
     }
 
+    /**
+     * This class should not be instantiated.
+     */
     private LibraryKeys ()
     {
     }

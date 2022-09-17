@@ -87,7 +87,7 @@ public abstract class TaskSettings implements Settings
             // We should notify the user that we use this default setting (unless this whole object just contains default Settings)
             if (!isDefault())
             {
-                Logging.getLogger().info("No user-provided setting for key \"" + getYamlPath(key) + "\", using default value \"" + value + "\" from now on");
+                Logging.getLogger().message("No user-provided setting for key \"" + getYamlPath(key) + "\", using default value \"" + value + "\" from now on");
             }
             // TODO
             // settings.put(key, value);

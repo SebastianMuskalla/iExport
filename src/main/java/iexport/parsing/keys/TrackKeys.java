@@ -18,7 +18,6 @@
 package iexport.parsing.keys;
 
 import iexport.logging.Logging;
-import iexport.parsing.TrackParser;
 import iexport.parsing.builders.TrackBuilder;
 
 import java.util.Date;
@@ -45,8 +44,8 @@ public class TrackKeys
      * <p>
      * Each handler is of type {@code BiConsumer<TrackBuilder, Object>}, i.e. it provides a method that takes a {@link TrackBuilder} and parsed value of type {@code Object} and assigns the parsed value to the {@link TrackBuilder} if the types match.
      *
-     * @param key the key.
-     * @return the handler.
+     * @param key the key
+     * @return the handler
      */
     public static BiConsumer<TrackBuilder, Object> getHandlerFor (String key)
     {
@@ -56,15 +55,15 @@ public class TrackKeys
     /**
      * Logs a warning if a parsed value has an unexpected type and cannot be set.
      *
-     * @param key            The key.
-     * @param value          The value.
-     * @param unexpectedType The type of the parsed value.
-     * @param expectedType   The expected type of the parsed value.
+     * @param key            The key
+     * @param value          The value
+     * @param unexpectedType The type of the parsed value
+     * @param expectedType   The expected type of the parsed value
      */
     @SuppressWarnings("rawtypes")
     private static void logUnexpectedType (String key, String value, Class unexpectedType, Class expectedType)
     {
-        Logging.getLogger().info(TrackParser.class.getSimpleName() + ": key \"" + key + "\" with value \"" + value + "\" is of unexpected type \"" + unexpectedType.getSimpleName() + "\" expected \"" + expectedType.getSimpleName() + "\"");
+        Logging.getLogger().warning("Key \"" + key + "\" with value \"" + value + "\" is of unexpected type \"" + unexpectedType.getSimpleName() + "\" expected \"" + expectedType.getSimpleName() + "\"");
     }
 
     static
@@ -853,6 +852,9 @@ public class TrackKeys
         );
     }
 
+    /**
+     * This class should not be instantiated.
+     */
     private TrackKeys ()
     {
     }

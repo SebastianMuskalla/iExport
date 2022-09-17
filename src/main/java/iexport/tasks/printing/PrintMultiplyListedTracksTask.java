@@ -20,6 +20,7 @@ package iexport.tasks.printing;
 import iexport.itunes.Library;
 import iexport.itunes.Playlist;
 import iexport.itunes.Track;
+import iexport.logging.LogLevel;
 import iexport.logging.Logging;
 import iexport.settings.RawTaskSettings;
 import iexport.tasks.Task;
@@ -45,6 +46,9 @@ public class PrintMultiplyListedTracksTask implements Task
     @Override
     public void run (Library library, RawTaskSettings rawTaskSettings)
     {
+        // It would be pretty silly to call this task but then hide the output
+        Logging.getLogger().setLogLevel(LogLevel.NORMAL);
+        
         PrintMultiplyListedTracksTaskSettings settings = new PrintMultiplyListedTracksTaskSettings(rawTaskSettings);
 
         Logging.getLogger().message("Tracks that are contained in multiple playlists");
@@ -84,21 +88,6 @@ public class PrintMultiplyListedTracksTask implements Task
                 .filter(TRACK_PREDICATE)
                 .forEach(TRACK_CONSUMER);
 
-
-//        Predicate<Playlist> playlistPredicate = p -> p.distinguishedKind() == null && (p.master() == null || !p.master()) && p.children().isEmpty() && !p.name().equals("NEUES");
-//        List<Track> tracksInMultiplePlayslists = library.tracks().stream().filter
-//                (
-//                        t -> t.inPlaylists().stream().filter(playlistPredicate).count() > 1
-//                ).toList();
-//
-//        tracksInMultiplePlayslists.forEach(
-//                t -> {
-//                    Logging.getLogger().message(t.toString());
-//                    Logging.getLogger().message(" ( ");
-//                    t.inPlaylists().stream().filter(playlistPredicate).forEach(p -> Logging.getLogger().message(p + " , "));
-//                    Logging.getLogger().message(" ) ");
-//                }
-//        );
     }
 
 }

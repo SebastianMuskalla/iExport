@@ -1,18 +1,24 @@
 plugins {
     id 'java'
 
-    // enable run task
+    // for the :run task
     id 'application'
 }
 
-version '1.0-SNAPSHOT'
+version '1.0'
 
 application {
     mainClass = 'iexport.IExport'
 }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(18)
+    }
+}
+
 run {
-    // make sure that scanner works
+    // make sure that STDIN works
     standardInput = System.in
 }
 
@@ -21,17 +27,7 @@ repositories {
 }
 
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
-
     implementation 'com.googlecode.plist:dd-plist:1.24'
 
-    // https://mvnrepository.com/artifact/org.snakeyaml/snakeyaml-engine
     implementation 'org.snakeyaml:snakeyaml-engine:2.4'
-
-}
-
-test {
-    useJUnitPlatform()
 }

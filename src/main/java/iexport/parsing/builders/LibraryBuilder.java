@@ -29,9 +29,7 @@ import java.util.List;
 /**
  * A mutable builder class for building a record of type {@link iexport.itunes.Library}.
  * <p>
- * Most fields correspond to the fields of {@link iexport.itunes.Library, see {@link iexport.itunes.Library for the documentation.
- * <p>
- * Some additional fields will be needed for {@link iexport.parsing.LibraryParser}
+ * The fields correspond to the fields of {@link iexport.itunes.Library, see {@link iexport.itunes.Library for the documentation.
  */
 public class LibraryBuilder
 {
@@ -39,22 +37,25 @@ public class LibraryBuilder
      * The list of tracks in this library.
      */
     private final List<Track> tracks = new ArrayList<>();
+
     /**
      * The list of playlists in this library (that have already been constructed).
      */
     private final List<Playlist> playlists = new LinkedList<>();
 
-
     /**
      * The list of playlists that are top level, i.e. they have no parent playlist.
      */
     private final List<Playlist> playlistsAtTopLevel = new LinkedList<>();
+
     private Integer majorVersion;
     private Integer minorVersion;
     private Integer features;
+
     private String persistentId;
     private String applicationVersion;
     private String musicFolder;
+
     private Date date;
 
     public void setMajorVersion (Integer majorVersion)
@@ -115,7 +116,6 @@ public class LibraryBuilder
     {
         return playlists;
     }
-
 
     public List<Track> getTracks ()
     {

@@ -26,7 +26,8 @@ import java.util.List;
 /**
  * A mutable builder class for building records of type {@link iexport.itunes.Playlist}.
  * <p>
- * The fields correspond to the fields of {@link iexport.itunes.Playlist}, see {@link iexport.itunes.Playlist} for the documentation.
+ * The fields correspond to the fields of {@link iexport.itunes.Playlist},
+ * see {@link iexport.itunes.Playlist} for the documentation.
  */
 public class PlaylistBuilder
 {
@@ -42,9 +43,11 @@ public class PlaylistBuilder
     private Integer depth;
     private Integer playlistId;
     private Integer distinguishedKind;
+
     private String name;
     private String playlistPersistentId;
     private String parentPersistentId;
+
     private Boolean allItems;
     private Boolean master;
     private Boolean visible;
@@ -53,6 +56,7 @@ public class PlaylistBuilder
     private Boolean movies;
     private Boolean tvShows;
     private Boolean audiobooks;
+
     private Playlist parent;
 
     public PlaylistBuilder ()

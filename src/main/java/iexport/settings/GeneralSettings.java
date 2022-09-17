@@ -69,9 +69,9 @@ public class GeneralSettings extends SettingsImpl
     {
         // Initialize SETTING_LOG_LEVEL_STRINGS
         SETTING_LOG_LEVEL_STRINGS = new HashMap<>();
-        SETTING_LOG_LEVEL_STRINGS.put(LogLevel.IMPORTANT, List.of("IMPORTANT", "QUIET", "ERROR", "WARNING"));
-        SETTING_LOG_LEVEL_STRINGS.put(LogLevel.NORMAL, List.of("NORMAL"));
-        SETTING_LOG_LEVEL_STRINGS.put(LogLevel.INFO, List.of("INFO", "VERBOSE"));
+        SETTING_LOG_LEVEL_STRINGS.put(LogLevel.ERROR, List.of("ERROR", "SUPERQUIET"));
+        SETTING_LOG_LEVEL_STRINGS.put(LogLevel.NORMAL, List.of("NORMAL", "VERBOSE"));
+        SETTING_LOG_LEVEL_STRINGS.put(LogLevel.WARNING, List.of("WARNING", "QUIET"));
         SETTING_LOG_LEVEL_STRINGS.put(LogLevel.DEBUG, List.of("DEBUG", "VERYVERBOSE"));
 
         // we can now get the default value for the log Level
@@ -96,7 +96,7 @@ public class GeneralSettings extends SettingsImpl
     }
 
     /**
-     * Constructor that initializes {@link Settings#settings} with user-provided values.
+     * Constructor that initializes {@link SettingsImpl#settings} with user-provided values.
      *
      * @param settings the user-provided values
      */

@@ -25,12 +25,16 @@ import java.util.List;
 /**
  * A comparator for {@link Playlist}.
  * <p>
- * It prioritize non-null playlists, and then prioritizes playlists according to the lexicographic ordering of their {@link Playlist#ancestry} using {@link LexicographicComparator}.
+ * It prioritize non-null playlists, and then prioritizes playlists according to the lexicographic ordering
+ * of their {@link Playlist#ancestry} using {@link LexicographicComparator}.
  * <p>
- * This means it will compare the ancestry of the playlists one by one and return a result once it finds an entry that is not equal.
- * For comparing the entries of the ancestries, it uses a comparator that prioritizes playlists with no children and otherwise compares the name.
+ * This means it will compare the ancestry of the playlists one by one and return a result
+ * once it finds an entry that is not equal.
+ * For comparing the entries of the ancestries,
+ * it uses a comparator that prioritizes playlists with no children and otherwise compares the name.
  * <p>
- * If the ancestry of one playlist is a prefix of the ancestry of the other, then the playlist with the shorter ancestry is prioritized.
+ * If the ancestry of one playlist is a prefix of the ancestry of the other,
+ * then the playlist with the shorter ancestry is prioritized.
  */
 public class PlaylistComparator implements Comparator<Playlist>
 {
@@ -53,9 +57,9 @@ public class PlaylistComparator implements Comparator<Playlist>
      */
     static private final Comparator<Playlist> CHILDREN_EXISTENCE_COMPARATOR =
             (Playlist o1, Playlist o2) -> {
-                if (o1.children() != null && o1.children().size() > 0)
+                if (o1.hasChildren())
                 {
-                    if (o2.children() == null || o2.children().size() == 0)
+                    if (!o2.hasChildren())
                     {
                         // First has has children, second one does not
                         return SECOND_HAS_PRIORITY;
@@ -66,7 +70,7 @@ public class PlaylistComparator implements Comparator<Playlist>
                         return EQUAL;
                     }
                 }
-                else if (o2.children() != null && o2.children().size() > 0)
+                else if (o2.hasChildren())
                 {
                     // Second one has children, first one does not
                     return FIRST_HAS_PRIORITY;
@@ -93,8 +97,10 @@ public class PlaylistComparator implements Comparator<Playlist>
                     .thenComparing(Playlist::name, BasicComparators.STRING_COMPARATOR)
                     .thenComparing(Playlist::playlistPersistentId, BasicComparators.STRING_COMPARATOR);
 
+    /**
+     * Lift {@link #BASIC_PLAYLIST_COMPARATOR} from {@code Playlist} to {@code List<Playlist>}  using {@link LexicographicComparator}.
+     */
     static private final Comparator<List<Playlist>> ANCESTRY_COMPARATOR = new LexicographicComparator<>(BASIC_PLAYLIST_COMPARATOR);
-
 
     @Override
     public int compare (Playlist o1, Playlist o2)
@@ -104,5 +110,5 @@ public class PlaylistComparator implements Comparator<Playlist>
                 .thenComparing(Playlist::ancestry, ANCESTRY_COMPARATOR)
                 .compare(o1, o2);
     }
-    
+
 }

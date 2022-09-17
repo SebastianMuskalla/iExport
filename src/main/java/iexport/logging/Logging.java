@@ -24,10 +24,24 @@ package iexport.logging;
  */
 public class Logging
 {
+    /**
+     * The singleton logger.
+     */
     private static final Logger instance = new StdoutLogger();
 
+    /**
+     * @return the singleton logger
+     */
     public static Logger getLogger ()
     {
         return instance;
     }
+
+    /**
+     * This class should not be instantiated.
+     */
+    private Logging ()
+    {
+    }
+
 }

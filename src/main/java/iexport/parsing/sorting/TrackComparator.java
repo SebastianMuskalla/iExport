@@ -25,21 +25,20 @@ import java.util.Comparator;
 import java.util.Objects;
 
 /**
- * A comparator for {@link Track} that works as follows:
+ * A comparator for {@link Track} that ...
  * <ol>
  *     <li> Prioritizes non-null tracks
  *     <li> Prioritizes artist (using {@link Track#sortAlbumArtist}, {@link Track#albumArtist}, {@link Track#sortArtist}, {@link Track#artist} in this order) using {@link String.CaseInsensitiveComparator}
- *     <li> Prioritize earlier {@link Track#year}
- *     <li> Prioritize album (using {@link Track#sortAlbum} or {@link Track#album}) using {@link String.CaseInsensitiveComparator}
- *     <li> Prioritize smaller {@link Track#discNumber}
- *     <li> Prioritize smaller {@link Track#trackNumber}
- *     <li> Prioritize name (using {@link Track#sortName} or {@link Track#name}) using {@link String.CaseInsensitiveComparator}
- *     <li> Prioritze {@link Track#persistentId}
+ *     <li> Prioritizes earlier {@link Track#year}
+ *     <li> Prioritizes album (using {@link Track#sortAlbum} or {@link Track#album}) using {@link String.CaseInsensitiveComparator}
+ *     <li> Prioritizes smaller {@link Track#discNumber}
+ *     <li> Prioritizes smaller {@link Track#trackNumber}
+ *     <li> Prioritizes name (using {@link Track#sortName} or {@link Track#name}) using {@link String.CaseInsensitiveComparator}
+ *     <li> Prioritizes {@link Track#persistentId}
  * </ol>
  */
 public class TrackComparator implements Comparator<Track>
 {
-
     /**
      * NULL_COMPARATOR (@link {@link BasicComparators#NULL_COMPARATOR()} for type {@link Playlist}.
      */
@@ -48,7 +47,8 @@ public class TrackComparator implements Comparator<Track>
     /**
      * Compares the artist of two tracks.
      * <p>
-     * For each of the tracks it will get the first of the following values that is neither {@code null} nor empty:
+     * For each of the tracks it will get the first of the following values
+     * that is neither {@code null} nor empty ({@code ""}):
      * {@link Track#sortAlbumArtist}, {@link Track#albumArtist}, {@link Track#sortArtist}, {@link Track#artist}
      * and then compare them using {@link String.CaseInsensitiveComparator}
      */
@@ -83,7 +83,7 @@ public class TrackComparator implements Comparator<Track>
     };
 
     /**
-     * Compares the names (titles of two tracks.
+     * Compares the names (titles) of two tracks.
      * <p>
      * For each track, it will use the value {@link Track#sortName} if it is not null and non-empty, otherwise {@link Track#name},
      * and then compare them using {@link String.CaseInsensitiveComparator}
@@ -121,8 +121,7 @@ public class TrackComparator implements Comparator<Track>
      * Compares the persistent ids of two tracks, prioritizing non-null and smaller ids
      */
     static private final Comparator<Track> PERSISTENT_ID_COMPARATOR = Comparator.comparing(Track::persistentId, BasicComparators.STRING_COMPARATOR);
-
-
+    
     @Override
     public int compare (Track o1, Track o2)
     {

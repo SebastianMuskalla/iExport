@@ -63,7 +63,7 @@ public class HelpTask implements Task
      */
     public void printListOfTasks (boolean includeInteractive)
     {
-        int indentation = 1;
+        final int INDENTATION = 1;
 
         Logging.getLogger().message("Available tasks:");
 
@@ -77,14 +77,14 @@ public class HelpTask implements Task
         {
             String interactiveString = IExport.INTERACTIVE_MODE_NAMES.get(0);
             maxTaskNameLength = Integer.max(maxTaskNameLength, interactiveString.length());
-            Logging.getLogger().message(indentation,
+            Logging.getLogger().message(INDENTATION,
                     padWithSpaces(interactiveString, maxTaskNameLength) + " - " + "specify task on STDIN");
         }
 
         // Print name and description for each task
         for (Task task : tasks)
         {
-            Logging.getLogger().message(indentation,
+            Logging.getLogger().message(INDENTATION,
                     padWithSpaces(task.getTaskName(), maxTaskNameLength) + " - " + task.getDescription());
         }
     }

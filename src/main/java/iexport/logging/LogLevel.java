@@ -26,24 +26,24 @@ package iexport.logging;
 public enum LogLevel
 {
     /**
-     * Debug / very verbose log messages: Stuff you don't need to see unless you try to fix a problem.
+     * Debug messages - Stuff you don't need to see unless you try to fix a problem.
      */
     DEBUG(40),
 
     /**
-     * Info / verbose log messages: Stuff that might be interesting, but that you don't really need to see.
+     * Normal output.
      */
-    INFO(30),
+    NORMAL(30),
 
     /**
-     * Normal log messages: Stuff you generally want to see.
+     * Warnings that you should so.
      */
-    NORMAL(20),
+    WARNING(20),
 
     /**
-     * Important output (error messages) that you really want to see
+     * Error messages that are important.
      */
-    IMPORTANT(10);
+    ERROR(10);
 
     /**
      * An integer value for each log level that can be used for comparison.
@@ -58,7 +58,7 @@ public enum LogLevel
     }
 
     /**
-     * @return the internal value.
+     * @return the internal value
      */
     public int getValue ()
     {

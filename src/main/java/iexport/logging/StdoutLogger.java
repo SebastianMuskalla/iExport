@@ -33,15 +33,15 @@ public class StdoutLogger extends Logger
     /**
      * Should output messages be prefixes with their log level?
      */
-    private static final boolean USE_PREFIXES = false;
+    private static final boolean USE_PREFIXES = true;
 
     /**
-     * A print stream that uses UTF8.
+     * A version of {@code System.out.println} that uses UTF8.
      */
     private static final PrintStream OUT = new PrintStream(System.out, true, UTF_8);
 
     /**
-     * Pattern for newline (either \n or \r\n)
+     * Pattern for newline (either \n or \r\n).
      */
     private static final Pattern NEWLINE_PATTERN = Pattern.compile("\\R");
 
@@ -58,20 +58,25 @@ public class StdoutLogger extends Logger
      */
     private static final Map<LogLevel, String> PREFIXES = new HashMap<>();
 
+    /**
+     * The default log level.
+     * <p>
+     * Note that setting this to anything other than {@link LogLevel#DEBUG} may hide information during start up.
+     */
+    private static final LogLevel DEFAULT_LOGLEVEL = LogLevel.NORMAL;
+
     static
     {
-        PREFIXES.put(LogLevel.DEBUG, "//");
-        PREFIXES.put(LogLevel.INFO, "? ");
-        PREFIXES.put(LogLevel.NORMAL, "? ");
-        PREFIXES.put(LogLevel.IMPORTANT, "! ");
+        PREFIXES.put(LogLevel.DEBUG, "DEBUG: ");
+        PREFIXES.put(LogLevel.NORMAL, "");
+        PREFIXES.put(LogLevel.WARNING, "WARNING: ");
+        PREFIXES.put(LogLevel.ERROR, "ERROR: ");
     }
 
     /**
      * The messages of which log level should we accept?
-     * <p>
-     * By default, we accept all messages.
      */
-    private LogLevel verbosity = LogLevel.DEBUG;
+    private LogLevel verbosity = DEFAULT_LOGLEVEL;
 
     /**
      * Log a message with the specified log level and the specified amount of indentation.
@@ -95,18 +100,17 @@ public class StdoutLogger extends Logger
         {
             if (USE_PREFIXES)
             {
-                // Not in quiet mode - add prefixes
                 final String prefix = PREFIXES.get(logLevel) == null ? "" : PREFIXES.get(logLevel);
 
                 NEWLINE_PATTERN
                         .splitAsStream(message)
-                        .map((s) -> String.join("", Collections.nCopies(indentation, BASE_INDENTATION)) + s)
                         .map((s) -> prefix + s)
+                        .map((s) -> String.join("", Collections.nCopies(indentation, BASE_INDENTATION)) + s)
                         .forEach(OUT::println);
             }
             else
             {
-                // In quiet mode - just add indentation
+                // Just add indentation.
                 NEWLINE_PATTERN
                         .splitAsStream(message)
                         .map((s) -> BASE_INDENTATION.repeat(indentation) + s)

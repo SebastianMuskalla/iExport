@@ -64,9 +64,9 @@ public interface Settings
         }
         catch (Exception e)
         {
-            Logging.getLogger().important("Applying replacement of " + userProfilePlaceholder + " failed");
-            Logging.getLogger().info(1, "Cause : " + e);
-            Logging.getLogger().info(1, "Message: " + e.getMessage());
+            Logging.getLogger().warning("Applying replacement of " + userProfilePlaceholder + " failed");
+            Logging.getLogger().debug(1, "Cause : " + e);
+            Logging.getLogger().debug(1, "Message: " + e.getMessage());
         }
         return pathString;
     }

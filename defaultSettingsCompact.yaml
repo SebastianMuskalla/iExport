@@ -1,9 +1,10 @@
 ---
+
 # iExport Settings
 
 logLevel: NORMAL # QUIET, NORMAL, VERBOSE, DEBUG
 
-task: interactive # options see below
+task: interactive # see below
 
 parsing:
     xmlFilePath:                  "%USERPROFILE%\\Music\\iTunes\\iTunes Music Library.xml"
@@ -34,7 +35,7 @@ tasks:
         ignorePlaylists:
           - SomePlaylistName
 
-    printMultiplyListedTracks":   # Print the list of tracks that are contained in more than one playlist.
+    printMultiplyListedTracks": # Print the list of tracks that are contained in more than one playlist.
         ignorePlaylists:
           - SomePlaylistName
 

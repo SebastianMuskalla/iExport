@@ -18,10 +18,10 @@
     # --------
     # How much output to do you want?
     # Options:
-    #   "QUIET"   - reduced output
-    #   "NORMAL"  - regular output
-    #   "VERBOSE" - additional output
     #   "DEBUG"   - full output for debugging
+    #   "NORMAL"  - regular output
+    #   "WARNING" - hide regular output, but show warnings
+    #   "ERROR"   - hide warnings, only show error messages
     # Default value: "NORMAL"
       "logLevel" : "NORMAL",
 
@@ -34,10 +34,11 @@
       "task" :     "interactive",
 
 
+    # Parsing settings
+    # ================
+
       "parsing" :
         {
-          # Parsing settings
-          # ================
 
           # parsing.xmlFilePath
           # -----------
@@ -83,10 +84,11 @@
         }, # end of parsing
 
 
+    # Tasks and their settings
+    # ========================
+
       "tasks" :
         {
-          # Tasks and their settings
-          # ========================
 
             "interactive" :
               # Ask the user to provide a task name on STDIN and execute this task.
