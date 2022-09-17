@@ -57,9 +57,9 @@ public class PlaylistComparator implements Comparator<Playlist>
      */
     static private final Comparator<Playlist> CHILDREN_EXISTENCE_COMPARATOR =
             (Playlist o1, Playlist o2) -> {
-                if (o1.hasChildren())
+                if (o1.isFolder())
                 {
-                    if (!o2.hasChildren())
+                    if (!o2.isFolder())
                     {
                         // First has has children, second one does not
                         return SECOND_HAS_PRIORITY;
@@ -70,7 +70,7 @@ public class PlaylistComparator implements Comparator<Playlist>
                         return EQUAL;
                     }
                 }
-                else if (o2.hasChildren())
+                else if (o2.isFolder())
                 {
                     // Second one has children, first one does not
                     return FIRST_HAS_PRIORITY;

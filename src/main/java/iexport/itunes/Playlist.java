@@ -231,9 +231,20 @@ public record Playlist
      *
      * @return true iff this playlist has children
      */
-    public boolean hasChildren ()
+    public boolean isFolder ()
     {
         return children != null && !children.isEmpty();
+    }
+
+    /**
+     * Check if this playlist is the master playlist
+     * (e.g. called "Library" in English locale).
+     *
+     * @return true iff this playlist is the master playlist
+     */
+    public boolean isMaster ()
+    {
+        return (master() != null && master());
     }
 }
 

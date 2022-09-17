@@ -243,7 +243,7 @@ public class ExportFilesTask extends Task
     private boolean isIgnored (Playlist playlist)
     {
         return
-                (settings.getSettingOnlyActualPlaylists() && playlist.hasChildren())
+                (settings.getSettingOnlyActualPlaylists() && playlist.isFolder())
                         ||
                         (playlist.name() != null && settings.getSettingIgnorePlaylists().contains(playlist.name()))
                 ;

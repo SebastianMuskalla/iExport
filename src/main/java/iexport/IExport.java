@@ -279,7 +279,7 @@ public class IExport
             iterations++;
             if (iterations > 5)
             {
-                easterEgg();
+                baka();
             }
             if (iterations > 1)
             {
@@ -341,12 +341,15 @@ public class IExport
             taskSettings = new RawTaskSettings(taskName);
         }
 
+        System.out.println(taskSettings);
+
         Logging.getLogger().message("Running task " + taskName);
         Logging.getLogger().message("");
 
         try
         {
             task.initialize(library, taskSettings);
+            task.reportProblems();
             task.execute();
         }
         catch (Exception e)
@@ -370,7 +373,7 @@ public class IExport
      * <p>
      * Please don't treat iExport-chan like that.
      */
-    private static void easterEgg ()
+    private static void baka ()
     {
         Logging.getLogger().error("HMPH!!! You are a big");
         Logging.getLogger().error("########     ###    ##    ##    ###    #### #### ####");

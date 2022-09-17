@@ -23,6 +23,9 @@ import iexport.logging.Logging;
 import iexport.tasks.Task;
 
 
+/**
+ * A task that prints all playlists (folders and actual playlists) in the iTunes library.
+ */
 public class PrintPlaylistsTask extends Task
 {
     @Override
@@ -34,33 +37,40 @@ public class PrintPlaylistsTask extends Task
     @Override
     public String getDescription ()
     {
-        return "prints the playlists";
+        return "prints folders & playlists";
     }
 
     @Override
     public void run ()
     {
-        // It would be pretty silly to call this task but then hide the output
+        // It would be pretty silly to call this task but then hide the output.
         if (Logging.getLogger().getLogLevel().lessVerbose(LogLevel.NORMAL))
         {
             Logging.getLogger().setLogLevel(LogLevel.NORMAL);
         }
+
+        // Collect and show some basic information.
 
         final int numberPlaylists = library.playlists().size();
         final int numberTopLevelPlaylists = library.playlistsAtTopLevel().size();
         final int numberFolders = (int) library.playlists().stream().filter((p) -> p.children() != null && p.children().size() > 0).count();
         final int actualPlaylists = numberPlaylists - numberFolders;
 
-
-        Logging.getLogger().message("Library consists of " + numberPlaylists + " playlists");
+        Logging.getLogger().message("Library consists of " + numberPlaylists + " playlists/folders");
         Logging.getLogger().message(1,
-                "- " + numberTopLevelPlaylists + " top-level playlists");
+                "- " + numberTopLevelPlaylists + " top-level playlists/folders");
         Logging.getLogger().message(1,
                 "- " + numberFolders + " folders");
         Logging.getLogger().message(1,
                 "- " + actualPlaylists + " actual playlists");
 
         Logging.getLogger().message("");
+
+        // Print all playlists.
+        Logging.getLogger().message("Playlists");
+        Logging.getLogger().message("---------");
+        Logging.getLogger().message("");
+
         for (Playlist playlist : library.playlists())
         {
             String res = "";

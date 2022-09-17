@@ -24,6 +24,14 @@ import iexport.logging.Logging;
 import iexport.tasks.Task;
 
 
+/**
+ * A task that prints the iTunes library, including
+ * <ul>
+ *     <li> general information,
+ *     <li> the list of playlists in the library, and
+ *     <li> the full list of tracks.
+ * </ul>
+ */
 public class PrintLibraryTask extends Task
 {
     @Override
@@ -47,27 +55,29 @@ public class PrintLibraryTask extends Task
             Logging.getLogger().setLogLevel(LogLevel.NORMAL);
         }
 
+        // Print information about the library
         Logging.getLogger().message("Library");
         Logging.getLogger().message("-------");
         Logging.getLogger().message("");
         Logging.getLogger().message(library.toString());
         Logging.getLogger().message("");
-        Logging.getLogger().message("");
 
+        // Print all playlists.
         Logging.getLogger().message("Playlists");
         Logging.getLogger().message("---------");
         Logging.getLogger().message("");
 
         for (Playlist playlist : library.playlists())
         {
+            // Some formatting to represent the folder structure.
             String res = "";
             res += "|   ".repeat(playlist.depth());
             res += playlist;
             Logging.getLogger().message(res);
         }
         Logging.getLogger().message("");
-        Logging.getLogger().message("");
 
+        // Print all tracks.
         Logging.getLogger().message("Tracks");
         Logging.getLogger().message("------");
         Logging.getLogger().message("");
@@ -76,7 +86,6 @@ public class PrintLibraryTask extends Task
         {
             Logging.getLogger().message(track.toString());
         }
-        Logging.getLogger().message("");
 
     }
 

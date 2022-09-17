@@ -108,7 +108,7 @@
               },
 
             "quit" :
-              # Exit iExport. Bye!
+              # Simply exit iExport. Bye!
               {
                 # (this task has no settings)
               },
@@ -120,7 +120,7 @@
               },
 
             "printPlaylists" :
-              # Print detailed information on the playlists in the library.
+              # Print all playlists (folders and actual playlists) in the iTunes library.
               {
                 # (this task has no settings)
               },
@@ -137,7 +137,7 @@
                 # Default value: []
                   "ignorePlaylists" :
                     [
-                        "Nirgends",
+                      # "SomePlaylistName",
                     ],
               }, # end of tasks.printUnlistedTracks
 
@@ -148,12 +148,12 @@
               {
                 # tasks.printMultiplyListedTracks.ignorePlaylists
                 # -----------------------------------------------
-                # Specify playlists that should be ignored,
+                # Specify playlist names that should be ignored,
                 #   i.e. they will not be counted towards the number of playlists a track is in.
                 # Default value: []
                   "ignorePlaylists" :
                     [
-                        "NEUES",
+                      # "SomePlaylistName",
                     ],
               }, # end of tasks.printMultiplyListedTracks
 

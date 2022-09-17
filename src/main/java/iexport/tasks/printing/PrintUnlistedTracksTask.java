@@ -17,17 +17,29 @@
 
 package iexport.tasks.printing;
 
+import iexport.itunes.Library;
 import iexport.itunes.Playlist;
 import iexport.itunes.Track;
 import iexport.logging.LogLevel;
 import iexport.logging.Logging;
+import iexport.settings.RawTaskSettings;
 import iexport.tasks.Task;
 
 import java.util.function.Predicate;
 
-
+/**
+ * A task that will print tracks that are not contained in any playlist.
+ * <p>
+ * We ignore the master playlist,  all distinguished playlists (e.g. "Music", "Downloaded").
+ * The user may use the setting tasks.printUnlistedTracks.ignorePlaylists to specify additional playlist names
+ * that should be ignored (i.e. a track will count as unlisted even if it is in one of these playlists).
+ */
 public class PrintUnlistedTracksTask extends Task
 {
+    /**
+     * The settings used for this task.
+     */
+    PrintUnlistedTracksTaskSettings settings;
 
     @Override
     public String getTaskName ()
@@ -42,27 +54,65 @@ public class PrintUnlistedTracksTask extends Task
     }
 
     @Override
+    public void initialize (Library library, RawTaskSettings rawTaskSettings)
+    {
+        super.initialize(library, rawTaskSettings);
+
+        // Convert the RawTaskSettings into settings for this type of task.
+        settings = new PrintUnlistedTracksTaskSettings(rawTaskSettings);
+    }
+
+
+    @Override
+    public void reportProblems ()
+    {
+        // Check that this task has been initialized.
+        super.reportProblems();
+
+        // Settings should now be non-null.
+        if (settings == null)
+        {
+            throw new RuntimeException("Settings have not been initialized for Task " + getTaskName());
+        }
+
+        // Report if we are using default settings.
+        if (settings.isDefault())
+        {
+            Logging.getLogger().warning("No settings for task " + getTaskName() + " have been specified in the .yaml file, using all default settings from now on");
+        }
+        else
+        {
+            // Report settings that are specified in the .yaml file, but not actually used by this task.
+            for (String key : settings.unusedSettings())
+            {
+                Logging.getLogger().warning("Setting for key \"" + settings.getYamlPath(key) + "\""
+                        + " specified in .yaml file, but it is not used by iExport");
+            }
+        }
+    }
+
+    @Override
     public void run ()
     {
-        // It would be pretty silly to call this task but then hide the output
+        // It would be pretty silly to call this task but then hide the output.
         if (Logging.getLogger().getLogLevel().lessVerbose(LogLevel.NORMAL))
         {
             Logging.getLogger().setLogLevel(LogLevel.NORMAL);
         }
 
-        PrintUnlistedTracksTaskSettings settings = new PrintUnlistedTracksTaskSettings(rawTaskSettings);
-
+        // Predicate that is true if a playlist should not count towards the playlists a track is in.
         final Predicate<Playlist> IGNORE_PLAYLISTS =
                 (playlist ->
                         // Ignore the master playlist.
-                        (playlist.master() != null && playlist.master())
+                        (playlist.isMaster())
                                 // Ignore distinguished playlists.
                                 || (playlist.distinguishedKind() != null)
                                 // Ignore playlists whose name is specified in tasks.printUnlistedTracks.ignorePlaylists.
-                                || (playlist.name() != null && settings.getSettingIgnorePlaylists().contains(playlist.name()))
+                                || (playlist.name() != null && settings.getIgnorePlaylists().contains(playlist.name()))
                 );
 
-        final Predicate<Track> TRACKS_PREDICATE =
+        // Predicate that is true if a track is not in any non-ignored playlist.
+        final Predicate<Track> TRACK_PREDICATE =
                 (track ->
                         track
                                 .inPlaylists()
@@ -70,15 +120,28 @@ public class PrintUnlistedTracksTask extends Task
                                 .noneMatch(Predicate.not(IGNORE_PLAYLISTS))
                 );
 
-        Logging.getLogger().message("Tracks that are not in any playlist");
-        Logging.getLogger().message("-----------------------------------");
+        // Check if there are tracks that are in multiple non-ignored playlists
+        if (library.tracks().stream().filter(TRACK_PREDICATE).findAny().isEmpty())
+        {
+            // Stream is empty
+            Logging.getLogger().message("Every track is contained in at least one playlist.");
+        }
+        else
+        {
+            // There are such tracks
+            Logging.getLogger().message("Tracks that are not contained in any playlist");
+            Logging.getLogger().message("---------------------------------------------");
+            Logging.getLogger().message("");
 
-        library
-                .tracks()
-                .stream()
-                .filter(TRACKS_PREDICATE)
-                .map(Track::toString)
-                .forEach(Logging.getLogger()::message);
+            // Print them
+            library
+                    .tracks()
+                    .stream()
+                    .filter(TRACK_PREDICATE)
+                    .map(Track::toString)
+                    .forEach(Logging.getLogger()::message);
+        }
+
     }
 
 }

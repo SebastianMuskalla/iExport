@@ -27,16 +27,33 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-
+/**
+ * Setting for {@link PrintMultiplyListedTracksTask}.
+ */
 public class PrintMultiplyListedTracksTaskSettings extends TaskSettings
 {
 
+    /**
+     * The default settings.
+     */
     private static final Map<String, Object> PRINT_MULTIPLY_LISTED_TRACKS_DEFAULT_SETTINGS = new HashMap<>();
+
+    /**
+     * tasks.printMultiplyListedTracks.ignorePlaylists
+     * -----------------------------------------------
+     * Specify playlist names that should be ignored,
+     * i.e. they will not be counted towards the number of playlists a track is in.
+     */
     private static final String SETTING_IGNORE_PLAYLISTS = "ignorePlaylists";
-    private static final List<String> SETTING_IGNORE_PLAYLISTS_DEFAULT_VALUE = List.of();
+
+    /**
+     * Default value for tasks.printMultiplyListedTracks.ignorePlaylists
+     */
+    private static final List<String> SETTING_IGNORE_PLAYLISTS_DEFAULT_VALUE = List.of(); // empty list
 
     static
     {
+        // Set default values.
         PRINT_MULTIPLY_LISTED_TRACKS_DEFAULT_SETTINGS.put(SETTING_IGNORE_PLAYLISTS, SETTING_IGNORE_PLAYLISTS_DEFAULT_VALUE);
     }
 
@@ -51,12 +68,7 @@ public class PrintMultiplyListedTracksTaskSettings extends TaskSettings
         return getUserSpecifiedKeys().stream().filter(Predicate.not(PRINT_MULTIPLY_LISTED_TRACKS_DEFAULT_SETTINGS::containsKey)).collect(Collectors.toSet());
     }
 
-    protected Object getDefaultValueFor (String key)
-    {
-        return PRINT_MULTIPLY_LISTED_TRACKS_DEFAULT_SETTINGS.get(key);
-    }
-
-    public List<String> getSettingIgnorePlaylists ()
+    public List<String> getIgnorePlaylists ()
     {
         String key = SETTING_IGNORE_PLAYLISTS;
         Object result = getValueFor(key);
@@ -78,6 +90,11 @@ public class PrintMultiplyListedTracksTaskSettings extends TaskSettings
             throw new RuntimeException(this.getClass().getSimpleName() + ": invalid entry for " + getYamlPath(key)
                     + ", expected an array of strings, but got null");
         }
+    }
+
+    protected Object getDefaultValueFor (String key)
+    {
+        return PRINT_MULTIPLY_LISTED_TRACKS_DEFAULT_SETTINGS.get(key);
     }
 
 }
