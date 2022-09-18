@@ -2,73 +2,76 @@
 
 # iExport Settings
 
-logLevel: NORMAL # QUIET, NORMAL, VERBOSE, DEBUG
+logLevel: NORMAL # DEBUG, NORMAL, WARNING, ERROR
 
-task: interactive # see below
+task:     interactive # see a list of tasks below
+
 
 parsing:
     xmlFilePath:                  "%USERPROFILE%\\Music\\iTunes\\iTunes Music Library.xml"
     ignoreEmptyPlaylists:         true
-    ignoreNonMusicPlaylists:      true
-    ignoreDistinguishedPlaylists: true
     ignoreMaster:                 true
+    ignoreNonMusicPlaylists:      true
+    ignoreDistinguishedPlaylists: false
     ignorePlaylistsByName:
-        - SomePlaylistName
+    # - SomePlaylistName
 
 tasks:
     interactive:  # Ask the user to provide a task name on STDIN and execute this task.
-        # (this task has no settings)
+    # (this task has no settings)
 
     help: # Print usage instructions on STDOUT, including a list of all tasks.
-        # (this task has no settings)
+    # (this task has no settings)
 
     quit: # Exit iExport. Bye!
-        # (this task has no settings)
+    # (this task has no settings)
 
     printLibrary: # Print information about the library, including the playlists and tracks.
-        # (this task has no settings)
+    # (this task has no settings)
 
-    printPlaylists: # Print detailed information on the playlists in the library.
-        # (this task has no settings)
+    printPlaylists: # Print all playlists (folders and actual playlists) in the iTunes library.
+    # (this task has no settings)
 
     printUnlistedTracks: # Print the list of tracks that are not contained in any playlist.
         ignorePlaylists:
-          - SomePlaylistName
+        # - SomePlaylistName
 
-    printMultiplyListedTracks": # Print the list of tracks that are contained in more than one playlist.
+    printMultiplyListedTracks: # Print the list of tracks that are contained in more than one playlist.
         ignorePlaylists:
-          - SomePlaylistName
+        #    - SomePlaylistName
 
     generatePlaylists: # Export the iTunes playlists by generating .m3u files at a specified location.
-        outputFolder:           "E:\\Audio\\Playlists"
-        deleteFolder:           true
-        organizeInFolders:      true
-        hierarchicalNames:      true
-        onlyActualPlaylists:    false
-        playlistExtension:      ".m3u8"
-        useRelativePaths:       true
-        warnSquareBrackets:     true
+        outputFolder:                 "%USERPROFILE%\\Desktop\\iExport\\Playlists"
+        deleteFolder:                 false
+        organizeInFolders:            true
+        hierarchicalNames:            true
+        onlyActualPlaylists:          false
+        ignoreDistinguishedPlaylists: false
         ignorePlaylists:
-          - SomePlaylistName
-        showContinuousProgress: true
-        slashAsSeparator:       true
-        trackVerification:      false
+          # - SomePlaylistName
+        playlistExtension:            ".m3u8"
+        useRelativePaths:             false
+        warnSquareBrackets:           true
+        slashAsSeparator:             false
+        trackVerification:            true
+        showContinuousProgress:       true
 
-    exportFiles: # Export the iTunes playlists by copying together folders that contain the tracks as files
-        outputFolder:           "E:\\USBEXPORT"
-        deleteFolder:           true
-        hierarchicalNames:      true
-        onlyActualPlaylists:    true
+    exportFiles: # Export the iTunes playlists by creating folders that contain the tracks as files
+        outputFolder:                 "%USERPROFILE%\\Desktop\\iExport\\Files"
+        deleteFolder:                 false
+        hierarchicalNames:            true
+        onlyActualPlaylists:          true
+        ignoreDistinguishedPlaylists: true
         ignorePlaylists:
-          - SomePlaylistName
+          # - SomePlaylistName
         toRootFolder:
-          - SomeOtherPlaylistName
-        showContinuousProgress: true
-        folderNumbering:        true
-        initialNumber:          2
-        padFolderNumbers:       true
-        trackNumbering:         true
-        padTrackNumbers:        true
-        normalize:              true
+          # - SomeOtherPlaylistName
+        folderNumbering:              true
+        padFolderNumbers:             true
+        initialNumber:                1
+        trackNumbering:               true
+        padTrackNumbers:              true
+        normalize:                    true
+        showContinuousProgress:       true
 
 ...
