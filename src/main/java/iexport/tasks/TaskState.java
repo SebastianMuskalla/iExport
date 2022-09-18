@@ -43,5 +43,5 @@ public enum TaskState
     /**
      * The task has been executed once and cannot be executed again.
      */
-    DONE;
+    DONE
 }

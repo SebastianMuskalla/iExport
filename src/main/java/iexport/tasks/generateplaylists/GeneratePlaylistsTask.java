@@ -130,9 +130,7 @@ public class GeneratePlaylistsTask extends Task
         // Check which playlists have to be processed (i.e. they are not ignored).
         List<Playlist> playlistsToProcess = library.playlists().stream().filter(Predicate.not(this::isIgnored)).toList();
 
-        /**
-         * Total number of playlists to process.
-         */
+        // Total number of playlists to process.
         int totalNumberOfPlaylists = playlistsToProcess.size();
 
         progressPrinter = new ProgressPrinter(totalNumberOfPlaylists);

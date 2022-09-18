@@ -29,6 +29,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 
+@SuppressWarnings("ConstantConditions")
 public class GeneratePlaylistsTaskSettings extends TaskSettings
 {
 

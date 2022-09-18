@@ -48,8 +48,8 @@ public class IExport
      * String that indicate that the special help task that prints usage instructions should be executed.
      */
     public static final List<String> HELP_TASK_NAMES = List.of("HELP", "-h", "--h", "-help", "--help", "usage", "man");
-    private static int EXIT_CODE_OK = 0;
-    private static int EXIT_CODE_ERROR = 1;
+    private static final int EXIT_CODE_OK = 0;
+    private static final int EXIT_CODE_ERROR = 1;
 
     /**
      * Run iExport.
@@ -99,6 +99,7 @@ public class IExport
         }
 
         // We can now get the log level that should be used for the rest of the execution
+        assert settingsTriple != null;
         GeneralSettings generalSettings = settingsTriple.generalSettings();
         LogLevel logLevel = generalSettings.getLogLevel();
 
@@ -180,7 +181,7 @@ public class IExport
             Logging.getLogger().error("Message: " + e.getMessage());
             Logging.getLogger().message("Trace: ");
             e.printStackTrace();
-            System.exit(1);
+            System.exit(EXIT_CODE_ERROR);
         }
     }
 
@@ -278,7 +279,7 @@ public class IExport
             Logging.getLogger().error("No task with the name \"" + taskName + "\" exists.");
             // Otherwise we print the list of available tasks once again and crash
             TaskRegistry.getHelpTask().printListOfTasks(false);
-            System.exit(1);
+            System.exit(EXIT_CODE_ERROR);
             return null; // unreachable
         }
         else

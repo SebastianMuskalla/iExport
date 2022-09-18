@@ -47,7 +47,7 @@ public class FolderDeleter
 
         // Implement the recursion
         Files.walkFileTree(pathToFile,
-                new SimpleFileVisitor<Path>()
+                new SimpleFileVisitor<>()
                 {
                     @Override
                     public FileVisitResult visitFile (Path file, BasicFileAttributes attrs)

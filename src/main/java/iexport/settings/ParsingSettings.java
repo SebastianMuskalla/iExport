@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
  * <p>
  * These settings correspond to the dictionary under the key "parsing" in the root dictionary of the .yaml file.
  */
+@SuppressWarnings("ConstantConditions")
 public class ParsingSettings extends SettingsImpl
 {
     /**

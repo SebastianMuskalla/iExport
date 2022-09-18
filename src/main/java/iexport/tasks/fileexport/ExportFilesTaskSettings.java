@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 /**
  * Settings for {@link ExportFilesTask}.
  */
+@SuppressWarnings("ConstantConditions")
 public class ExportFilesTaskSettings extends TaskSettings
 {
     /**

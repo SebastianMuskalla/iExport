@@ -35,7 +35,7 @@ public abstract class Task
      * An implementation of this class may want to convert the object of class {@link RawTaskSettings}
      * to an object of {@link iexport.settings.TaskSettings} upon initialization.
      */
-    protected RawTaskSettings rawTaskSettings = null;
+    protected RawTaskSettings rawTaskSettings;
     /**
      * The internal state of the task.
      */
@@ -65,7 +65,7 @@ public abstract class Task
     {
         if (state != TaskState.UNINITIALIZED)
         {
-            throw new RuntimeException("Task " + this.toString() + " has already been initialized");
+            throw new RuntimeException("Task " + this + " has already been initialized");
         }
 
         this.library = library;
@@ -82,8 +82,8 @@ public abstract class Task
     {
         switch (state)
         {
-            case UNINITIALIZED -> throw new RuntimeException("Task " + this.toString() + " has not been inititalized yet");
-            case DONE -> throw new RuntimeException("Task " + this.toString() + " has already been executed.");
+            case UNINITIALIZED -> throw new RuntimeException("Task " + this + " has not been inititalized yet");
+            case DONE -> throw new RuntimeException("Task " + this + " has already been executed.");
             case READY ->
             {
                 // Actually run the task

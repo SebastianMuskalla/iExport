@@ -158,7 +158,7 @@ public class ProgressPrinter
         // If we are done, also append a newline a print "Done!"
         if (done)
         {
-            OUT.println("");
+            OUT.println();
             OUT.println("Done!");
         }
     }

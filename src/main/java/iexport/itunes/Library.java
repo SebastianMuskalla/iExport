@@ -58,23 +58,7 @@ public record Library
                 List<Playlist> playlistsAtTopLevel
         )
 {
-
-    /**
-     * @return the number of playlists contained in this library
-     */
-    public int numberOfPlaylists ()
-    {
-        return playlists.size();
-    }
-
-    /**
-     * @return the number of tracks contained in this library
-     */
-    public int numberOfTracks ()
-    {
-        return tracks.size();
-    }
-
+    
     @Override
     public String toString ()
     {
