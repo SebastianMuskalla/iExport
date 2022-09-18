@@ -51,7 +51,7 @@ import java.util.Set;
  * <key>Album</key><string>MechWarrior 5 Call to Arms</string>
  * <key>Kind</key><string>MPEG audio file</string>
  * <key>Sort Name</key><string>Burning</string>
- * <key>Location</key><string>file://localhost/E:/Audio/Music/M/MechWarrior%20-%202022%20MechWarrior%205%20Call%20to%20Arms/06%20-%20The%20Burningt.mp3</string>
+ * <key>Location</key><string>file://localhost/E:/Audio/Music/M/MechWarrior%20-%202022%20MechWarrior%205%20Call%20to%20Arms/06%20-%20The%20Burning.mp3</string>
  * </dict>
  * }
  *

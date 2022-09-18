@@ -180,7 +180,7 @@ public class PlaylistKeys
                 {
                     if (value.getClass().equals(Boolean.class))
                     {
-                        playlistBuilder.setAudibooks((Boolean) value);
+                        playlistBuilder.setAudiobooks((Boolean) value);
                     }
                     else
                     {

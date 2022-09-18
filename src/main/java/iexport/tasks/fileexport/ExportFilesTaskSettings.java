@@ -583,7 +583,7 @@ public class ExportFilesTaskSettings extends TaskSettings
     }
 
     /**
-     * Also replace %USERPROFIL% using {@link Settings#applyUserProfileReplacement(String)}.
+     * Also replace %USERPROFILE% using {@link Settings#applyUserProfileReplacement(String)}.
      *
      * @return tasks.exportFiles.outputFolder
      */

@@ -523,7 +523,7 @@ public class GeneratePlaylistsTaskSettings extends TaskSettings
     }
 
     /**
-     * Also replace %USERPROFIL% using {@link Settings#applyUserProfileReplacement(String)}
+     * Also replace %USERPROFILE% using {@link Settings#applyUserProfileReplacement(String)}
      *
      * @return tasks.generatePlaylists.outputFolder
      */

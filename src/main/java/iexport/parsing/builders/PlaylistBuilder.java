@@ -69,6 +69,11 @@ public class PlaylistBuilder
         return audiobooks;
     }
 
+    public void setAudiobooks (Boolean audiobooks)
+    {
+        this.audiobooks = audiobooks;
+    }
+
     public Boolean getTvShows ()
     {
         return tvShows;
@@ -162,11 +167,6 @@ public class PlaylistBuilder
     public void setMusic (Boolean music)
     {
         this.music = music;
-    }
-
-    public void setAudibooks (Boolean audiobooks)
-    {
-        this.audiobooks = audiobooks;
     }
 
     public String getParentPersistentId ()

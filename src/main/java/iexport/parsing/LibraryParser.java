@@ -114,7 +114,7 @@ public class LibraryParser
     }
 
     /**
-     * Parse the file as described in the documation of {@link LibraryParser}.
+     * Parse the file as described in the documentation of {@link LibraryParser}.
      *
      * @return the parsed library
      * @throws ITunesParsingException if parsing fails

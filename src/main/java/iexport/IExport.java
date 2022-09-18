@@ -167,7 +167,7 @@ public class IExport
     }
 
     /**
-     * Call this method if a critcal component of iExport has failed.
+     * Call this method if a critical component of iExport has failed.
      * <p>
      * It will print the exception class, the exception message, the stack trace, and exit with exit code 1.
      *
@@ -345,7 +345,7 @@ public class IExport
 
 
     /**
-     * Excutes the specified task on the given library and with the given settings.
+     * Executes the specified task on the given library and with the given settings.
      *
      * @param task           the task to execute
      * @param library        the parsed iTunes library
@@ -370,7 +370,7 @@ public class IExport
 
         try
         {
-            // Initailize the task with the library and the settings
+            // Initialize the task with the library and the settings
             task.initialize(library, taskSettings);
 
             // Report any problems that might exist in the task settings

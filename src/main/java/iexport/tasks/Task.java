@@ -82,7 +82,7 @@ public abstract class Task
     {
         switch (state)
         {
-            case UNINITIALIZED -> throw new RuntimeException("Task " + this + " has not been inititalized yet");
+            case UNINITIALIZED -> throw new RuntimeException("Task " + this + " has not been initialized yet");
             case DONE -> throw new RuntimeException("Task " + this + " has already been executed.");
             case READY ->
             {

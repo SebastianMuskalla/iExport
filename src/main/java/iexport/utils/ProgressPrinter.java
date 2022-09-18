@@ -28,7 +28,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * <p>
  * The progress bar will be essentially of the shape
  * <p>
- * {@literal [XXXX....]  XY% (current/goal) message}
+ * {@literal XXXX....  xy% (current/goal) message}
  * </p>
  * consisting of an ASCII progress bar,
  * the percentage of progress that has been reached,

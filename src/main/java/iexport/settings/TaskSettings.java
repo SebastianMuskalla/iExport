@@ -28,7 +28,7 @@ import java.util.Set;
  * For some task named TASK, these settings correspond to the dictionary
  * under the key "tasks.TASK" in the root dictionary of the .yaml file.
  * <p>
- * In contrast to an object of class {@link RawTaskSettings}, this object will provide default vlaues
+ * In contrast to an object of class {@link RawTaskSettings}, this object will provide default values
  * and type-safe getters.
  * <p>
  * However, this means {@link RawTaskSettings} have to explicitly converted into {@link TaskSettings}.
