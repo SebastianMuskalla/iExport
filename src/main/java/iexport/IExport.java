@@ -340,9 +340,7 @@ public class IExport
             // Settings are not set, generate default settings
             taskSettings = new RawTaskSettings(taskName);
         }
-
-        System.out.println(taskSettings);
-
+        
         Logging.getLogger().message("Running task " + taskName);
         Logging.getLogger().message("");
 

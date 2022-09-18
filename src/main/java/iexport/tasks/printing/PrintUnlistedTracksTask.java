@@ -25,6 +25,7 @@ import iexport.logging.Logging;
 import iexport.settings.RawTaskSettings;
 import iexport.tasks.Task;
 
+import java.util.List;
 import java.util.function.Predicate;
 
 /**
@@ -39,7 +40,7 @@ public class PrintUnlistedTracksTask extends Task
     /**
      * The settings used for this task.
      */
-    PrintUnlistedTracksTaskSettings settings;
+    private PrintUnlistedTracksTaskSettings settings;
 
     @Override
     public String getTaskName ()
@@ -120,8 +121,10 @@ public class PrintUnlistedTracksTask extends Task
                                 .noneMatch(Predicate.not(IGNORE_PLAYLISTS))
                 );
 
+        List<Track> unlistedTracks = library.tracks().stream().filter(TRACK_PREDICATE).toList();
+
         // Check if there are tracks that are in multiple non-ignored playlists
-        if (library.tracks().stream().filter(TRACK_PREDICATE).findAny().isEmpty())
+        if (unlistedTracks.isEmpty())
         {
             // Stream is empty
             Logging.getLogger().message("Every track is contained in at least one playlist.");
@@ -134,10 +137,8 @@ public class PrintUnlistedTracksTask extends Task
             Logging.getLogger().message("");
 
             // Print them
-            library
-                    .tracks()
+            unlistedTracks
                     .stream()
-                    .filter(TRACK_PREDICATE)
                     .map(Track::toString)
                     .forEach(Logging.getLogger()::message);
         }

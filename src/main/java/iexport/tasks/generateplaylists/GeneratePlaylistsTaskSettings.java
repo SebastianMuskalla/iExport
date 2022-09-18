@@ -36,6 +36,7 @@ public class GeneratePlaylistsTaskSettings extends TaskSettings
      * Default settings for the generatePlaylists task
      */
     private static final Map<String, Object> GENERATE_PLAYLISTS_DEFAULT_SETTINGS = new HashMap<>();
+
     /**
      * tasks.generatePlaylists.outputFolder
      * <p>
@@ -107,6 +108,20 @@ public class GeneratePlaylistsTaskSettings extends TaskSettings
     private static final Boolean SETTING_ONLY_ACTUAL_PLAYLISTS_DEFAULT_VALUE = false;
 
     /**
+     * tasks.generatePlaylists.ignoreDistinguishedPlaylists
+     * <p>
+     * Set to true to not export distinguished playlists.
+     * This includes playlists like "Music" (the entire music library), "Downloaded", and non-music libraries.
+     */
+    private static final String SETTING_IGNORE_DISTINGUISHED_PLAYLISTS = "ignoreDistinguishedPlaylists";
+
+    /**
+     * Default value for tasks.generatePlaylists.ignoreDistinguishedPlaylists
+     */
+    private static final Boolean SETTING_IGNORE_DISTINGUISHED_PLAYLISTS_DEFAULT_VALUE = false;
+
+
+    /**
      * tasks.generatePlaylists.playlistExtension
      * <p>
      * The extension (e.g. ".m3u", ".m3u8") of the generated playlist files.
@@ -143,7 +158,6 @@ public class GeneratePlaylistsTaskSettings extends TaskSettings
      */
     private static final Boolean SETTING_USE_RELATIVE_PATHS_DEFAULT_VALUE = false;
 
-
     /**
      * tasks.generatePlaylists.warnSquareBrackets
      * <p>
@@ -170,7 +184,7 @@ public class GeneratePlaylistsTaskSettings extends TaskSettings
     /**
      * Default value for tasks.generatePlaylists.ignorePlaylists
      */
-    private static final List<String> SETTING_IGNORE_PLAYLISTS_DEFAULT_VALUE = List.of();
+    private static final List<String> SETTING_IGNORE_PLAYLISTS_DEFAULT_VALUE = List.of(); // empty list
 
     /**
      * tasks.generatePlaylists.showContinuousProgress
@@ -208,11 +222,11 @@ public class GeneratePlaylistsTaskSettings extends TaskSettings
     /**
      * Default value for tasks.generatePlaylists.trackVerification
      */
-    private static final Boolean SETTING_TRACK_VERIFICATION_DEFAULT_VALUE = false;
-
+    private static final Boolean SETTING_TRACK_VERIFICATION_DEFAULT_VALUE = true;
 
     static
     {
+        // Set default values.
         GENERATE_PLAYLISTS_DEFAULT_SETTINGS.put(SETTING_IGNORE_PLAYLISTS, SETTING_IGNORE_PLAYLISTS_DEFAULT_VALUE);
         GENERATE_PLAYLISTS_DEFAULT_SETTINGS.put(SETTING_OUTPUT_FOLDER, SETTING_OUTPUT_FOLDER_DEFAULT_VALUE);
         GENERATE_PLAYLISTS_DEFAULT_SETTINGS.put(SETTING_SHOW_CONTINUOUS_PROGRESS, SETTING_SHOW_CONTINUOUS_PROGRESS_DEFAULT_VALUE);
@@ -225,6 +239,7 @@ public class GeneratePlaylistsTaskSettings extends TaskSettings
         GENERATE_PLAYLISTS_DEFAULT_SETTINGS.put(SETTING_ORGANIZE_IN_FOLDERS, SETTING_ORGANIZE_IN_FOLDERS_DEFAULT_VALUE);
         GENERATE_PLAYLISTS_DEFAULT_SETTINGS.put(SETTING_HIERARCHICAL_NAMES, SETTING_HIERARCHICAL_NAMES_DEFAULT_VALUE);
         GENERATE_PLAYLISTS_DEFAULT_SETTINGS.put(SETTING_TRACK_VERIFICATION, SETTING_TRACK_VERIFICATION_DEFAULT_VALUE);
+        GENERATE_PLAYLISTS_DEFAULT_SETTINGS.put(SETTING_IGNORE_DISTINGUISHED_PLAYLISTS, SETTING_IGNORE_DISTINGUISHED_PLAYLISTS_DEFAULT_VALUE);
     }
 
     public GeneratePlaylistsTaskSettings (RawTaskSettings rawTaskSettings)
@@ -238,15 +253,10 @@ public class GeneratePlaylistsTaskSettings extends TaskSettings
         return getUserSpecifiedKeys().stream().filter(Predicate.not(GENERATE_PLAYLISTS_DEFAULT_SETTINGS::containsKey)).collect(Collectors.toSet());
     }
 
-    protected Object getDefaultValueFor (String key)
-    {
-        return GENERATE_PLAYLISTS_DEFAULT_SETTINGS.get(key);
-    }
-
     /**
      * @return tasks.generatePlaylists.ignorePlaylists
      */
-    public List<String> getSettingIgnorePlaylists ()
+    public List<String> getIgnorePlaylists ()
     {
         String key = SETTING_IGNORE_PLAYLISTS;
         Object result = getValueFor(key);
@@ -273,7 +283,7 @@ public class GeneratePlaylistsTaskSettings extends TaskSettings
     /**
      * @return tasks.generatePlaylists.deleteFolder
      */
-    public boolean getSettingDeleteFolder ()
+    public boolean getDeleteFolder ()
     {
         String key = SETTING_DELETE_FOLDER;
         Object result = getValueFor(key);
@@ -297,7 +307,7 @@ public class GeneratePlaylistsTaskSettings extends TaskSettings
     /**
      * @return tasks.generatePlaylists.trackVerification
      */
-    public boolean getSettingTrackVerification ()
+    public boolean getTrackVerification ()
     {
         String key = SETTING_TRACK_VERIFICATION;
         Object result = getValueFor(key);
@@ -321,7 +331,7 @@ public class GeneratePlaylistsTaskSettings extends TaskSettings
     /**
      * @return tasks.generatePlaylists.showContinuousProgress
      */
-    public boolean getSettingShowContinuousProgress ()
+    public boolean getShowContinuousProgress ()
     {
         String key = SETTING_SHOW_CONTINUOUS_PROGRESS;
         Object result = getValueFor(key);
@@ -345,7 +355,7 @@ public class GeneratePlaylistsTaskSettings extends TaskSettings
     /**
      * @return tasks.generatePlaylists.slashAsSeparator
      */
-    public boolean getSettingSlashAsSeparator ()
+    public boolean getSlashAsSeparator ()
     {
         String key = SETTING_SLASH_AS_SEPARATOR;
         Object result = getValueFor(key);
@@ -369,7 +379,7 @@ public class GeneratePlaylistsTaskSettings extends TaskSettings
     /**
      * @return tasks.generatePlaylists.warnSquareBrackets
      */
-    public boolean getSettingWarnSquareBrackets ()
+    public boolean getWarnSquareBrackets ()
     {
         String key = SETTING_WARN_SQUARE_BRACKETS;
         Object result = getValueFor(key);
@@ -393,7 +403,7 @@ public class GeneratePlaylistsTaskSettings extends TaskSettings
     /**
      * @return tasks.generatePlaylists.useRelativePaths
      */
-    public boolean getSettingUseRelativePaths ()
+    public boolean getUseRelativePaths ()
     {
         String key = SETTING_USE_RELATIVE_PATHS;
         Object result = getValueFor(key);
@@ -417,7 +427,7 @@ public class GeneratePlaylistsTaskSettings extends TaskSettings
     /**
      * @return tasks.generatePlaylists.onlyActualPlaylists
      */
-    public boolean getSettingOnlyActualPlaylists ()
+    public boolean getOnlyActualPlaylists ()
     {
         String key = SETTING_ONLY_ACTUAL_PLAYLISTS;
         Object result = getValueFor(key);
@@ -438,11 +448,10 @@ public class GeneratePlaylistsTaskSettings extends TaskSettings
         }
     }
 
-
     /**
      * @return tasks.generatePlaylists.hierarchicalNames
      */
-    public boolean getSettingHierarchicalNames ()
+    public boolean getHierarchicalNames ()
     {
         String key = SETTING_HIERARCHICAL_NAMES;
         Object result = getValueFor(key);
@@ -466,9 +475,34 @@ public class GeneratePlaylistsTaskSettings extends TaskSettings
     /**
      * @return tasks.generatePlaylists.organizeInFolders
      */
-    public boolean getSettingOrganizeInFolders ()
+    public boolean getOrganizeInFolders ()
     {
         String key = SETTING_ORGANIZE_IN_FOLDERS;
+        Object result = getValueFor(key);
+
+        try
+        {
+            return (boolean) result;
+        }
+        catch (ClassCastException e)
+        {
+            throw new RuntimeException(this.getClass().getSimpleName() + ": invalid entry for " + getYamlPath(key)
+                    + ", expected a boolean, but got " + result.getClass().getSimpleName());
+        }
+        catch (NullPointerException e)
+        {
+            throw new RuntimeException(this.getClass().getSimpleName() + ": invalid entry for " + getYamlPath(key)
+                    + ", expected a boolean, but got null");
+        }
+    }
+
+
+    /**
+     * @return tasks.generatePlaylists.ignoreDistinguishedPlaylists
+     */
+    public boolean getIgnoreDistinguishedPlaylists ()
+    {
+        String key = SETTING_IGNORE_DISTINGUISHED_PLAYLISTS;
         Object result = getValueFor(key);
 
         try
@@ -492,7 +526,7 @@ public class GeneratePlaylistsTaskSettings extends TaskSettings
      *
      * @return tasks.generatePlaylists.outputFolder
      */
-    public String getSettingOutputFolder ()
+    public String getOutputFolder ()
     {
         String key = SETTING_OUTPUT_FOLDER;
         Object result = getValueFor(key);
@@ -512,7 +546,7 @@ public class GeneratePlaylistsTaskSettings extends TaskSettings
     /**
      * @return tasks.generatePlaylists.playlistExtension
      */
-    public String getSettingPlaylistExtension ()
+    public String getPlaylistExtension ()
     {
         String key = SETTING_PLAYLIST_EXTENSION;
         Object result = getValueFor(key);
@@ -526,6 +560,11 @@ public class GeneratePlaylistsTaskSettings extends TaskSettings
             throw new RuntimeException(this.getClass().getSimpleName() + ": invalid entry for " + getYamlPath(key)
                     + ", expected a string, but got " + result.getClass().getSimpleName());
         }
+    }
+
+    protected Object getDefaultValueFor (String key)
+    {
+        return GENERATE_PLAYLISTS_DEFAULT_SETTINGS.get(key);
     }
 
 }

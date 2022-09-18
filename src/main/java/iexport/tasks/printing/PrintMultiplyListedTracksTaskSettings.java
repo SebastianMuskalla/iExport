@@ -40,7 +40,7 @@ public class PrintMultiplyListedTracksTaskSettings extends TaskSettings
 
     /**
      * tasks.printMultiplyListedTracks.ignorePlaylists
-     * -----------------------------------------------
+     * <p>
      * Specify playlist names that should be ignored,
      * i.e. they will not be counted towards the number of playlists a track is in.
      */

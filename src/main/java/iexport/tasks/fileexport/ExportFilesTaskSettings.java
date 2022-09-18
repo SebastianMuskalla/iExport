@@ -28,13 +28,16 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-
+/**
+ * Settings for {@link ExportFilesTask}.
+ */
 public class ExportFilesTaskSettings extends TaskSettings
 {
     /**
      * Default settings for the exportFiles task
      */
     private static final Map<String, Object> EXPORT_FILES_DEFAULT_SETTINGS = new HashMap<>();
+
     /**
      * tasks.exportFiles.outputFolder
      * <p>
@@ -89,8 +92,21 @@ public class ExportFilesTaskSettings extends TaskSettings
     /**
      * Default value for tasks.exportFiles.onlyActualPlaylists
      */
-    private static final Boolean SETTING_ONLY_ACTUAL_PLAYLISTS_DEFAULT_VALUE = false;
+    private static final Boolean SETTING_ONLY_ACTUAL_PLAYLISTS_DEFAULT_VALUE = true;
 
+
+    /**
+     * tasks.exportFiles.ignoreDistinguishedPlaylists
+     * <p>
+     * Set to true to not export distinguished playlists.
+     * This includes playlists like "Music" (the entire music library), "Downloaded", and non-music libraries.
+     */
+    private static final String SETTING_IGNORE_DISTINGUISHED_PLAYLISTS = "ignoreDistinguishedPlaylists";
+
+    /**
+     * Default value for tasks.exportFiles.ignoreDistinguishedPlaylists
+     */
+    private static final Boolean SETTING_IGNORE_DISTINGUISHED_PLAYLISTS_DEFAULT_VALUE = true;
 
     /**
      * tasks.exportFiles.ignorePlaylists
@@ -103,7 +119,7 @@ public class ExportFilesTaskSettings extends TaskSettings
     /**
      * Default value for tasks.exportFiles.ignorePlaylists
      */
-    private static final List<String> SETTING_IGNORE_PLAYLISTS_DEFAULT_VALUE = List.of();
+    private static final List<String> SETTING_IGNORE_PLAYLISTS_DEFAULT_VALUE = List.of(); // empty list
 
     /**
      * tasks.exportFiles.showContinuousProgress
@@ -125,12 +141,10 @@ public class ExportFilesTaskSettings extends TaskSettings
      */
     private static final String SETTING_TO_ROOT_FOLDER = "toRootFolder";
 
-
     /**
      * Default value for tasks.exportFiles.toRootFolder
      */
-    private static final List<String> SETTING_TO_ROOT_FOLDER_DEFAULT_VALUE = List.of();
-
+    private static final List<String> SETTING_TO_ROOT_FOLDER_DEFAULT_VALUE = List.of(); // empty list
 
     /**
      * tasks.exportFiles.folderNumbering
@@ -145,7 +159,6 @@ public class ExportFilesTaskSettings extends TaskSettings
      * Default value for tasks.exportFiles.folderNumbering
      */
     private static final Boolean SETTING_FOLDER_NUMBERING_DEFAULT_VALUE = true;
-
 
     /**
      * tasks.exportFiles.initialNumber
@@ -171,7 +184,6 @@ public class ExportFilesTaskSettings extends TaskSettings
      * Default value for tasks.exportFiles.trackNumbering
      */
     private static final Boolean SETTING_TRACK_NUMBERING_DEFAULT_VALUE = true;
-
 
     /**
      * tasks.exportFiles.padTrackNumbers
@@ -205,7 +217,6 @@ public class ExportFilesTaskSettings extends TaskSettings
      */
     private static final Boolean SETTING_PAD_FOLDER_NUMBERS_DEFAULT_VALUE = true;
 
-
     /**
      * tasks.exportFiles.normalize
      * <p>
@@ -223,6 +234,7 @@ public class ExportFilesTaskSettings extends TaskSettings
 
     static
     {
+        // Set default values.
         EXPORT_FILES_DEFAULT_SETTINGS.put(SETTING_IGNORE_PLAYLISTS, SETTING_IGNORE_PLAYLISTS_DEFAULT_VALUE);
         EXPORT_FILES_DEFAULT_SETTINGS.put(SETTING_OUTPUT_FOLDER, SETTING_OUTPUT_FOLDER_DEFAULT_VALUE);
         EXPORT_FILES_DEFAULT_SETTINGS.put(SETTING_SHOW_CONTINUOUS_PROGRESS, SETTING_SHOW_CONTINUOUS_PROGRESS_DEFAULT_VALUE);
@@ -236,6 +248,7 @@ public class ExportFilesTaskSettings extends TaskSettings
         EXPORT_FILES_DEFAULT_SETTINGS.put(SETTING_PAD_TRACK_NUMBERS, SETTING_PAD_TRACK_NUMBERS_DEFAULT_VALUE);
         EXPORT_FILES_DEFAULT_SETTINGS.put(SETTING_NORMALIZE, SETTING_NORMALIZE_DEFAULT_VALUE);
         EXPORT_FILES_DEFAULT_SETTINGS.put(SETTING_PAD_FOLDER_NUMBERS, SETTING_PAD_FOLDER_NUMBERS_DEFAULT_VALUE);
+        EXPORT_FILES_DEFAULT_SETTINGS.put(SETTING_IGNORE_DISTINGUISHED_PLAYLISTS, SETTING_IGNORE_DISTINGUISHED_PLAYLISTS_DEFAULT_VALUE);
     }
 
     public ExportFilesTaskSettings (RawTaskSettings rawTaskSettings)
@@ -249,15 +262,10 @@ public class ExportFilesTaskSettings extends TaskSettings
         return getUserSpecifiedKeys().stream().filter(Predicate.not(EXPORT_FILES_DEFAULT_SETTINGS::containsKey)).collect(Collectors.toSet());
     }
 
-    protected Object getDefaultValueFor (String key)
-    {
-        return EXPORT_FILES_DEFAULT_SETTINGS.get(key);
-    }
-
     /**
      * @return tasks.exportFiles.ignorePlaylists
      */
-    public List<String> getSettingIgnorePlaylists ()
+    public List<String> getIgnorePlaylists ()
     {
         String key = SETTING_IGNORE_PLAYLISTS;
         Object result = getValueFor(key);
@@ -284,7 +292,7 @@ public class ExportFilesTaskSettings extends TaskSettings
     /**
      * @return tasks.exportFiles.toRootFolder
      */
-    public List<String> getSettingsToRootFolder ()
+    public List<String> getToRootFolder ()
     {
         String key = SETTING_TO_ROOT_FOLDER;
         Object result = getValueFor(key);
@@ -311,7 +319,7 @@ public class ExportFilesTaskSettings extends TaskSettings
     /**
      * @return tasks.exportFiles.deleteFolder
      */
-    public boolean getSettingDeleteFolder ()
+    public boolean getDeleteFolder ()
     {
         String key = SETTING_DELETE_FOLDER;
         Object result = getValueFor(key);
@@ -332,11 +340,10 @@ public class ExportFilesTaskSettings extends TaskSettings
         }
     }
 
-
     /**
      * @return tasks.exportFiles.folderNumbering
      */
-    public boolean getSettingFolderNumbering ()
+    public boolean getFolderNumbering ()
     {
         String key = SETTING_FOLDER_NUMBERING;
         Object result = getValueFor(key);
@@ -360,7 +367,7 @@ public class ExportFilesTaskSettings extends TaskSettings
     /**
      * @return tasks.exportFiles.initialNumber
      */
-    public int getSettingInitialNumber ()
+    public int getInitialNumber ()
     {
         String key = SETTING_INITIAL_NUMBER;
         Object result = getValueFor(key);
@@ -384,7 +391,7 @@ public class ExportFilesTaskSettings extends TaskSettings
     /**
      * @return tasks.exportFiles.showContinuousProgress
      */
-    public boolean getSettingShowContinuousProgress ()
+    public boolean getShowContinuousProgress ()
     {
         String key = SETTING_SHOW_CONTINUOUS_PROGRESS;
         Object result = getValueFor(key);
@@ -408,9 +415,34 @@ public class ExportFilesTaskSettings extends TaskSettings
     /**
      * @return tasks.exportFiles.onlyActualPlaylists
      */
-    public boolean getSettingOnlyActualPlaylists ()
+    public boolean getOnlyActualPlaylists ()
     {
         String key = SETTING_ONLY_ACTUAL_PLAYLISTS;
+        Object result = getValueFor(key);
+
+        try
+        {
+            return (boolean) result;
+        }
+        catch (ClassCastException e)
+        {
+            throw new RuntimeException(this.getClass().getSimpleName() + ": invalid entry for " + getYamlPath(key)
+                    + ", expected a boolean, but got " + result.getClass().getSimpleName());
+        }
+        catch (NullPointerException e)
+        {
+            throw new RuntimeException(this.getClass().getSimpleName() + ": invalid entry for " + getYamlPath(key)
+                    + ", expected a boolean, but got null");
+        }
+    }
+
+
+    /**
+     * @return tasks.exportFiles.ignoreDistinguishedPlaylists
+     */
+    public boolean getIgnoreDistinguishedPlaylists ()
+    {
+        String key = SETTING_IGNORE_DISTINGUISHED_PLAYLISTS;
         Object result = getValueFor(key);
 
         try
@@ -432,7 +464,7 @@ public class ExportFilesTaskSettings extends TaskSettings
     /**
      * @return tasks.exportFiles.hierarchicalNames
      */
-    public boolean getSettingHierarchicalNames ()
+    public boolean getHierarchicalNames ()
     {
         String key = SETTING_HIERARCHICAL_NAMES;
         Object result = getValueFor(key);
@@ -453,11 +485,10 @@ public class ExportFilesTaskSettings extends TaskSettings
         }
     }
 
-
     /**
      * @return tasks.exportFiles.trackNumbering
      */
-    public boolean getSettingTrackNumbering ()
+    public boolean getTrackNumbering ()
     {
         String key = SETTING_TRACK_NUMBERING;
         Object result = getValueFor(key);
@@ -481,7 +512,7 @@ public class ExportFilesTaskSettings extends TaskSettings
     /**
      * @return tasks.exportFiles.padFolderNumbers
      */
-    public boolean getSettingPadFolderNumbers ()
+    public boolean getPadFolderNumbers ()
     {
         String key = SETTING_PAD_FOLDER_NUMBERS;
         Object result = getValueFor(key);
@@ -505,7 +536,7 @@ public class ExportFilesTaskSettings extends TaskSettings
     /**
      * @return tasks.exportFiles.padTrackNumbers
      */
-    public boolean getSettingPadTrackNumbers ()
+    public boolean getPadTrackNumbers ()
     {
         String key = SETTING_PAD_TRACK_NUMBERS;
         Object result = getValueFor(key);
@@ -529,7 +560,7 @@ public class ExportFilesTaskSettings extends TaskSettings
     /**
      * @return tasks.exportFiles.padTrackNumbers
      */
-    public boolean getSettingNormalize ()
+    public boolean getNormalize ()
     {
         String key = SETTING_NORMALIZE;
         Object result = getValueFor(key);
@@ -551,11 +582,11 @@ public class ExportFilesTaskSettings extends TaskSettings
     }
 
     /**
-     * Also replace %USERPROFIL% using {@link Settings#applyUserProfileReplacement(String)}
+     * Also replace %USERPROFIL% using {@link Settings#applyUserProfileReplacement(String)}.
      *
      * @return tasks.exportFiles.outputFolder
      */
-    public String getSettingOutputFolder ()
+    public String getOutputFolder ()
     {
         String key = SETTING_OUTPUT_FOLDER;
         Object result = getValueFor(key);
@@ -570,6 +601,11 @@ public class ExportFilesTaskSettings extends TaskSettings
             throw new RuntimeException(this.getClass().getSimpleName() + ": invalid entry for " + getYamlPath(key)
                     + ", expected a string, but got " + result.getClass().getSimpleName());
         }
+    }
+
+    protected Object getDefaultValueFor (String key)
+    {
+        return EXPORT_FILES_DEFAULT_SETTINGS.get(key);
     }
 
 

@@ -25,6 +25,7 @@ import iexport.logging.Logging;
 import iexport.settings.RawTaskSettings;
 import iexport.tasks.Task;
 
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -41,7 +42,7 @@ public class PrintMultiplyListedTracksTask extends Task
     /**
      * The settings used for this task.
      */
-    PrintMultiplyListedTracksTaskSettings settings;
+    private PrintMultiplyListedTracksTaskSettings settings;
 
     @Override
     public String getTaskName ()
@@ -122,9 +123,10 @@ public class PrintMultiplyListedTracksTask extends Task
                         .filter(Predicate.not(IGNORE_PLAYLISTS))
                         .count() > 1;
 
+        List<Track> tracksInMultiplePlaylists = library.tracks().stream().filter(TRACK_PREDICATE).toList();
 
         // Check if there are tracks that are in multiple non-ignored playlists
-        if (library.tracks().stream().filter(TRACK_PREDICATE).findAny().isEmpty())
+        if (tracksInMultiplePlaylists.isEmpty())
         {
             // Stream is empty
             Logging.getLogger().message("Every track is contained in at most one playlist.");
@@ -150,10 +152,7 @@ public class PrintMultiplyListedTracksTask extends Task
                                 .forEach((name) -> Logging.getLogger().message(1, name));
                     };
 
-            library.tracks()
-                    .stream()
-                    .filter(TRACK_PREDICATE)
-                    .forEach(TRACK_CONSUMER);
+            tracksInMultiplePlaylists.forEach(TRACK_CONSUMER);
         }
 
     }

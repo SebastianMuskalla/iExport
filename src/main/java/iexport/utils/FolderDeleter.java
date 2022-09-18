@@ -24,10 +24,19 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 
+/**
+ * A static class for deleting a folder in the file system.
+ */
 public class FolderDeleter
 {
 
-    public void recursiveDelete (Path pathToFile)
+    /**
+     * Delete a folder recursively, including all its subdirectories and files.
+     *
+     * @param pathToFile the path to the folder that should be deleted
+     * @throws IOException if deleting the folder failed
+     */
+    public static void recursiveDelete (Path pathToFile)
             throws
             IOException
     {
@@ -36,34 +45,46 @@ public class FolderDeleter
             return;
         }
 
-        Files.walkFileTree(pathToFile, new SimpleFileVisitor<Path>()
-        {
-            @Override
-            public FileVisitResult visitFile (Path file, BasicFileAttributes attrs)
-                    throws
-                    IOException
-            {
-                Files.delete(file);
-                return FileVisitResult.CONTINUE;
-            }
+        // Implement the recursion
+        Files.walkFileTree(pathToFile,
+                new SimpleFileVisitor<Path>()
+                {
+                    @Override
+                    public FileVisitResult visitFile (Path file, BasicFileAttributes attrs)
+                            throws
+                            IOException
+                    {
+                        Files.delete(file);
+                        return FileVisitResult.CONTINUE;
+                    }
 
-            @Override
-            public FileVisitResult postVisitDirectory (Path dir, IOException e)
-                    throws
-                    IOException
-            {
-                if (e == null)
-                {
-                    Files.delete(dir);
-                    return FileVisitResult.CONTINUE;
+                    @Override
+                    public FileVisitResult postVisitDirectory (Path dir, IOException e)
+                            throws
+                            IOException
+                    {
+                        if (e == null)
+                        {
+                            // No error
+                            Files.delete(dir);
+                            return FileVisitResult.CONTINUE;
+                        }
+                        else
+                        {
+                            // Got an error
+                            throw e;
+                        }
+                    }
                 }
-                else
-                {
-                    // directory iteration failed
-                    throw e;
-                }
-            }
-        });
+        );
+
+    }
+
+    /**
+     * This class should not be instantiated.
+     */
+    private FolderDeleter ()
+    {
 
     }
 

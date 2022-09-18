@@ -17,41 +17,49 @@
 
 package iexport.utils;
 
-public interface IntegerFormatter
+/**
+ * A static class providing numbers for formatting integers.
+ * <p>
+ * We do not use {@link java.text.DecimalFormat} because it does not support padding with leading zeroes - sad.
+ */
+public class IntegerFormatter
 {
-    static String toStringOfSize (int i, int digits)
+    /**
+     * Pads the representation of a number to a desired number of digits
+     * by prepending a specified character suitably often.
+     * <p>
+     * If the number already exceeds the specified number of digits, nothing will be done.
+     *
+     * @param number           the number to be formatted
+     * @param characters       the desired number of digits
+     * @param leadingCharacter the character used for padding
+     * @return the formatted number
+     */
+    public static String pad (long number, int characters, char leadingCharacter)
     {
-        String res = Integer.toString(i);
+        String res = Long.toString(number);
 
-        int len = res.length();
-
-        while (len < digits)
+        if (res.length() < characters)
         {
-            res = Character.toString('0') + res;
-            len++;
+            res = (String.valueOf(leadingCharacter)).repeat(characters - res.length()) + res;
         }
         return res;
     }
 
-    static int digits (int i)
+    /**
+     * @param number the number
+     * @return the number of digits needed to display that number
+     */
+    public static int digits (long number)
     {
-        if (i < 0)
-        {
-            throw new RuntimeException("Not implemented for negative numbers");
-        }
+        return Long.toString(number).length();
+    }
 
-        if (i == 0)
-        {
-            return 1;
-        }
-
-        int digits = 0;
-        while (i != 0)
-        {
-            i = i / 10;
-            digits++;
-        }
-        return digits;
+    /**
+     * Do not instantiate this class.
+     */
+    private IntegerFormatter ()
+    {
     }
 
 }

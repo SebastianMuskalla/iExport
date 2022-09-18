@@ -17,17 +17,19 @@
 
 package iexport.tasks.fileexport;
 
+import iexport.itunes.Library;
 import iexport.itunes.Playlist;
 import iexport.itunes.Track;
 import iexport.logging.Logging;
 import iexport.parsing.sorting.TrackComparator;
+import iexport.settings.RawTaskSettings;
 import iexport.tasks.Task;
 import iexport.utils.FolderDeleter;
 import iexport.utils.IntegerFormatter;
+import iexport.utils.ProgressPrinter;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -38,21 +40,51 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
-
+/**
+ * An advanced task that exports iTunes playlists as folders.
+ * <p>
+ * For each playlist in iTunes, this task will create a folder inside tasks.exportFiles.outputFolder
+ * and then copy all files for tracks inside that playlist into that folder.
+ */
 public class ExportFilesTask extends Task
 {
-
-    private static final PrintStream OUT = new PrintStream(System.out, true, UTF_8);
-
+    /**
+     * A list of tracks that should be exported into the root folder
+     */
     private final List<Track> toRootFolder = new ArrayList<>();
-    private int tracksProcessed = 0;
-    private int totalTrackNumber = 0;
-    private int nextFolderNumber = 0;
-    private int totalFolderNumber = 0;
+
+    /**
+     * Printer for a progress bar.
+     */
+    private ProgressPrinter progressPrinter;
+
+    /**
+     * The settings used for this task.
+     */
     private ExportFilesTaskSettings settings;
+
+    /**
+     * The number of tracks that have been processed
+     * <p>
+     * Needed for displaying a progress bar.
+     */
+    private int tracksProcessed = 0;
+
+    /**
+     * The number of the next folder that should be exported.
+     * <p>
+     * Needed for folder numbering.
+     */
+    private int nextFolderNumber = 0;
+
+    /**
+     * The total number of folders that should be exported.
+     * <p>
+     * Needed for folder numbering.
+     */
+    private int totalFolderNumber = 0;
 
     @Override
     public String getTaskName ()
@@ -63,24 +95,63 @@ public class ExportFilesTask extends Task
     @Override
     public String getDescription ()
     {
-        return "export files in playlist into folders";
+        return "export playlists as folders containing their tracks as files";
+    }
+
+    @Override
+    public void initialize (Library library, RawTaskSettings rawTaskSettings)
+    {
+        super.initialize(library, rawTaskSettings);
+
+        // Convert the RawTaskSettings into settings for this type of task.
+        settings = new ExportFilesTaskSettings(rawTaskSettings);
+    }
+
+    @Override
+    public void reportProblems ()
+    {
+        // Check that this task has been initialized.
+        super.reportProblems();
+
+        // Settings should now be non-null.
+        if (settings == null)
+        {
+            throw new RuntimeException("Settings have not been initialized for Task " + getTaskName());
+        }
+
+        // Report if we are using default settings.
+        if (settings.isDefault())
+        {
+            Logging.getLogger().warning("No settings for task " + getTaskName() + " have been specified in the .yaml file, using all default settings from now on");
+        }
+        else
+        {
+            // Report settings that are specified in the .yaml file, but not actually used by this task.
+            for (String key : settings.unusedSettings())
+            {
+                Logging.getLogger().warning("Setting for key \"" + settings.getYamlPath(key) + "\""
+                        + " specified in .yaml file, but it is not used by iExport");
+            }
+        }
     }
 
     @Override
     public void run ()
     {
-        settings = new ExportFilesTaskSettings(rawTaskSettings);
-
         // Prepare the output folder
         prepareOutputFolder();
 
+        // Check which playlists have to be processed (i.e. they are not ignored).
         List<Playlist> playlistsToProcess = library.playlists().stream().filter(Predicate.not(this::isIgnored)).toList();
 
+        // Initialize some variables
         tracksProcessed = 0;
-        totalTrackNumber = (int) playlistsToProcess.stream().mapToLong(Playlist::getNumberOfTracks).sum();
-        nextFolderNumber = settings.getSettingInitialNumber();
-        toRootFolder.clear();
+        nextFolderNumber = settings.getInitialNumber();
         totalFolderNumber = playlistsToProcess.size();
+
+        int totalTrackNumber = (int) playlistsToProcess.stream().mapToLong(Playlist::getNumberOfTracks).sum();
+
+        progressPrinter = new ProgressPrinter(totalTrackNumber);
 
         Logging.getLogger().message("Exporting " + totalFolderNumber + " playlists with "
                 + totalTrackNumber + " tracks.");
@@ -94,37 +165,25 @@ public class ExportFilesTask extends Task
         toRootFolder.sort(new TrackComparator());
 
         // Now we can copy them
-        copyTracks(toRootFolder, Paths.get(settings.getSettingOutputFolder()));
-
-        reset();
-    }
-
-    private void reset ()
-    {
-        tracksProcessed = 0;
-        totalTrackNumber = 0;
-        nextFolderNumber = 0;
-        totalFolderNumber = 0;
-        toRootFolder.clear();
-        settings = null;
+        copyTracks(toRootFolder, Paths.get(settings.getOutputFolder()));
     }
 
     /**
      * Prepare the output folder,
-     * i.e. whether it exists,
+     * i.e. check whether it exists,
      * delete it if tasks.exportFiles.deleteFolder is set,
      * then recreate it.
      */
     private void prepareOutputFolder ()
     {
-        // Get the location of the output folder
-        String outputFolderPathAsString = settings.getSettingOutputFolder();
+        // Get the location of the output folder.
+        String outputFolderPathAsString = settings.getOutputFolder();
         Path outputFolderPath = Paths.get(outputFolderPathAsString);
 
         if (Files.exists(outputFolderPath))
         {
-            // The folder already exists
-            if (!settings.getSettingDeleteFolder())
+            // The folder already exists.
+            if (!settings.getDeleteFolder())
             {
                 throw new RuntimeException("The specified output folder " + outputFolderPathAsString + " already exists. Delete the folder or set tasks.exportFiles.deleteFolder to true.");
             }
@@ -133,10 +192,9 @@ public class ExportFilesTask extends Task
                 // Delete the folder
                 Logging.getLogger().message("Folder " + outputFolderPathAsString + " exists and tasks.exportFiles.deleteFolder is set to true, deleting it.");
 
-                FolderDeleter folderDeleter = new FolderDeleter();
                 try
                 {
-                    folderDeleter.recursiveDelete(outputFolderPath);
+                    FolderDeleter.recursiveDelete(outputFolderPath);
                 }
                 catch (IOException e)
                 {
@@ -155,16 +213,14 @@ public class ExportFilesTask extends Task
             {
                 throw new RuntimeException("Creating the folder " + outputFolderPathAsString + "failed ", e);
             }
-
-
         }
     }
 
     private void exportPlaylist (Playlist playlist)
     {
         // Check if this playlist should go to the root folder.
-        // If yes, we will process it later
-        if (settings.getSettingsToRootFolder().contains(playlist.name()))
+        // If yes, we will process it later.
+        if (settings.getToRootFolder().contains(playlist.name()))
         {
             toRootFolder.addAll(playlist.tracks());
             return;
@@ -181,60 +237,16 @@ public class ExportFilesTask extends Task
         }
         catch (IOException e)
         {
-            // TODO
-            throw new RuntimeException(e);
+            throw new RuntimeException(" Creating the directory at " + destination + " failed", e);
         }
 
         copyTracks(playlist.tracks(), destination);
     }
 
-    private void printProgress (String playlist)
-    {
-        double ratio = (double) tracksProcessed / (double) totalTrackNumber;
-
-        int percent = (int) Math.round(ratio * 100);
-
-        String percentString = (percent > 99) ? Integer.toString(percent) :
-                (percent > 9) ? " " + Integer.toString(percent) :
-                        (percent > 0) ? "  " + Integer.toString(percent) : "  0";
-
-        int totalSegments = 20;
-        int filledSegments = (int) Math.round(ratio * totalSegments);
-
-        String progress = "\r" + "[";
-        for (int i = 0; i < filledSegments; i++)
-        {
-            progress += '\u2588';
-        }
-        for (int i = filledSegments; i < totalSegments; i++)
-        {
-            progress += '\u00B7';
-        }
-        progress += "] " + percentString + "% " + " Exporting " + playlist;
-
-        // Make sure progress is exactly 80 characters long
-        if (progress.length() > 80)
-        {
-            progress = progress.substring(0, 77);
-            progress += "...";
-        }
-        else
-        {
-            progress += " ".repeat(80 - progress.length());
-        }
-
-        OUT.print(progress);
-
-        if (percent == 100)
-        {
-            OUT.println("");
-            OUT.println("Done!");
-        }
-    }
-
     /**
      * Check if a playlist should not be exported
      * because it is a folder and tasks.exportFiles.onlyActualPlaylists is set,
+     * because it is distinguished and tasks.exportFiles.ignoreDistinguishedPlaylists is set,
      * or because its name is specified in tasks.exportFiles.ignorePlaylists.
      *
      * @param playlist the play
@@ -243,9 +255,11 @@ public class ExportFilesTask extends Task
     private boolean isIgnored (Playlist playlist)
     {
         return
-                (settings.getSettingOnlyActualPlaylists() && playlist.isFolder())
+                (settings.getIgnoreDistinguishedPlaylists() && playlist.distinguishedKind() != null)
                         ||
-                        (playlist.name() != null && settings.getSettingIgnorePlaylists().contains(playlist.name()))
+                        (settings.getOnlyActualPlaylists() && playlist.isFolder())
+                        ||
+                        (playlist.name() != null && settings.getIgnorePlaylists().contains(playlist.name()))
                 ;
     }
 
@@ -258,18 +272,18 @@ public class ExportFilesTask extends Task
      */
     private Path destinationFolder (Playlist playlist)
     {
-        String outputFolder = settings.getSettingOutputFolder();
+        String outputFolder = settings.getOutputFolder();
 
         String folderName = "";
 
         // If tasks.exportFiles.folderNumbering is set, we should start the folder name with a number
-        if (settings.getSettingFolderNumbering())
+        if (settings.getFolderNumbering())
         {
             // If tasks.exportFiles.padFolderNumbers, we should pad the folder numbers to be of the same length
             String folderNumber;
-            if (settings.getSettingPadFolderNumbers())
+            if (settings.getPadFolderNumbers())
             {
-                folderNumber = IntegerFormatter.toStringOfSize(nextFolderNumber, IntegerFormatter.digits(totalFolderNumber));
+                folderNumber = IntegerFormatter.pad(nextFolderNumber, IntegerFormatter.digits(totalFolderNumber), '0');
             }
             else
             {
@@ -281,7 +295,7 @@ public class ExportFilesTask extends Task
             folderName += " - ";
         }
 
-        if (settings.getSettingHierarchicalNames() && playlist.ancestry() != null)
+        if (settings.getHierarchicalNames() && playlist.ancestry() != null)
         {
             // If tasks.exportFiles.hierarchicalNames is set, the folder name is composed of the ancestry
             folderName += playlist.ancestry().stream().map(Playlist::name).reduce((s1, s2) -> s1 + " - " + s2).orElse(playlist.name());
@@ -293,7 +307,7 @@ public class ExportFilesTask extends Task
         }
 
         // If tasks.exportFiles.normalize is set, we should normalize the name to only use ASCII
-        if (settings.getSettingNormalize())
+        if (settings.getNormalize())
         {
             folderName = Normalizer
                     .normalize(folderName, Normalizer.Form.NFD)
@@ -304,24 +318,25 @@ public class ExportFilesTask extends Task
     }
 
     /**
-     * Compute the path to the file to which the playlist should be exported,
-     * taking tasks.exportFiles.hierarchicalNames and tasks.exportFiles.organizeInFolders into account.
+     * Compute the path to the file to which a track should be exported.
      *
-     * @param playlist the playlist
-     * @return the path
+     * @param source                       the source path of the track
+     * @param trackNumber                  the track number
+     * @param totalTrackNumberInThisFolder the total number of tracks in that folder
+     * @return the destination path as string
      */
     private String destinationFilename (Path source, int trackNumber, int totalTrackNumberInThisFolder)
     {
         String fileName = "";
 
         // If tasks.exportFiles.trackNumbering is set, we should start the file name with a number
-        if (settings.getSettingTrackNumbering())
+        if (settings.getTrackNumbering())
         {
             // If tasks.exportFiles.padTrackNumbers is set, we should pad the track numbers to be of the same length
             String fileNumber;
-            if (settings.getSettingPadTrackNumbers())
+            if (settings.getPadTrackNumbers())
             {
-                fileNumber = IntegerFormatter.toStringOfSize(trackNumber, IntegerFormatter.digits(totalTrackNumberInThisFolder));
+                fileNumber = IntegerFormatter.pad(trackNumber, IntegerFormatter.digits(totalTrackNumberInThisFolder), '0');
             }
             else
             {
@@ -336,7 +351,7 @@ public class ExportFilesTask extends Task
         fileName += source.getFileName().toString();
 
         // If tasks.exportFiles.normalize is set, we should normalize the name to only use ASCII
-        if (settings.getSettingNormalize())
+        if (settings.getNormalize())
         {
             fileName = Normalizer
                     .normalize(fileName, Normalizer.Form.NFD)
@@ -346,6 +361,13 @@ public class ExportFilesTask extends Task
         return fileName;
     }
 
+    /**
+     * Copy the source files for a list of tracks into a destination folder,
+     * renaming them appropriately.
+     *
+     * @param tracks      a list of tracks
+     * @param destination the destination folder
+     */
     private void copyTracks (List<Track> tracks, Path destination)
     {
         int trackNumber = 0;
@@ -404,12 +426,10 @@ public class ExportFilesTask extends Task
             }
 
             tracksProcessed++;
-            if (settings.getSettingShowContinuousProgress())
+            if (settings.getShowContinuousProgress())
             {
-                printProgress(destination.getFileName().toString());
+                progressPrinter.update(tracksProcessed, "Exporting to " + destination.getFileName().toString());
             }
-
         }
     }
-
 }

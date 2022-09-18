@@ -17,15 +17,17 @@
 
 package iexport.tasks.generateplaylists;
 
+import iexport.itunes.Library;
 import iexport.itunes.Playlist;
 import iexport.itunes.Track;
 import iexport.logging.Logging;
+import iexport.settings.RawTaskSettings;
 import iexport.tasks.Task;
 import iexport.utils.FolderDeleter;
+import iexport.utils.ProgressPrinter;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -33,23 +35,40 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
-
+/**
+ * An advanced task that exports iTunes playlists as .m3u / .m3ua playlist files.
+ * <p>
+ * For each playlist in iTunes, this task will create a folder inside tasks.generatePlaylists.outputFolder
+ * containing a playlist file that contains the paths of the tracks inside the playlist.
+ */
 public class GeneratePlaylistsTask extends Task
 {
-
-    private static final PrintStream OUT = new PrintStream(System.out, true, UTF_8);
-
+    /**
+     * Pattern that matches square brackets ('[' and ']').
+     */
     private static final String SQUARE_BRACKETS = "\\[|\\]";
+
+    /**
+     * Pattern that matches square brackets ('[' and ']').
+     */
     private static final Pattern SQUARE_BRACKETS_PATTERN = Pattern.compile(SQUARE_BRACKETS);
+    /**
+     * Printer for a progress bar.
+     */
+    private ProgressPrinter progressPrinter;
 
+    /**
+     * Playlists that have been processed.
+     */
     private int playlistsProcessed = 0;
-    private int playlistsToProcess = 0;
 
+    /**
+     * The settings used for this task.
+     */
     private GeneratePlaylistsTaskSettings settings;
 
     @Override
@@ -61,32 +80,67 @@ public class GeneratePlaylistsTask extends Task
     @Override
     public String getDescription ()
     {
-        return "export playlists as m3u";
+        return "export playlists as .m3u files";
+    }
+
+    @Override
+    public void initialize (Library library, RawTaskSettings rawTaskSettings)
+    {
+        super.initialize(library, rawTaskSettings);
+
+        // Convert the RawTaskSettings into settings for this type of task.
+        settings = new GeneratePlaylistsTaskSettings(rawTaskSettings);
+    }
+
+
+    @Override
+    public void reportProblems ()
+    {
+        // Check that this task has been initialized.
+        super.reportProblems();
+
+        // Settings should now be non-null.
+        if (settings == null)
+        {
+            throw new RuntimeException("Settings have not been initialized for Task " + getTaskName());
+        }
+
+        // Report if we are using default settings.
+        if (settings.isDefault())
+        {
+            Logging.getLogger().warning("No settings for task " + getTaskName() + " have been specified in the .yaml file, using all default settings from now on");
+        }
+        else
+        {
+            // Report settings that are specified in the .yaml file, but not actually used by this task.
+            for (String key : settings.unusedSettings())
+            {
+                Logging.getLogger().warning("Setting for key \"" + settings.getYamlPath(key) + "\""
+                        + " specified in .yaml file, but it is not used by iExport");
+            }
+        }
     }
 
     @Override
     public void run ()
     {
-        settings = new GeneratePlaylistsTaskSettings(rawTaskSettings);
-
         // Prepare the output folder
         prepareOutputFolder();
 
-        playlistsToProcess = library.numberOfPlaylists();
+        // Check which playlists have to be processed (i.e. they are not ignored).
+        List<Playlist> playlistsToProcess = library.playlists().stream().filter(Predicate.not(this::isIgnored)).toList();
 
-        Logging.getLogger().message("Exporting " + playlistsToProcess + " playlists.");
+        /**
+         * Total number of playlists to process.
+         */
+        int totalNumberOfPlaylists = playlistsToProcess.size();
+
+        progressPrinter = new ProgressPrinter(totalNumberOfPlaylists);
+
+        Logging.getLogger().message("Exporting " + totalNumberOfPlaylists + " playlists.");
 
         // Export each playlist
-        library.playlists().forEach(this::exportPlaylist);
-
-        reset();
-    }
-
-    private void reset ()
-    {
-        playlistsProcessed = 0;
-        playlistsToProcess = 0;
-        settings = null;
+        playlistsToProcess.forEach(this::exportPlaylist);
     }
 
     /**
@@ -98,13 +152,13 @@ public class GeneratePlaylistsTask extends Task
     private void prepareOutputFolder ()
     {
         // Get the location of the output folder
-        String outputFolderPathAsString = settings.getSettingOutputFolder();
+        String outputFolderPathAsString = settings.getOutputFolder();
         Path outputFolderPath = Paths.get(outputFolderPathAsString);
 
         if (Files.exists(outputFolderPath))
         {
             // The folder already exists
-            if (!settings.getSettingDeleteFolder())
+            if (!settings.getDeleteFolder())
             {
                 throw new RuntimeException("The specified output folder " + outputFolderPathAsString + " already exists. Delete the folder or set tasks.generatePlaylists.deleteFolder to true.");
             }
@@ -113,10 +167,9 @@ public class GeneratePlaylistsTask extends Task
                 // Delete the folder
                 Logging.getLogger().message("Folder " + outputFolderPathAsString + " exists and tasks.generatePlaylists.deleteFolder is set to true, deleting it.");
 
-                FolderDeleter folderDeleter = new FolderDeleter();
                 try
                 {
-                    folderDeleter.recursiveDelete(outputFolderPath);
+                    FolderDeleter.recursiveDelete(outputFolderPath);
                 }
                 catch (IOException e)
                 {
@@ -135,23 +188,19 @@ public class GeneratePlaylistsTask extends Task
             {
                 throw new RuntimeException("Creating the folder " + outputFolderPathAsString + "failed ", e);
             }
-
-
         }
     }
 
+    /**
+     * Export the specified playlist into an .m3u file inside the output folder.
+     *
+     * @param playlist the playlist to export
+     */
     private void exportPlaylist (Playlist playlist)
     {
-        if (settings.getSettingShowContinuousProgress())
+        if (settings.getShowContinuousProgress())
         {
-            printProgress(playlist);
-        }
-
-        // We first check if this playlist is ignored.
-        if (isIgnored(playlist))
-        {
-            Logging.getLogger().debug("Ignoring playlist " + playlist);
-            return;
+            progressPrinter.update(playlistsProcessed, "Generating " + playlist.name());
         }
 
         Logging.getLogger().debug("Exporting playlist " + playlist);
@@ -184,53 +233,9 @@ public class GeneratePlaylistsTask extends Task
         writePlaylist(destination, content);
 
         playlistsProcessed++;
-        if (settings.getSettingShowContinuousProgress())
+        if (settings.getShowContinuousProgress())
         {
-            printProgress(playlist);
-        }
-    }
-
-    private void printProgress (Playlist playlist)
-    {
-        double ratio = (double) playlistsProcessed / (double) playlistsToProcess;
-
-        int percent = (int) Math.round(ratio * 100);
-
-        String percentString = (percent > 99) ? Integer.toString(percent) :
-                (percent > 9) ? " " + Integer.toString(percent) :
-                        (percent > 0) ? "  " + Integer.toString(percent) : "  0";
-
-        int totalSegments = 20;
-        int filledSegments = (int) Math.round(ratio * totalSegments);
-
-        String progress = "\r" + "[";
-        for (int i = 0; i < filledSegments; i++)
-        {
-            progress += '\u2588';
-        }
-        for (int i = filledSegments; i < totalSegments; i++)
-        {
-            progress += '\u00B7';
-        }
-        progress += "] " + percentString + "% " + " Exporting " + playlist.name();
-
-        // Make sure progress is exactly 80 characters long
-        if (progress.length() > 80)
-        {
-            progress = progress.substring(0, 77);
-            progress += "...";
-        }
-        else
-        {
-            progress += " ".repeat(80 - progress.length());
-        }
-
-        OUT.print(progress);
-
-        if (percent == 100)
-        {
-            OUT.println("");
-            OUT.println("Done!");
+            progressPrinter.update(playlistsProcessed, "Generating " + playlist.name());
         }
     }
 
@@ -245,9 +250,11 @@ public class GeneratePlaylistsTask extends Task
     private boolean isIgnored (Playlist playlist)
     {
         return
-                (settings.getSettingOnlyActualPlaylists() && playlist.isFolder())
+                (settings.getIgnoreDistinguishedPlaylists() && playlist.distinguishedKind() != null)
                         ||
-                        (playlist.name() != null && settings.getSettingIgnorePlaylists().contains(playlist.name()))
+                        (settings.getOnlyActualPlaylists() && playlist.isFolder())
+                        ||
+                        (playlist.name() != null && settings.getIgnorePlaylists().contains(playlist.name()))
                 ;
     }
 
@@ -260,13 +267,13 @@ public class GeneratePlaylistsTask extends Task
      */
     private Path destinationLocation (Playlist playlist)
     {
-        String outputFolder = settings.getSettingOutputFolder();
+        String outputFolder = settings.getOutputFolder();
 
         Path result = Paths.get(outputFolder);
 
         // Compute the file location
         // If tasks.generatePlaylists.organizeInFolders is set, we have to create intermediary folders
-        if (settings.getSettingOrganizeInFolders() && playlist.ancestry() != null && playlist.ancestry().size() > 1)
+        if (settings.getOrganizeInFolders() && playlist.ancestry() != null && playlist.ancestry().size() > 1)
         {
             // We need to skip the last element of ancestry() because that is the playlist itself
             int ancestors = playlist.ancestry().size();
@@ -278,7 +285,7 @@ public class GeneratePlaylistsTask extends Task
 
         // Compute the file name
         String fileName;
-        if (settings.getSettingHierarchicalNames() && playlist.ancestry() != null)
+        if (settings.getHierarchicalNames() && playlist.ancestry() != null)
         {
             // If tasks.generatePlaylists.hierarchicalNames is set, the file name is composed of the ancestry
             fileName = playlist.ancestry().stream().map(Playlist::name).reduce((s1, s2) -> s1 + " - " + s2).orElse(playlist.name());
@@ -290,11 +297,18 @@ public class GeneratePlaylistsTask extends Task
         }
 
         // Get the extension from tasks.generatePlaylists.playlistExtension
-        fileName += settings.getSettingPlaylistExtension();
+        fileName += settings.getPlaylistExtension();
 
         return result.resolve(fileName);
     }
 
+    /**
+     * Convert a track into the path string that should be put into the .m3u file
+     *
+     * @param track                   the track
+     * @param playlistDestinationPath the path to the .m3u file (which is needed for relative paths)
+     * @return the string with the file path
+     */
     private String convertTrack (Track track, Path playlistDestinationPath)
     {
         // Get the URI of the track and convert it
@@ -331,14 +345,14 @@ public class GeneratePlaylistsTask extends Task
 
         // If tasks.generatePlaylists.trackVerification is set, we should verify that the file actually exists.
         // This may be slow!
-        if (settings.getSettingTrackVerification() && !Files.exists(path))
+        if (settings.getTrackVerification() && !Files.exists(path))
         {
             Logging.getLogger().warning("File for track " + track + "  at location " + pathString + " does not exist; skipping this track.");
             return "";
         }
 
         // If tasks.generatePlaylists.useRelativePaths, we should compute a relative path
-        if (settings.getSettingUseRelativePaths() && playlistDestinationPath != null)
+        if (settings.getUseRelativePaths() && playlistDestinationPath != null)
         {
             // Computing the relative path may fail if they don't share the same root
             try
@@ -354,7 +368,7 @@ public class GeneratePlaylistsTask extends Task
         pathString = path.toString();
 
         // If tasks.generatePlaylists.warnSquareBrackets, is set, we should warn the user if the path contains [ or ]
-        if (settings.getSettingWarnSquareBrackets())
+        if (settings.getWarnSquareBrackets())
         {
             Matcher matcher = SQUARE_BRACKETS_PATTERN.matcher(pathString);
             if (matcher.find())
@@ -364,7 +378,7 @@ public class GeneratePlaylistsTask extends Task
         }
 
         // If tasks.generatePlaylists.slashAsSeparator, we should convert backslashes to slashes
-        if (settings.getSettingSlashAsSeparator())
+        if (settings.getSlashAsSeparator())
         {
             // If the path is of the shape C:\Some\Folder, we should not apply the replacement to the first backslash C:\
             if (pathString.length() > 2 && pathString.charAt(1) == ':' && pathString.charAt(2) == '\\')
@@ -384,6 +398,12 @@ public class GeneratePlaylistsTask extends Task
         return pathString;
     }
 
+    /**
+     * Write an .m3u file
+     *
+     * @param destination the path to the destination file
+     * @param content     the file content as a string, separated by newlines
+     */
     private void writePlaylist (Path destination, String content)
     {
         Logging.getLogger().debug("Trying to write file " + destination);

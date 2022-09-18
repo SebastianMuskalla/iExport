@@ -42,19 +42,22 @@ public class GeneralSettings extends SettingsImpl
 
     /**
      * logLevel
-     * --------
+     * <p>
      * How much output to do you want?
+     * <p>
      * Options:
-     * "DEBUG"   - full output for debugging                (alias "VERYVERBOSE")
-     * "NORMAL"  - regular output                           (alias "VERBOSE")
-     * "WARNING" - hide regular output, but show warnings   (alias "QUIET")
-     * "ERROR"   - hide warnings, only show error messages  (alias "VERYQUIET")
+     * <ul>
+     *     <li> "DEBUG"   - full output for debugging                (alias "VERYVERBOSE")
+     *     <li> "NORMAL"  - regular output                           (alias "VERBOSE")
+     *     <li> "WARNING" - hide regular output, but show warnings   (alias "QUIET")
+     *     <li> "ERROR"   - hide warnings, only show error messages  (alias "VERYQUIET")
+     * </ul>
      */
     private static final String SETTING_LOG_LEVEL = "logLevel";
 
     /**
      * task
-     * ----
+     * <p>
      * Which task should be executed after parsing the library?
      * Options: see list of tasks below.
      * If a task is specified as a command-line argument, it will override this settings.

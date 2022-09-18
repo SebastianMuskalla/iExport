@@ -166,14 +166,14 @@
                 #   Supports the %USERPROFILE% placeholder, which will typically get replaced by "C:\Users\<USERNAME>".
                 #   Note that backslashes ("\") need to be escaped as "\\".
                 # Default value: "%USERPROFILE%\\Desktop\\iExport\\Playlists"
-                  "outputFolder" :           "E:\\Audio\\Playlists",
+                  "outputFolder" :                 "%USERPROFILE%\\Desktop\\iExport\\Playlists",
 
                 # tasks.generatePlaylists.deleteFolder
                 # ------------------------------------
                 # If set to false, iExport will only proceed if outputFolder does not exist yet.
                 # If set to true, the folder will be deleted if it already exists.
                 # Default value: false
-                  "deleteFolder" :           true,
+                  "deleteFolder" :                 false,
 
                 # tasks.generatePlaylists.organizeInFolders
                 # -----------------------------------------
@@ -182,7 +182,7 @@
                 # If set to false, all playlists will be exported into the same folder.
                 #   Note that file name conflicts may arise if multiple playlists of the same name exist.
                 # Default value: true
-                  "organizeInFolders" :      true,
+                  "organizeInFolders" :            true,
 
                 # tasks.generatePlaylists.hierarchicalNames
                 # -----------------------------------------
@@ -191,21 +191,38 @@
                 # If set to true, the playlist file will be called "POP - 80s.m3u".
                 #   This setting may avoid naming conflicts if organizeInFolders is set to false.
                 # Default value: true
-                  "hierarchicalNames" :      true,
+                  "hierarchicalNames" :            true,
 
                 # tasks.generatePlaylists.onlyActualPlaylists
                 # -------------------------------------------
                 # If set to true, we will only export "actual" playlists (but not folders).
                 # If set to false, we will export all types of playlists including folders.
                 # Default value: false
-                  "onlyActualPlaylists" :    false,
+                  "onlyActualPlaylists" :          false,
+
+                # tasks.generatePlaylists.ignoreDistinguishedPlaylists
+                # ------------------------------------
+                # Set to true to not export distinguished playlists.
+                #   This includes playlists like "Music" (the entire music library), "Downloaded", and non-music libraries.
+                # Default value: false
+                  "ignoreDistinguishedPlaylists" : false,
+
+                # tasks.generatePlaylists.ignorePlaylists
+                # ---------------------------------------
+                # Specify playlist names that should be ignored, i.e. they will not be exported.
+                #   Note that if a folder is ignored, the playlists in it will still be exported.
+                # Default value: []
+                  "ignorePlaylists" :
+                    [
+                      # "SomePlaylistName",
+                    ],
 
                 # tasks.generatePlaylists.playlistExtension
                 # -----------------------------------------
                 # The extension (e.g. ".m3u", ".m3u8") of the generated playlist files.
                 #   We recommend using ".m3u8" to signal that the paths inside the playlist may contain unicode.
                 # Default value: ".m3u8"
-                  "playlistExtension" :      ".m3u8",
+                  "playlistExtension" :            ".m3u8",
 
                 # tasks.generatePlaylists.useRelativePaths
                 # ----------------------------------------
@@ -220,7 +237,7 @@
                 # Disadvantage: If the folder containing the playlists is moved,
                 #   they will stop working.
                 # Default value: false
-                  "useRelativePaths" :       true,
+                  "useRelativePaths" :             false,
 
                 # tasks.generatePlaylists.warnSquareBrackets
                 # ------------------------------------------
@@ -229,23 +246,14 @@
                 #   This is useful because some players require these to be escaped (e.g. VLC)
                 #   while others cannot deal with escaped brackets (e.g. Poweramp).
                 # Default value: true
-                  "warnSquareBrackets" :     true,
+                  "warnSquareBrackets" :           true,
 
-                # tasks.generatePlaylists.ignorePlaylists
-                # ---------------------------------------
-                # Specify playlist names that should be ignored, i.e. they will not be exported.
-                #   Note that if a folder is ignored, the playlists in it will still be exported.
-                # Default value: []
-                  "ignorePlaylists" :
-                    [
-                        "SKETCHES",
-                    ],
 
                 # tasks.generatePlaylists.showContinuousProgress
                 # ----------------------------------------------
                 # Whether to show a continuously updating progress bar while exporting
                 # Default value: true
-                  "showContinuousProgress" : true,
+                  "showContinuousProgress" :       true,
 
                 # tasks.generatePlaylists.slashAsSeparator
                 # ----------------------------------------------
@@ -253,18 +261,19 @@
                 # If set to true, use Slash ('/', Unix/Linux/Mac notation) in file paths inside the playlist files.
                 #   Note that this will not replace the first backslash in absolute Windows paths (e.g. C:\)
                 # Default value: false
-                  "slashAsSeparator" :       true,
+                  "slashAsSeparator" :             false,
 
                 # tasks.generatePlaylists.trackVerification
                 # ----------------------------------------------
                 # If set to true, we verify for each track that the corresponding file actually exists.
                 #   This may substantially slow down this task.
-                # Default value: false
-                  "trackVerification" :      false,
+                # Default value: true
+                  "trackVerification" :            true,
+
               }, # end of tasks.generatePlaylists
 
             "exportFiles" :
-              # Export the iTunes playlists by copying together folders that contain the tracks as files
+              # Export the iTunes playlists by copying together folders that contain the tracks as files.
               {
                 # tasks.exportFiles.outputFolder
                 # ------------------------------------
@@ -272,14 +281,14 @@
                 #   Supports the %USERPROFILE% placeholder, which will typically get replaced by "C:\Users\<USERNAME>".
                 #   Note that backslashes ("\") need to be escaped as "\\".
                 # Default value: "%USERPROFILE%\\Desktop\\iExport\\Files"
-                  "outputFolder" :           "E:\\USBEXPORT",
+                  "outputFolder" :                 "%USERPROFILE%\\Desktop\\iExport\\Files",
 
                 # tasks.exportFiles.deleteFolder
                 # ------------------------------------
                 # If set to false, iExport will only proceed if outputFolder does not exist yet.
                 # If set to true, the folder will be deleted if it already exists.
                 # Default value: false
-                  "deleteFolder" :           true,
+                  "deleteFolder" :                 false,
 
                 # tasks.exportFiles.hierarchicalNames
                 # -----------------------------------------
@@ -289,14 +298,21 @@
                 #   Note that if this is set to false,
                 #   name conflicts may arise if multiple playlists of the same name exist.
                 # Default value: true
-                  "hierarchicalNames" :      true,
+                  "hierarchicalNames" :            true,
 
                 # tasks.generatePlaylists.onlyActualPlaylists
                 # -------------------------------------------
                 # If set to true, we will only export "actual" playlists (but not folders).
                 # If set to false, we will export all types of playlists including folders.
-                # Default value: false
-                  "onlyActualPlaylists" :    true,
+                # Default value: true
+                  "onlyActualPlaylists" :          true,
+
+                # tasks.exportFiles.ignoreDistinguishedPlaylists
+                # ------------------------------------
+                # Set to true to not export distinguished playlists.
+                #   This includes playlists like "Music" (the entire music library), "Downloaded", and non-music libraries.
+                # Default value: true
+                  "ignoreDistinguishedPlaylists" : true,
 
                 # tasks.exportFiles.ignorePlaylists
                 # ---------------------------------------
@@ -305,7 +321,7 @@
                 # Default value: []
                   "ignorePlaylists" :
                     [
-                        "Music",
+                      # "SomePlaylistName",
                     ],
 
                 # tasks.exportFiles.toRootFolder
@@ -315,14 +331,14 @@
                 # Default value: []
                   "toRootFolder" :
                     [
-                        "NEUES",
+                      # "SomePlaylistName",
                     ],
 
                 # tasks.exportFiles.showContinuousProgress
                 # ----------------------------------------------
                 # Whether to show a continuously updating progress bar while exporting
                 # Default value: true
-                  "showContinuousProgress" : true,
+                  "showContinuousProgress" :       true,
 
                 # tasks.exportFiles.folderNumbering
                 # ----------------------------------------------
@@ -330,14 +346,14 @@
                 #   If this is set to true, the folders will be called e.g. "1 POP", "2 ROCK", "3 ...".
                 #   If this is set to false, the folders will be called e..g. "POP", "ROCK", ...
                 # Default value: true
-                  "folderNumbering" :        true,
+                  "folderNumbering" :              true,
 
                 # tasks.exportFiles.initialNumber
                 # ----------------------------------------------
                 # The number of the first folder, see tasks.exportFiles.folderNumbering.
                 #   This is useful for e.g. car radios that show the root folder as 1.
                 # Default value: 1
-                  "initialNumber" :          2,
+                  "initialNumber" :                1,
 
                 # tasks.exportFiles.padFolderNumbers
                 # -----------------------------------
@@ -346,14 +362,14 @@
                 # the numbers for all folder have the same length.
                 #   E.g. the first folder in a library with 10+ playlists 01.
                 # Default value: true
-                  "padFolderNumbers" :       true,
+                  "padFolderNumbers" :             true,
 
                 # tasks.exportFiles.trackNumbering
                 # --------------------------------
                 # Whether to number the tracks inside each folder.
                 #   If this is set to true, the file name for each track will be prefixes with "NUMBER - ".
                 # Default value: true
-                  "trackNumbering" :         true,
+                  "trackNumbering" :               true,
 
                 # tasks.exportFiles.padTrackNumbers
                 # -----------------------------------
@@ -362,7 +378,7 @@
                 # the numbers for all tracks in that folder have the same length.
                 #   E.g. the first track in a playlist with 100+ tracks will be numbered with 001.
                 # Default value: true
-                  "padTrackNumbers" :        true,
+                  "padTrackNumbers" :              true,
 
                 # tasks.exportFiles.normalize
                 # -----------------------------------
@@ -370,7 +386,8 @@
                 #   will be normalized so that it only uses ASCII characters.
                 #   This may avoid compatibility problems with e.g. car radios.
                 # Default value: true
-                  "normalize" :              true,
+                  "normalize" :                    true,
+
               }, # end of tasks.exportFiles
 
         }, # end of tasks

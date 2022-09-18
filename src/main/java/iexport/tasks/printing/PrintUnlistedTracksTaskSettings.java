@@ -41,7 +41,7 @@ public class PrintUnlistedTracksTaskSettings extends TaskSettings
 
     /**
      * tasks.printUnlistedTracks.ignorePlaylists
-     * -----------------------------------------
+     * <p>
      * Specify playlists that should be ignored,
      * i.e. a track will be counted as unlisted even if it is contained in one of these playlists.
      */

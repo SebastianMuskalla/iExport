@@ -38,7 +38,7 @@ public class ParsingSettings extends SettingsImpl
 
     /**
      * parsing.xmlFilePath
-     * -------------------
+     * <p>
      * Path to "iTunes Music Library.xml".
      * Supports the %USERPROFILE% placeholder, which will typically get replaced by "C:\Users\<USERNAME>".
      */
@@ -51,7 +51,7 @@ public class ParsingSettings extends SettingsImpl
 
     /**
      * parsing.ignoreEmptyPlaylists
-     * ----------------------------
+     * <p>
      * Set to true to ignore playlists that contain no tracks
      */
     private static final String SETTING_IGNORE_EMPTY_PLAYLISTS = "ignoreEmptyPlaylists";
@@ -63,7 +63,7 @@ public class ParsingSettings extends SettingsImpl
 
     /**
      * parsing.ignoreNonMusicPlaylists
-     * -------------------------------
+     * <p>
      * Set to true to ignore playlists for movies, tvShows, audiobooks.
      */
     private static final String SETTING_IGNORE_NON_MUSIC_PLAYLISTS = "ignoreNonMusicPlaylists";
@@ -75,7 +75,7 @@ public class ParsingSettings extends SettingsImpl
 
     /**
      * parsing.ignoreDistinguishedPlaylists
-     * ------------------------------------
+     * <p>
      * Set to true to ignore distinguished playlists.
      * This includes playlists like "Music" (the entire music library), "Downloaded", and non-music libraries.
      */
@@ -88,7 +88,7 @@ public class ParsingSettings extends SettingsImpl
 
     /**
      * parsing.ignoreMaster
-     * --------------------
+     * <p>
      * Set to true to ignore the playlist "Library" with the "master" flag
      */
     private static final String SETTING_IGNORE_MASTER = "ignoreMaster";
@@ -100,7 +100,7 @@ public class ParsingSettings extends SettingsImpl
 
     /**
      * parsing.ignorePlaylistsByName
-     * -----------------------------
+     * <p>
      * Specify an array of playlist names that should be ignored
      */
     private static final String SETTING_IGNORE_PLAYLISTS_BY_NAME = "ignorePlaylistsByName";
