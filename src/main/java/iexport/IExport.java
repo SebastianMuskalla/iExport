@@ -32,17 +32,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * The main class for iExport.
+ * <p>
+ * iExport will parse the iTunes library (in the form of the property-list file {@code iTunes Music Library.xml},
+ * convert it into java objects and then allow the user to execute one of various tasks on the parsed library.
+ */
 public class IExport
 {
     /**
      * Strings that indicate that interactive move should be used.
      */
     public static final List<String> INTERACTIVE_MODE_NAMES = List.of("interactive", "", "\"\"", "''", "-i", "--i", "--interactive");
-
     /**
      * String that indicate that the special help task that prints usage instructions should be executed.
      */
     public static final List<String> HELP_TASK_NAMES = List.of("HELP", "-h", "--h", "-help", "--help", "usage", "man");
+    private static int EXIT_CODE_OK = 0;
+    private static int EXIT_CODE_ERROR = 1;
 
     /**
      * Run iExport.
@@ -50,10 +57,12 @@ public class IExport
      * @param args we expect {@code args} to have length 0-2
      *             <p>
      *             Length 0: Use default settings & interactive mode.
+     *             <p>
      *             Length 1: Argument is path to settings.yaml file, which may specify the task to run.
+     *             <p>
      *             Length 2: First argument is path to settings.yaml file, second argument is task name.
      *             <p>
-     *             If one of the arguments is from {@link #HELP_TASK_NAMES}, we always print the help.
+     *             If one of the arguments is from {@link #HELP_TASK_NAMES}, we always print the usage instructions.
      */
     public static void main (String[] args)
     {
@@ -63,7 +72,7 @@ public class IExport
             // Print usage instructions
             Logging.getLogger().error("Expected 0-2 additional arguments, got " + args.length + ":\n" + Arrays.toString(args));
             TaskRegistry.getHelpTask().run();
-            System.exit(1);
+            System.exit(EXIT_CODE_ERROR);
         }
 
         // Check whether one of the arguments is in HELP_TASK_NAMES
@@ -71,7 +80,7 @@ public class IExport
         if (Arrays.stream(args).anyMatch((s) -> HELP_TASK_NAMES.stream().anyMatch(s::equalsIgnoreCase)))
         {
             TaskRegistry.getHelpTask().run();
-            System.exit(0);
+            System.exit(EXIT_CODE_OK);
         }
 
         // Construct the settings
@@ -79,7 +88,7 @@ public class IExport
         if (args.length == 0)
         {
             // No argument has been specified, use default settings
-            Logging.getLogger().message("No .yaml file provided, using all default settings");
+            Logging.getLogger().warning("No .yaml file provided, using all default settings");
             settingsTriple = new SettingsTriple(new GeneralSettings(), new ParsingSettings(), new HashMap<>());
         }
         else
@@ -89,13 +98,12 @@ public class IExport
             settingsTriple = parseSettings(args[0]);
         }
 
-        // Get the settings (either parse them if the command line argument is specified, or use default values)
-        GeneralSettings generalSettings = settingsTriple.generalSettings();
-
         // We can now get the log level that should be used for the rest of the execution
+        GeneralSettings generalSettings = settingsTriple.generalSettings();
         LogLevel logLevel = generalSettings.getLogLevel();
-        Logging.getLogger().setLogLevel(logLevel);
+
         Logging.getLogger().debug("Using logLevel " + logLevel);
+        Logging.getLogger().setLogLevel(logLevel);
 
         // Notify the user of any settings that have been set in the .yaml file but that actually do not exist
         reportPotentialMistakesInSettings(settingsTriple);
@@ -105,24 +113,24 @@ public class IExport
 
         if (args.length > 1)
         {
-            // Get the second argument as the task name
+            // Get the second argument as the task name.
             // If present, it overwrites the task from the .yaml file
             taskName = args[1];
         }
 
-        // Parse the library
+        // Parse the library.
         Library library = parseLibrary(settingsTriple);
 
-        // Get the task
+        // Get the task object.
         Task task;
         if (INTERACTIVE_MODE_NAMES.stream().anyMatch(taskName::equalsIgnoreCase))
         {
-            // Get the task using interactive mode
+            // Get the task using interactive mode.
             task = getTaskUsingInteractiveMode();
         }
         else
         {
-            // Get the task from the specified task name
+            // Get the task from the specified task name.
             task = getTaskWithName(taskName);
         }
 
@@ -130,7 +138,7 @@ public class IExport
         runTask(task, library, settingsTriple);
 
         // Done!
-        System.exit(0);
+        System.exit(EXIT_CODE_OK);
     }
 
     /**
@@ -152,10 +160,27 @@ public class IExport
         }
         catch (Exception e)
         {
-            Logging.getLogger().error("Parsing the .yaml file at the specified location \"" + yamlFilePathAsString + "\" has failed");
-            Logging.getLogger().debug("Because of: " + e.getMessage());
-            System.exit(1);
+            fail(e);
             return null; // Unreachable
+        }
+    }
+
+    /**
+     * Call this method if a critcal component of iExport has failed.
+     * <p>
+     * It will print the exception class, the exception message, the stack trace, and exit with exit code 1.
+     *
+     * @param e the exception
+     */
+    private static void fail (Exception e)
+    {
+        if (e != null)
+        {
+            Logging.getLogger().error("Exception: " + e.getClass().getSimpleName());
+            Logging.getLogger().error("Message: " + e.getMessage());
+            Logging.getLogger().message("Trace: ");
+            e.printStackTrace();
+            System.exit(1);
         }
     }
 
@@ -177,16 +202,15 @@ public class IExport
         File file = new File(libraryXmlFilePathString);
         LibraryParser iTunesLibraryParser = new LibraryParser(file, settingsTriple.parsingSettings());
 
-        Library library = null;
+        Library library;
         try
         {
             library = iTunesLibraryParser.parse();
         }
         catch (ITunesParsingException e)
         {
-            e.printStackTrace();
-            System.exit(1);
-            return null;
+            fail(e);
+            return null; // unreachable
         }
 
         long endParsing = System.nanoTime();
@@ -213,13 +237,13 @@ public class IExport
         GeneralSettings generalSettings = settingsTriple.generalSettings();
         if (generalSettings.isDefault())
         {
-            Logging.getLogger().message("No general settings have been specified in the .yaml file, using all default settings from now on");
+            Logging.getLogger().warning("No general settings have been specified in the .yaml file, using all default settings from now on");
         }
         else
         {
             for (String key : generalSettings.unusedSettings())
             {
-                Logging.getLogger().message("Settings for key \"" + generalSettings.getYamlPath(key) + "\""
+                Logging.getLogger().warning("Settings for key \"" + generalSettings.getYamlPath(key) + "\""
                         + " specified in .yaml file, but it is not used by iExport");
             }
         }
@@ -227,18 +251,17 @@ public class IExport
         ParsingSettings parsingSettings = settingsTriple.parsingSettings();
         if (generalSettings.isDefault())
         {
-            Logging.getLogger().message("No parsings settings have been specified in the .yaml file (key \"parsing\"), using all default settings from now on");
+            Logging.getLogger().warning("No parsings settings have been specified in the .yaml file (key \"parsing\"), using all default settings from now on");
         }
         else
         {
             for (String key : parsingSettings.unusedSettings())
             {
-                Logging.getLogger().message("Settings for key \"" + parsingSettings.getYamlPath(key) + "\""
+                Logging.getLogger().warning("Settings for key \"" + parsingSettings.getYamlPath(key) + "\""
                         + " specified in .yaml file, but it is not used by iExport");
             }
         }
     }
-
 
     /**
      * Returns the task with the specified name or exit if no such task exists.
@@ -306,7 +329,7 @@ public class IExport
             if (task == null)
             {
                 // The task specified by the user does not exist
-                Logging.getLogger().error("No task with the name \"" + taskName + "\" exists.");
+                Logging.getLogger().message("No task with the name \"" + taskName + "\" exists.");
 
                 // Let them try again
                 continue;
@@ -332,7 +355,7 @@ public class IExport
         long startTask = System.nanoTime();
         String taskName = task.getTaskName();
 
-        // Get the appropriate settings
+        // Get the appropriate settings.
         RawTaskSettings taskSettings = settingsTriple.taskSettings().get(taskName);
 
         if (taskSettings == null)
@@ -340,22 +363,25 @@ public class IExport
             // Settings are not set, generate default settings
             taskSettings = new RawTaskSettings(taskName);
         }
-        
+
         Logging.getLogger().message("Running task " + taskName);
         Logging.getLogger().message("");
 
         try
         {
+            // Initailize the task with the library and the settings
             task.initialize(library, taskSettings);
+
+            // Report any problems that might exist in the task settings
             task.reportProblems();
+
+            // Actually run the task
             task.execute();
         }
         catch (Exception e)
         {
-            Logging.getLogger().error("Running task " + task.getTaskName() + " failed");
-            Logging.getLogger().error(1, e + " (" + e.getMessage() + ")");
-            e.printStackTrace();
-            System.exit(1);
+            Logging.getLogger().error("Running task " + task.getTaskName() + " failed.");
+            fail(e);
         }
 
         long endTask = System.nanoTime();
