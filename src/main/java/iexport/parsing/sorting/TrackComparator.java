@@ -28,12 +28,12 @@ import java.util.Objects;
  * A comparator for {@link Track} that ...
  * <ol>
  *     <li> Prioritizes non-null tracks
- *     <li> Prioritizes artist (using {@link Track#sortAlbumArtist}, {@link Track#albumArtist}, {@link Track#sortArtist}, {@link Track#artist} in this order) using {@link String.CaseInsensitiveComparator}
+ *     <li> Prioritizes artist (using {@link Track#sortAlbumArtist}, {@link Track#albumArtist}, {@link Track#sortArtist}, {@link Track#artist} in this order) using {@code String.CASE_INSENSITIVE_ORDER}
  *     <li> Prioritizes earlier {@link Track#year}
- *     <li> Prioritizes album (using {@link Track#sortAlbum} or {@link Track#album}) using {@link String.CaseInsensitiveComparator}
+ *     <li> Prioritizes album (using {@link Track#sortAlbum} or {@link Track#album}) using {@code String.CASE_INSENSITIVE_ORDER}
  *     <li> Prioritizes smaller {@link Track#discNumber}
  *     <li> Prioritizes smaller {@link Track#trackNumber}
- *     <li> Prioritizes name (using {@link Track#sortName} or {@link Track#name}) using {@link String.CaseInsensitiveComparator}
+ *     <li> Prioritizes name (using {@link Track#sortName} or {@link Track#name}) using {@code String.CASE_INSENSITIVE_ORDER}
  *     <li> Prioritizes {@link Track#persistentId}
  * </ol>
  */
@@ -50,7 +50,7 @@ public class TrackComparator implements Comparator<Track>
      * For each of the tracks it will get the first of the following values
      * that is neither {@code null} nor empty ({@code ""}):
      * {@link Track#sortAlbumArtist}, {@link Track#albumArtist}, {@link Track#sortArtist}, {@link Track#artist}
-     * and then compare them using {@link String.CaseInsensitiveComparator}
+     * and then compare them using {@code String.CASE_INSENSITIVE_ORDER}
      */
     static private final Comparator<Track> ARTIST_COMPARATOR = (Track t1, Track t2) -> {
         var artists1 = Arrays.asList(t1.sortAlbumArtist(), t1.albumArtist(), t1.sortArtist(), t1.artist());
@@ -59,6 +59,7 @@ public class TrackComparator implements Comparator<Track>
         var artist1 = artists1.stream().filter(Objects::nonNull).filter((s) -> !s.equals("")).findFirst().orElse(null);
         var artist2 = artists2.stream().filter(Objects::nonNull).filter((s) -> !s.equals("")).findFirst().orElse(null);
 
+
         return BasicComparators.STRING_COMPARATOR.compare(artist1, artist2);
     };
 
@@ -66,7 +67,7 @@ public class TrackComparator implements Comparator<Track>
      * Compares the albums of two tracks.
      * <p>
      * For each track, it will use the value {@link Track#sortAlbum} if it is not null and non-empty, otherwise {@link Track#album},
-     * and then compare them using {@link String.CaseInsensitiveComparator}
+     * and then compare them using {@code String.CASE_INSENSITIVE_ORDER}
      */
     static private final Comparator<Track> ALBUM_COMPARATOR = (Track t1, Track t2) -> {
         var album1 = t1.sortAlbum();
@@ -86,7 +87,7 @@ public class TrackComparator implements Comparator<Track>
      * Compares the names (titles) of two tracks.
      * <p>
      * For each track, it will use the value {@link Track#sortName} if it is not null and non-empty, otherwise {@link Track#name},
-     * and then compare them using {@link String.CaseInsensitiveComparator}
+     * and then compare them using {@code String.CASE_INSENSITIVE_ORDER}
      */
     static private final Comparator<Track> NAME_COMPARATOR = (Track t1, Track t2) -> {
         var name1 = t1.sortName();
@@ -121,7 +122,7 @@ public class TrackComparator implements Comparator<Track>
      * Compares the persistent ids of two tracks, prioritizing non-null and smaller ids
      */
     static private final Comparator<Track> PERSISTENT_ID_COMPARATOR = Comparator.comparing(Track::persistentId, BasicComparators.STRING_COMPARATOR);
-    
+
     @Override
     public int compare (Track o1, Track o2)
     {

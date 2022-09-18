@@ -24,14 +24,14 @@ import java.util.List;
 /**
  * This comparator lifts a comparator on a type T to a comparator on {@link List<T>} using the lexicographic ordering.
  * <p>
- * Assume we are given lists [a1, a2, ..., an] and [b1, b2, ..., bm] with n <= m.
+ * Assume we are given lists {@literal [a1, a2, ..., an]} and {@literal [b1, b2, ..., bm]} with {@literal n <= m}.
  * <p>
- * We find the smallest index i <= n such that
+ * We find the smallest index {@literal i <= n} such that
  * a1 equals b1, a2 equals b2, ... , a(i-1) equals b(i-1) (using the comparator on T)
  * and ai does not equal bi.
  * If ai is smaller than bi, then the list of the a's is smaller than the list of b's.
  * <p>
- * If both lists coincide for all indices {1, ..., n}, then the shorter list is smaller.
+ * If both lists coincide for all indices {@literal {1, ..., n}}, then the shorter list is smaller.
  *
  * @param <T> the type of elements of the list
  */

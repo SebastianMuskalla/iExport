@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * A mutable builder class for building a record of type {@link iexport.itunes.Library}.
  * <p>
- * The fields correspond to the fields of {@link iexport.itunes.Library, see {@link iexport.itunes.Library for the documentation.
+ * The fields correspond to the fields of {@link iexport.itunes.Library}, see {@link iexport.itunes.Library} for the documentation.
  */
 public class LibraryBuilder
 {

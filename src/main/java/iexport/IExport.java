@@ -56,7 +56,7 @@ public class IExport
      *
      * @param args we expect {@code args} to have length 0-2
      *             <p>
-     *             Length 0: Use default settings & interactive mode.
+     *             Length 0: Use default settings and interactive mode.
      *             <p>
      *             Length 1: Argument is path to settings.yaml file, which may specify the task to run.
      *             <p>

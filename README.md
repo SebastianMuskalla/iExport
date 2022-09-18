@@ -6,9 +6,10 @@ Tool for parsing and processing the iTunes library
 
 iExport is a tool that parses the iTunes music library based on the file `iTunes Music Library.xml`.
 It then allows the user to execute various tasks including
-  * printing information about the library.
-  * exporting the iTunes playlists in the form of `.m3u` files.
-  * exporting the iTunes playlists as folders that contain the tracks as files.
+
+* printing information about the library.
+* exporting the iTunes playlists in the form of `.m3u` files.
+* exporting the iTunes playlists as folders that contain the tracks as files.
 
 The latter two tasks can be used to migrate the iTunes music library to another system.
 
@@ -35,6 +36,7 @@ Contents
 * [Tasks](#tasks)
 * [Settings](#settings)
 * [Shortcomings: Sorting](#shortcomings-sorting)
+* [JavaDoc](#javadoc)
 * [Dependencies](#dependencies)
 
 License
@@ -67,10 +69,13 @@ Usage
 * Download or clone a copy of this repository.
 
 * Open a *Powershell* and run iExport as follows:
+
 ```sh
 gradle :run --quiet --console=plain --args="[PATH_TO_YAML_FILE] [TASK]"
 ```
+
 where
+
 * `[PATH_TO_YAML_FILE]` is a path to a `.yaml` file containing the settings used by iExport (see [Settings](#settings)).
 
   The path may contain the placeholder `%USERPROFILE%`, which will typically get resolved as `C:\Users\<YourWindowsUserName>`.
@@ -102,55 +107,53 @@ iExport supports the following advanced tasks:
 
 * **generatePlaylists**
 
-    This task will export the playlists in iTunes in the form of `.m3u` files.
-    For each playlist, it will create such a file in a designated output folder.
+  This task will export the playlists in iTunes in the form of `.m3u` files.
+  For each playlist, it will create such a file in a designated output folder.
 
-    These files are then available to other music players (e.g. *VLC*, *Poweramp*).
+  These files are then available to other music players (e.g. *VLC*, *Poweramp*).
 
-    This task is highly configurable via the [Settings](#settings).
-    For example, the playlists files can be configured to use relative paths for the track locations, and the user can specify playlists that should be ignored.
+  This task is highly configurable via the [Settings](#settings).
+  For example, the playlists files can be configured to use relative paths for the track locations, and the user can specify playlists that should be ignored.
 
 * **exportFiles**
 
-    This task will export the playlists in iTunes in the form of folders.
-    Each such folder will contain file copies of the tracks that are in the iTunes playlist.
+  This task will export the playlists in iTunes in the form of folders.
+  Each such folder will contain file copies of the tracks that are in the iTunes playlist.
 
-    These folders can then be moved e.g. to a phone, flash drive, or SD card.
+  These folders can then be moved e.g. to a phone, flash drive, or SD card.
 
-    This task is highly configurable via the [Settings](#settings).
-    For example, the folders and tracks can be numbered, the names can be normalized to only use ASCII characters, and the user can specify playlists that should be ignored.
-
+  This task is highly configurable via the [Settings](#settings).
+  For example, the folders and tracks can be numbered, the names can be normalized to only use ASCII characters, and the user can specify playlists that should be ignored.
 
 Additionally, iExport supports the following basic tasks:
 
 * **interactive**
 
-    Ask the user to specify a task on `STDIN`.
+  Ask the user to specify a task on `STDIN`.
 
 * **help**
 
-    Show usage instructions.
+  Show usage instructions.
 
 * **printLibrary**
 
-    Prints the whole library.
+  Prints the whole library.
 
 * **printPlaylists**
 
-    Prints playlists (folders as well as actual playlists)
+  Prints playlists (folders as well as actual playlists)
 
 * **printUnlistedTracks**
 
-    Prints tracks that are not contained in any playlist.
+  Prints tracks that are not contained in any playlist.
 
 * **printMultiplyListedTracks**
 
-    Prints tracks that are contained in multiple playlists.
+  Prints tracks that are contained in multiple playlists.
 
 * **quit**
 
-    Exit iExport.
-
+  Exit iExport.
 
 Settings
 --------
@@ -249,7 +252,6 @@ tasks:
 [defaultSettings.yaml](defaultSettings.yaml)
 
 This file provides extensive documentation for all settings.
-
 
 ```yaml
 ---
@@ -661,6 +663,7 @@ Unfortunately, iTunes does not seem to export the order of tracks within each pl
 This means that the order of tracks that you have selected in iTunes is not available to iExport.
 
 Instead, iExport sorts all tracks within a playlist using the following criteria:
+
 * Prioritize tracks by their album artist (using the "sort as" field if available) or Artist (using the "sort as" field if available)
 * Prioritize tracks with the same (album) artist by release year (earlier years first).
 * Prioritize tracks with the same release year by album (using the "sort as" field if available)
@@ -670,6 +673,17 @@ Instead, iExport sorts all tracks within a playlist using the following criteria
 
 At this point in time, this sorting mechanism is not user-configurable; it is hardcoded in
 [TrackComparator.java](src/main/java/iexport/parsing/sorting/TrackComparator.java).
+
+JavaDoc
+-------
+
+You can generate JavaDoc documentation by running.
+
+```sh
+gradle :javadoc
+```
+
+The documentation will typically be generated in the folder `build/docs/javadoc`.
 
 Dependencies
 ------------

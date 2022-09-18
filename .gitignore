@@ -20,3 +20,7 @@ gradlew.bat
 
 # .xml files (iTunes Library)
 /*.xml
+
+# other stuff that may accidentally end up here
+/*.log
+/*.txt

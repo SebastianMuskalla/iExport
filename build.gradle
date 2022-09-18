@@ -17,6 +17,11 @@ java {
     }
 }
 
+
+javadoc {
+    source = sourceSets.main.allJava
+}
+
 run {
     // make sure that STDIN works
     standardInput = System.in

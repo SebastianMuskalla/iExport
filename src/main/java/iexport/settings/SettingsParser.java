@@ -33,8 +33,7 @@ import java.util.Map;
  *     <li> {@link GeneralSettings}, the generating settings for iExport,
  *     <li> {@link ParsingSettings}, the settings for parsing the library,
  *     <li> for each task the corresponding {@link RawTaskSettings}.
- * </ol>
- * <p>
+ * </ul>
  * This class relies on {@link org.snakeyaml.engine.v2.api.Load} and the other classes from {@link org.snakeyaml.engine.v2}
  * in order to parse the .yaml file into Java objects.
  */
