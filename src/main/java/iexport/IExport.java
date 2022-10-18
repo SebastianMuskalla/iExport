@@ -296,15 +296,8 @@ public class IExport
     {
         Logging.getLogger().message("Interactive mode.");
 
-        int iterations = 0;
-        // if the task name matches "interactive", we should query the user for a new task name
-        do
+        for (int iterations = 1; iterations < 6; iterations++)
         {
-            iterations++;
-            if (iterations > 5)
-            {
-                baka();
-            }
             if (iterations > 1)
             {
                 Logging.getLogger().message("Try again.");
@@ -318,7 +311,7 @@ public class IExport
             Scanner scanner = new Scanner(System.in);
             String taskName = scanner.next();
 
-            // If the may specify "interactive" again
+            // The user may specify "interactive" again
             if (INTERACTIVE_MODE_NAMES.stream().anyMatch(taskName::equalsIgnoreCase))
             {
                 continue;
@@ -340,7 +333,9 @@ public class IExport
 
             return task;
         }
-        while (true);
+
+        baka();
+        return null; // Unreachable
     }
 
 

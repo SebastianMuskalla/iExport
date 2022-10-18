@@ -42,7 +42,7 @@ public class ProgressPrinter
     /**
      * A version of {@link System#out} that uses UTF8.
      */
-    private static final PrintStream OUT = new PrintStream(System.out, true, UTF_8); // autoflush = true
+    private static final PrintStream OUT = new PrintStream(System.out, true, UTF_8);
 
     /**
      * How many segments should the progress bar consist of?
